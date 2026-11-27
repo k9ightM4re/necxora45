@@ -1,20 +1,20 @@
 @import "tailwindcss";
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 @layer base {
   :root {
-    --bg-primary: #111318;
-    --bg-secondary: #191C24;
-    --bg-sidebar: #15171E;
-    --accent: #7667F7;
-    --accent-hover: #6555f5;
-    --success: #35C98B;
-    --text-primary: #F4F5FA;
-    --text-secondary: #9B9EAC;
-    --border-dark: #262A36;
-  }
-
-  body {
-    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --bg-primary: #101318;
+    --bg-secondary: #171C23;
+    --bg-panel: #1D232C;
+    --bg-elevated: #242B35;
+    --accent: #4777DF;
+    --accent-hover: #3868CE;
+    --amber-accent: #C49A52;
+    --success: #34D399;
+    --text-primary: #F2F4F7;
+    --text-secondary: #A8B0BB;
+    --text-muted: #77818F;
+    --border-dark: rgba(255, 255, 255, 0.09);
   }
 }
 

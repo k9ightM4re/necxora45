@@ -1,6 +1,7 @@
 import { updateProfile } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, handleFirestoreError, OperationType } from './firebase.js';
+import { sanitizeSafeUrl } from './social_utils.js';
 
 export function sanitizeHandle(raw, seed = '') {
   const cleaned = String(raw || '')
@@ -171,10 +172,10 @@ export async function updateUserProfile(uid, updates) {
       updatedAt: serverTimestamp(),
     };
     if (typeof updates.avatar === 'string') {
-      payload.avatar = updates.avatar.slice(0, 200000);
+      payload.avatar = sanitizeSafeUrl(updates.avatar).slice(0, 200000);
     }
     if (typeof updates.coverPhoto === 'string') {
-      payload.coverPhoto = updates.coverPhoto.slice(0, 300000);
+      payload.coverPhoto = sanitizeSafeUrl(updates.coverPhoto).slice(0, 300000);
     }
 
     await updateDoc(doc(db, 'users', uid), payload);
@@ -219,8 +220,11 @@ export function getCartoonAvatarSvg(userId, displayName, size = 40) {
 }
 
 export function renderUserAvatarHtml(userObj, size = 36) {
-  if (userObj?.avatar) {
-    return `<img src="${String(userObj.avatar)}" alt="" style="width:${size}px;height:${size}px;border-radius:50%;object-fit:cover;flex-shrink:0;" />`;
+  const safeAvatar = sanitizeSafeUrl(userObj?.avatar || '');
+  if (safeAvatar) {
+    const escaped = safeAvatar.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeSize = Math.max(16, Math.min(240, Number(size) || 36));
+    return `<img src="${escaped}" alt="" style="width:${safeSize}px;height:${safeSize}px;border-radius:50%;object-fit:cover;flex-shrink:0;" />`;
   }
   return getCartoonAvatarSvg(userObj?.id || userObj?.userId || 'nx', userObj?.displayName || 'Member', size);
 }

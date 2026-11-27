@@ -4,103 +4,65 @@ import { initThemeSync } from './theme.js';
 
 installGlobalErrorShield();
 
-let liveSceneMounted = false;
-async function ensureLiveSceneMounted() {
-  if (liveSceneMounted) return;
-  liveSceneMounted = true;
-  const target = document.getElementById('live-team-scene-root');
-  if (!target) return;
-  try {
-    const mod = await import('/src/live_scene/mountLiveScene.tsx');
-    mod.mountLiveTeamScene(target);
-  } catch (err) {
-    console.warn('Could not mount Live Team Scene:', err);
-  }
-}
-
-function focusProductPreview(presetPrompt = '') {
-  const section = document.getElementById('product-preview');
-  if (section) {
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    section.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
-  }
-  void ensureLiveSceneMounted().then(() => {
-    window.dispatchEvent(
-      new CustomEvent('nexora:focus-live-scene', {
-        detail: presetPrompt ? { presetPrompt } : {},
-      })
-    );
-  });
-}
-
 const DISCOVER_DATA = {
   people: [
     {
       initials: 'AR',
-      isAgent: false,
       name: 'Aria Rao',
-      badge: 'Human',
-      sub: '@aria.systems · Distributed Interfaces & Design Systems',
+      badge: 'Verified Creator',
+      sub: '@aria.systems · Design Systems & Product Architecture',
     },
     {
       initials: 'DK',
-      isAgent: false,
       name: 'Devon Kim',
-      badge: 'Human',
-      sub: '@devon_ux · Collaborative Canvas & Typography',
+      badge: 'Verified Member',
+      sub: '@devon_ux · Visual Storytelling & Typography',
     },
     {
       initials: 'SN',
-      isAgent: false,
       name: 'Sana Nair',
-      badge: 'Human',
-      sub: '@sana_build · Real-time WebRTC & Community Tooling',
+      badge: 'Community Host',
+      sub: '@sana_build · Real-Time Voice Rooms & Local Meetups',
     },
   ],
   communities: [
     {
       initials: 'PG',
-      isAgent: false,
       name: 'Product Guild',
       badge: 'Public Community',
-      sub: 'Design critiques, architectural releases & live office hours',
+      sub: 'Design critiques, architectural releases & weekly office hours',
     },
     {
-      initials: 'AI',
-      isAgent: false,
-      name: 'Applied Intelligence Lab',
-      badge: 'Invite + Public',
-      sub: 'Human-gated multi-agent workflows & evaluation rubrics',
+      initials: 'LB',
+      name: 'Local Builders Circle',
+      badge: 'Nearby · 4.2 km',
+      sub: 'Regional founder coffee chats, workshops & peer mentorship',
     },
     {
       initials: 'CR',
-      isAgent: false,
       name: 'Creators & Media',
       badge: 'Public Community',
-      sub: 'Template authoring, visual stories & collaborative editing',
+      sub: 'Short-form reels, visual stories & collaborative editing',
     },
   ],
-  agents: [
+  local: [
     {
-      initials: 'AT',
-      isAgent: true,
-      name: 'Atlas',
-      badge: 'AI Agent · Planner',
-      sub: 'Structures goals into milestones and clear owner handoffs',
+      initials: 'DC',
+      name: 'Design Craft Meetup',
+      badge: 'This Friday · 6:30 PM',
+      sub: 'Downtown Studio · Open Q&A and portfolio reviews',
     },
     {
-      initials: 'NV',
-      isAgent: true,
-      name: 'Nova',
-      badge: 'AI Agent · Builder',
-      sub: 'Drafts specifications, patches, and verifiable files inside threads',
+      initials: 'AV',
+      name: 'Audio & Video Creators Jam',
+      badge: 'Saturday · 2:00 PM',
+      sub: 'Media Commons · Live reel editing & soundtrack session',
     },
     {
-      initials: 'IR',
-      isAgent: true,
-      name: 'Iris',
-      badge: 'AI Agent · Reviewer',
-      sub: 'Runs accessibility contrast checks and raises human Approval gates',
+      initials: 'OS',
+      name: 'Open Source Hangout',
+      badge: 'Weekly · Virtual + Local',
+      sub: 'WebRTC & distributed systems engineering circle',
     },
   ],
 };
@@ -117,11 +79,11 @@ function initDiscoverTabs() {
         (item) => `
         <div class="discover-row">
           <div class="discover-row-main">
-            <div class="${item.isAgent ? 'identity-avatar-agent sm' : 'identity-avatar-human sm'}">${item.initials}</div>
+            <div class="identity-avatar-human sm">${item.initials}</div>
             <div>
               <div class="identity-title-line">
                 <strong>${item.name}</strong>
-                <span class="nx-identity-badge ${item.isAgent ? 'nx-identity-badge--agent' : 'nx-identity-badge--human'}">${item.badge}</span>
+                <span class="nx-identity-badge nx-identity-badge--human">${item.badge}</span>
               </div>
               <span class="identity-sub">${item.sub}</span>
             </div>
@@ -153,11 +115,11 @@ const FOOTER_INFO = {
   },
   privacy: {
     title: 'Privacy & Data Stewardship',
-    body: `<p>Nexora separates human accounts, scoped AI agent memory, and optional Social Circle integrations under explicit user consent.</p><p>You can export records, adjust retention windows, or disconnect any integration from workspace Settings at any time.</p>`,
+    body: `<p>Nexora protects user identity, private contact metadata, and optional Social Circle integrations under explicit user consent.</p><p>You can control who can message you, manage Close Friends or blocked accounts, and export or delete your data from Settings at any time.</p>`,
   },
   terms: {
     title: 'Community & Platform Guidelines',
-    body: `<p>AI agents on Nexora must retain clear identity labels and operate under explicit human stewardship.</p><p>Human-gated approvals ensure autonomous drafts never publish externally without review.</p>`,
+    body: `<p>Nexora is a human-only social network designed for authentic connection, direct messaging, and real-time communities.</p><p>Impersonation, automated spam, and harassment are strictly moderated.</p>`,
   },
 };
 
@@ -198,7 +160,6 @@ function initLandingPage() {
   initDiscoverTabs();
   initFooterInfoModal();
 
-  // Mobile navigation drawer
   const mobileBtn = document.getElementById('mobile-menu-toggle');
   const mobileClose = document.getElementById('mobile-menu-close');
   const mobileDrawer = document.getElementById('mobile-drawer');
@@ -221,29 +182,14 @@ function initLandingPage() {
     });
   }
 
-  // Hero Explore Nexora CTA -> focuses interactive product preview
-  document.getElementById('hero-explore-btn')?.addEventListener('click', () => focusProductPreview());
-
-  // Lazy-load Live Team Scene when approaching #product-preview
-  const sceneSection = document.getElementById('product-preview');
-  if (sceneSection) {
-    if (window.location.hash === '#product-preview' || window.location.hash === '#live-scene' || !('IntersectionObserver' in window)) {
-      void ensureLiveSceneMounted();
-    } else {
-      const io = new IntersectionObserver(
-        (entries) => {
-          if (entries.some((e) => e.isIntersecting)) {
-            io.disconnect();
-            void ensureLiveSceneMounted();
-          }
-        },
-        { rootMargin: '400px 0px' }
-      );
-      io.observe(sceneSection);
+  document.getElementById('hero-explore-btn')?.addEventListener('click', () => {
+    const target = document.getElementById('messaging');
+    if (target) {
+      const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      target.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
     }
-  }
+  });
 
-  // Sticky floating capsule transition + scroll progress bar
   const bar = document.getElementById('nx-scroll-progress');
   const navWrap = document.getElementById('site-header');
   const onScroll = () => {

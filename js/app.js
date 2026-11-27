@@ -27,13 +27,17 @@ import {
   detectScreenShareSupport,
   filterDirectoryUsers,
   formatMembershipStatus,
+  formatMessageDateLabel,
   getConnectionRequestId,
   getConnectionStatusForPeer,
   getDmThreadId,
+  getDmUnreadCount,
+  getMessageDayKey,
   getRoomCallId,
   matchServerByInviteCode,
   resolveOtherParticipant,
   sanitizeInviteCode,
+  shouldGroupMessages,
   summarizeMediaState,
   validateInviteRecord,
 } from './comms.js';
@@ -41,8 +45,15 @@ import { createRtcManager } from './rtc.js';
 import { getChannelIconSvg, svgIcon } from './icons.js';
 import { createSocialModule } from './social.js';
 import { applyTheme, getStoredTheme, initThemeSync } from './theme.js';
-import { initRagAssistant } from './rag_assistant.js';
-import { compressImageFile, formatFileSize, formatRelativeTime, normalizeThemePreference, readMediaFileBounded } from './social_utils.js';
+import {
+  compressImageFile,
+  formatFileSize,
+  formatRelativeTime,
+  normalizeThemePreference,
+  readMediaFileBounded,
+  uploadMediaFileToServer,
+} from './social_utils.js';
+import { createNexoraWsClient } from './ws_client.js';
 import { buildCommunityInviteMessage, extractCommunityInviteCodeFromText } from './reel_studio.js';
 import { createCallTabManager } from './call_tab.js';
 import {
@@ -204,8 +215,15 @@ const state = {
   searchQuery: '',
   userSearchQuery: '',
   dmSearchQuery: '',
-  dmInboxTab: 'primary',
+  dmInboxTab: 'all',
   dmThreadActiveMobile: false,
+  dmMessagesLoadingThreadId: '',
+  dmError: '',
+  isSendingMessage: false,
+  onlineUids: new Set(),
+  wsTypingMap: {},
+  wsConnected: false,
+  threadSearchOpen: false,
   showArchivedDms: false,
   collapsedCategories: {},
   servers: [],
@@ -464,9 +482,23 @@ function syncUnifiedHeaderBadges() {
     `;
   }
 
+  const railAvatarEl = document.getElementById('nx-rail-avatar');
+  if (railAvatarEl) {
+    railAvatarEl.innerHTML = `
+      ${renderUserAvatarHtml(profile, 36)}
+      <span class="nx-online-dot ${escapeHtml(profile.status || 'online')}" id="nx-rail-status-dot"></span>
+    `;
+  }
+
   const pendingReqs = state.connectionRequests.filter(
-    (r) => r.status === 'pending' && r.toUid === profile.id
+    (r) => r.status === 'pending' && r.toUid === profile.id && !state.blockedSet.has(r.fromUid)
   ).length;
+  const unreadDmTotal = state.dms.reduce((acc, dm) => {
+    if (dm.userId && state.blockedSet.has(dm.userId)) return acc;
+    if (Array.isArray(dm.archivedBy) && dm.archivedBy.includes(profile.id)) return acc;
+    return acc + getDmUnreadCount(dm, state.dmMessages[dm.id] || [], profile.id);
+  }, 0);
+  const totalMsgBadge = unreadDmTotal + pendingReqs;
   const unreadNotifs = state.notifications.filter((n) => n.unread).length;
 
   const setBadge = (id, count) => {
@@ -482,9 +514,9 @@ function syncUnifiedHeaderBadges() {
 
   setBadge('nx-top-notif-badge', unreadNotifs);
   setBadge('nx-nav-notif-badge', unreadNotifs);
-  setBadge('nx-top-msg-badge', pendingReqs);
-  setBadge('nx-nav-msg-badge', pendingReqs);
-  setBadge('nx-mob-msg-badge', pendingReqs);
+  setBadge('nx-top-msg-badge', totalMsgBadge);
+  setBadge('nx-nav-msg-badge', totalMsgBadge);
+  setBadge('nx-mob-msg-badge', totalMsgBadge);
 }
 
 function applyPrefsToDom() {
@@ -546,7 +578,7 @@ function getMember(userId) {
       displayName: 'Member',
       username: 'member',
       initials: 'MB',
-      status: 'online',
+      status: 'offline',
       customStatus: '',
       accountPrivacy: 'everyone',
       roleId: 'role-member',
@@ -884,6 +916,7 @@ function subscribeDirectoryUsers() {
       if (state.inspectorTab === 'members') renderInspector();
       if (state.activeView === 'home') renderSidebar();
       if (socialModule) socialModule.render();
+      notifyInboxBridge();
     },
     (err) => {
       handleFirestoreError(err, OperationType.LIST, 'users', { silent: true });
@@ -979,6 +1012,7 @@ function subscribeOwnProfile(uid) {
         renderUserSettingsContent();
       }
       if (socialModule) socialModule.render();
+      notifyInboxBridge();
     },
     (err) => {
       handleFirestoreError(err, OperationType.GET, `users/${uid}`, { silent: true });
@@ -1017,6 +1051,7 @@ function subscribeConnectionRequests(uid) {
         renderMainWorkspace();
       }
       if (state.inspectorTab === 'members') renderInspector();
+      notifyInboxBridge();
     },
     () => {}
   );
@@ -1045,6 +1080,7 @@ function subscribeBlocks(uid) {
       if (document.getElementById('settings-modal')?.classList.contains('open')) {
         renderUserSettingsContent();
       }
+      notifyInboxBridge();
     },
     () => {}
   );
@@ -1134,6 +1170,7 @@ function subscribeDmThreads(uid) {
   unsubDmThreads = onSnapshot(
     q,
     (snap) => {
+      state.dmError = '';
       const threads = [];
       snap.forEach((docSnap) => {
         const d = docSnap.data();
@@ -1149,9 +1186,10 @@ function subscribeDmThreads(uid) {
           typing: d.typing && typeof d.typing === 'object' ? d.typing : {},
           createdBy: d.createdBy || '',
           userId: isGroup ? '' : other.id,
+          username: isGroup ? '' : other.username,
           name: isGroup ? (d.groupName || 'Group Chat') : other.displayName,
           initials: isGroup ? getInitials(d.groupName || 'GC') : other.initials,
-          status: isGroup ? 'online' : other.status,
+          status: isGroup ? 'group' : (other.status || 'offline'),
           lastMessage: d.lastMessage || '',
           lastSenderId: d.lastSenderId || '',
           seenBy: Array.isArray(d.seenBy) ? d.seenBy : [],
@@ -1171,14 +1209,22 @@ function subscribeDmThreads(uid) {
         subscribeDmMessages(state.activeDmId);
       }
 
+      syncUnifiedHeaderBadges();
       if (state.activeView === 'home') {
         renderSidebar();
         renderMainWorkspace();
         renderDmTypingIndicator();
       }
+      notifyInboxBridge();
     },
     (err) => {
       console.warn('DM threads subscription warning:', err?.message);
+      state.dmError = 'Unable to sync conversations right now.';
+      if (state.activeView === 'home') {
+        renderSidebar();
+        renderMainWorkspace();
+      }
+      notifyInboxBridge();
     }
   );
 }
@@ -1188,7 +1234,14 @@ function subscribeDmMessages(threadId) {
     unsubDmMessages();
     unsubDmMessages = null;
   }
-  if (!threadId || !currentFirebaseUser) return;
+  if (!threadId || !currentFirebaseUser) {
+    state.dmMessagesLoadingThreadId = '';
+    notifyInboxBridge();
+    return;
+  }
+
+  state.dmMessagesLoadingThreadId = threadId;
+  state.dmError = '';
 
   const q = query(
     collection(db, 'dm_threads', threadId, 'messages'),
@@ -1198,6 +1251,10 @@ function subscribeDmMessages(threadId) {
   unsubDmMessages = onSnapshot(
     q,
     (snapshot) => {
+      if (state.dmMessagesLoadingThreadId === threadId) {
+        state.dmMessagesLoadingThreadId = '';
+      }
+      state.dmError = '';
       const rawMsgs = [];
       snapshot.forEach((docSnap) => {
         const d = docSnap.data();
@@ -1221,7 +1278,7 @@ function subscribeDmMessages(threadId) {
 
         // Mark incoming DM messages seen when viewing Messages
         if (
-          socialModule?.getSection?.() === 'messages' &&
+          (socialModule?.getSection?.() === 'messages' || state.activeView === 'home') &&
           state.activeDmId === threadId &&
           d.senderId &&
           d.senderId !== currentFirebaseUser.uid &&
@@ -1244,13 +1301,26 @@ function subscribeDmMessages(threadId) {
         }
       }
       state.dmMessages[threadId] = rawMsgs;
-      if (state.activeView === 'home' && state.activeDmId === threadId) {
-        renderMainWorkspace();
-        if (state.inspectorTab === 'thread') renderInspector();
+      syncUnifiedHeaderBadges();
+      if (state.activeView === 'home') {
+        renderDmSidebarList();
+        if (state.activeDmId === threadId) {
+          renderMainWorkspace();
+          if (state.inspectorTab === 'thread') renderInspector();
+        }
       }
+      notifyInboxBridge();
     },
     (err) => {
+      if (state.dmMessagesLoadingThreadId === threadId) {
+        state.dmMessagesLoadingThreadId = '';
+      }
+      state.dmError = 'Could not load messages for this conversation.';
       console.warn('DM messages subscription warning:', err?.message);
+      if (state.activeView === 'home' && state.activeDmId === threadId) {
+        renderMainWorkspace();
+      }
+      notifyInboxBridge();
     }
   );
 }
@@ -1730,8 +1800,16 @@ function cleanupAllListeners() {
   state.reports = [];
   state.directoryUsers = [];
   state.notifications = [];
+  state.onlineUids = new Set();
+  state.wsTypingMap = {};
+  state.wsConnected = false;
+  if (nexoraWsClient) {
+    nexoraWsClient.disconnect();
+    nexoraWsClient = null;
+  }
   if (callTab) callTab.destroy();
   if (socialModule) socialModule.cleanup();
+  notifyInboxBridge();
 }
 
 function ensureSocialModule() {
@@ -1758,6 +1836,7 @@ function ensureSocialModule() {
         if (legacyEl) legacyEl.setAttribute('data-workspace-mode', 'messages');
         if (opts.dmId) {
           state.activeDmId = opts.dmId;
+          state.pendingPeerId = '';
           state.dmThreadActiveMobile = true;
           subscribeDmMessages(opts.dmId);
         } else {
@@ -1783,9 +1862,7 @@ function ensureSocialModule() {
       }
       saveUiNav();
       renderAll();
-      if (section === 'messages' && window.innerWidth > 900) {
-        setTimeout(() => document.getElementById('message-input')?.focus(), 50);
-      }
+      notifyInboxBridge();
     },
     openDirectMessageWithUser,
     startDmCallWithUser,
@@ -1850,6 +1927,7 @@ async function initWorkspaceForUser(fbUser, loadedProfile) {
   subscribeUserNotifications(fbUser.uid);
   rtc.initGlobalCallListener(fbUser.uid);
   ensureCallTab().bindEvents();
+  connectNexoraWs(fbUser);
 
   const social = ensureSocialModule();
   social.subscribeAll(fbUser);
@@ -1988,15 +2066,17 @@ function renderDmTypingIndicator() {
     return;
   }
   const activeDm = state.dms.find((d) => d.id === state.activeDmId);
-  if (!activeDm || !activeDm.typing) {
-    el.hidden = true;
-    el.textContent = '';
-    return;
-  }
   const now = Date.now();
-  const activeTypers = Object.entries(activeDm.typing)
-    .filter(([uid, ts]) => uid !== profile.id && now - Number(ts || 0) < 5500)
-    .map(([uid]) => getMember(uid).displayName);
+  const fsTypers = activeDm?.typing
+    ? Object.entries(activeDm.typing)
+        .filter(([uid, ts]) => uid !== profile.id && now - Number(ts || 0) < 5500)
+        .map(([uid]) => uid)
+    : [];
+  const wsTypersMap = state.wsTypingMap[state.activeDmId] || {};
+  const wsTypers = Object.entries(wsTypersMap)
+    .filter(([uid, exp]) => uid !== profile.id && Number(exp || 0) > now)
+    .map(([uid]) => uid);
+  const activeTypers = Array.from(new Set([...fsTypers, ...wsTypers])).map((uid) => getMember(uid).displayName);
   if (activeTypers.length === 0) {
     el.hidden = true;
     el.textContent = '';
@@ -2026,6 +2106,11 @@ function renderDmSidebarList() {
   const listEl = document.getElementById('dm-sidebar-list');
   if (!listEl) return;
 
+  const dmClearBtn = document.getElementById('dm-search-clear-btn');
+  if (dmClearBtn) {
+    dmClearBtn.hidden = !state.dmSearchQuery.trim();
+  }
+
   const q = state.dmSearchQuery.trim().toLowerCase();
   const isArchived = (dm) => Array.isArray(dm.archivedBy) && dm.archivedBy.includes(profile.id);
   const archivedCount = state.dms.filter((dm) => {
@@ -2033,9 +2118,20 @@ function renderDmSidebarList() {
     return isArchived(dm);
   }).length;
 
-  const visibleDms = state.dms.filter((dm) => {
+  const unarchivedDms = state.dms.filter((dm) => {
     if (dm.userId && state.blockedSet.has(dm.userId)) return false;
-    if (!state.showArchivedDms && isArchived(dm)) return false;
+    return state.showArchivedDms || !isArchived(dm);
+  });
+
+  const unreadCountMap = new Map();
+  let totalUnreadThreads = 0;
+  for (const dm of unarchivedDms) {
+    const cnt = getDmUnreadCount(dm, state.dmMessages[dm.id] || [], profile.id);
+    unreadCountMap.set(dm.id, cnt);
+    if (cnt > 0) totalUnreadThreads += 1;
+  }
+
+  const visibleDms = unarchivedDms.filter((dm) => {
     if (!q) return true;
     const peer = dm.userId ? getMember(dm.userId) : null;
     return (
@@ -2045,9 +2141,6 @@ function renderDmSidebarList() {
       String(peer?.username || '').toLowerCase().includes(q)
     );
   });
-
-  const groupChats = visibleDms.filter((d) => d.type === 'group');
-  const directChats = visibleDms.filter((d) => d.type !== 'group');
 
   const incomingPending = state.connectionRequests.filter(
     (r) => r.status === 'pending' && r.toUid === profile.id && !state.blockedSet.has(r.fromUid)
@@ -2070,20 +2163,21 @@ function renderDmSidebarList() {
     const cachedMsgs = state.dmMessages[dm.id] || [];
     const latestMsg = cachedMsgs.length > 0 ? cachedMsgs[cachedMsgs.length - 1] : null;
     const peer = dm.userId ? getMember(dm.userId) : null;
-    const isUnread = latestMsg
-      ? latestMsg.authorId !== profile.id && !(Array.isArray(latestMsg.seenBy) && latestMsg.seenBy.includes(profile.id))
-      : Boolean(dm.lastSenderId && dm.lastSenderId !== profile.id && !(dm.seenBy || []).includes(profile.id));
+    const unreadCount = unreadCountMap.get(dm.id) || 0;
+    const isUnread = unreadCount > 0;
+    const isOnline = dm.type !== 'group' && (state.onlineUids.has(dm.userId) || (peer?.status || dm.status) === 'online');
 
     let previewText = '';
     if (latestMsg) {
       const prefix = latestMsg.authorId === profile.id ? 'You: ' : '';
       previewText = `${prefix}${latestMsg.content || (latestMsg.attachment ? `Sent ${latestMsg.attachment.name || 'an attachment'}` : 'Message')}`;
     } else if (dm.lastMessage) {
-      previewText = dm.lastMessage;
+      const prefix = dm.lastSenderId === profile.id ? 'You: ' : '';
+      previewText = `${prefix}${dm.lastMessage}`;
     } else if (dm.type === 'group') {
       previewText = `${(dm.participants || []).length} members`;
     } else {
-      previewText = peer?.username ? `@${peer.username}` : 'Tap to chat';
+      previewText = peer?.username ? `@${peer.username}` : 'Tap to message';
     }
 
     const timeLabel = latestMsg?.timestamp
@@ -2095,7 +2189,9 @@ function renderDmSidebarList() {
     const avatarHtml =
       dm.type === 'group'
         ? `<span class="nx-dm-group-avatar" aria-hidden="true">${svgIcon('users', 17)}</span>`
-        : `<span class="nx-dm-avatar-wrap">${renderUserAvatarHtml(peer || { displayName: dm.name, initials: dm.initials }, 42)}<span class="nx-online-dot ${escapeHtml(peer?.status || dm.status || 'online')}"></span></span>`;
+        : `<span class="nx-dm-avatar-wrap">${renderUserAvatarHtml(peer || { displayName: dm.name, initials: dm.initials }, 40)}${isOnline ? '<span class="nx-online-dot online" aria-label="Online"></span>' : ''}</span>`;
+
+    const handleOrRole = dm.type === 'group' ? `${(dm.participants || []).length}` : peer?.username ? `@${peer.username}` : '';
 
     return `
       <div class="nx-dm-row-wrap ${active ? 'active' : ''} ${isUnread ? 'is-unread' : ''}">
@@ -2103,12 +2199,17 @@ function renderDmSidebarList() {
           ${avatarHtml}
           <span class="nx-dm-row-body">
             <span class="nx-dm-row-top">
-              <span class="nx-dm-row-name">${escapeHtml(dm.name)}</span>
+              <span class="nx-dm-row-name-wrap">
+                <span class="nx-dm-row-name">${escapeHtml(dm.name)}</span>
+                ${handleOrRole && dm.type === 'dm' ? `<span class="nx-dm-row-handle">${escapeHtml(handleOrRole)}</span>` : ''}
+              </span>
               ${timeLabel ? `<span class="nx-dm-row-time">${escapeHtml(timeLabel)}</span>` : ''}
             </span>
-            <span class="nx-dm-row-preview">${escapeHtml(previewText)}</span>
+            <span class="nx-dm-row-bottom">
+              <span class="nx-dm-row-preview">${escapeHtml(previewText)}</span>
+              ${unreadCount > 0 ? `<span class="nx-dm-unread-count" aria-label="${unreadCount} unread">${unreadCount > 99 ? '99+' : unreadCount}</span>` : ''}
+            </span>
           </span>
-          ${isUnread ? '<span class="nx-dm-unread-dot" aria-label="Unread message"></span>' : ''}
         </button>
         <button type="button" class="icon-btn nx-dm-archive-btn" data-action="toggle-archive-dm" data-dm-id="${escapeHtml(dm.id)}" title="${archived ? 'Unarchive conversation' : 'Archive conversation'}" aria-label="${archived ? 'Unarchive conversation' : 'Archive conversation'}">
           ${svgIcon(archived ? 'bookmarkFilled' : 'bookmark', 12)}
@@ -2117,7 +2218,12 @@ function renderDmSidebarList() {
     `;
   };
 
-  const activeTab = ['primary', 'groups', 'requests'].includes(state.dmInboxTab) ? state.dmInboxTab : 'primary';
+  let activeTab = 'all';
+  if (state.dmInboxTab === 'unread') activeTab = 'unread';
+  else if (state.dmInboxTab === 'requests') activeTab = 'requests';
+  else if (state.dmInboxTab === 'groups') activeTab = 'groups';
+
+  const unreadDms = visibleDms.filter((d) => (unreadCountMap.get(d.id) || 0) > 0);
   const reqCount = incomingPending.length + outgoingPending.length;
 
   const renderRequestsSection = () => `
@@ -2176,13 +2282,13 @@ function renderDmSidebarList() {
     }
   `;
 
-  const renderPeopleDiscovery = (limit = 10) =>
+  const renderPeopleDiscovery = (maxUsers = 10) =>
     matchedUsers.length > 0
       ? `<div class="nx-dm-section">
           <div class="nx-dm-section-label">People on NEXORA (${matchedUsers.length})</div>
           <div class="nx-dm-list-stack">
             ${matchedUsers
-              .slice(0, limit)
+              .slice(0, maxUsers)
               .map(
                 (u) => `
                 <button type="button" class="nx-dm-row" data-action="start-dm" data-user-id="${escapeHtml(u.id)}">
@@ -2202,26 +2308,55 @@ function renderDmSidebarList() {
         </div>`
       : '';
 
+  const errorBannerHtml = state.dmError
+    ? `<div class="nx-dm-error-banner" role="alert">
+        <span>${escapeHtml(state.dmError)}</span>
+        <button type="button" class="btn btn-secondary" style="height:26px;font-size:0.74rem;padding:0 9px;" data-action="retry-dm-sync">Retry</button>
+      </div>`
+    : '';
+
   let bodyHtml = '';
   if (q) {
     bodyHtml = `
       ${
-        directChats.length > 0 || groupChats.length > 0
+        visibleDms.length > 0
           ? `<div class="nx-dm-section">
-              <div class="nx-dm-section-label">Conversations (${directChats.length + groupChats.length})</div>
-              <div class="nx-dm-list-stack">${[...directChats, ...groupChats].map(renderDmRow).join('')}</div>
+              <div class="nx-dm-section-label">Conversations (${visibleDms.length})</div>
+              <div class="nx-dm-list-stack">${visibleDms.map(renderDmRow).join('')}</div>
             </div>`
           : ''
       }
       ${renderRequestsSection()}
       ${renderPeopleDiscovery(14)}
       ${
-        directChats.length === 0 && groupChats.length === 0 && matchedUsers.length === 0 && reqCount === 0
-          ? '<p class="nx-dm-empty-hint">No matching conversations or people found.</p>'
+        visibleDms.length === 0 && matchedUsers.length === 0 && reqCount === 0
+          ? `<div class="nx-dm-empty-state">
+              <p class="nx-dm-empty-hint">No matching conversations or people found for "${escapeHtml(state.dmSearchQuery.trim())}".</p>
+              <button type="button" class="btn btn-secondary" style="height:30px;font-size:0.78rem;" data-action="clear-dm-search">Clear Search</button>
+            </div>`
           : ''
       }
     `;
+  } else if (activeTab === 'unread') {
+    bodyHtml = `
+      <div class="nx-dm-section">
+        <div class="nx-dm-section-label">Unread Conversations (${unreadDms.length})</div>
+        <div class="nx-dm-list-stack">
+          ${
+            unreadDms.map(renderDmRow).join('') ||
+            '<p class="nx-dm-empty-hint">You are all caught up. No unread messages right now.</p>'
+          }
+        </div>
+      </div>
+    `;
+  } else if (activeTab === 'requests') {
+    bodyHtml = `
+      ${renderRequestsSection()}
+      ${renderPeopleDiscovery(12)}
+      ${reqCount === 0 && matchedUsers.length === 0 ? '<p class="nx-dm-empty-hint">No message requests right now.</p>' : ''}
+    `;
   } else if (activeTab === 'groups') {
+    const groupChats = visibleDms.filter((d) => d.type === 'group');
     bodyHtml = `
       <div class="nx-dm-section">
         <div class="nx-dm-section-head">
@@ -2233,32 +2368,30 @@ function renderDmSidebarList() {
         </div>
       </div>
     `;
-  } else if (activeTab === 'requests') {
-    bodyHtml = `
-      ${renderRequestsSection()}
-      ${renderPeopleDiscovery(12)}
-      ${reqCount === 0 && matchedUsers.length === 0 ? '<p class="nx-dm-empty-hint">No message requests right now.</p>' : ''}
-    `;
   } else {
     bodyHtml = `
       ${incomingPending.length > 0 ? renderRequestsSection() : ''}
       <div class="nx-dm-section">
+        <div class="nx-dm-section-head">
+          <span class="nx-dm-section-label">Conversations (${visibleDms.length})</span>
+          <button type="button" class="nx-dm-inline-cta" data-action="open-create-group-chat">${svgIcon('plus', 12)} New</button>
+        </div>
         <div class="nx-dm-list-stack">
-          ${directChats.map(renderDmRow).join('') || '<p class="nx-dm-empty-hint">No direct messages yet. Search a handle or check Requests to connect.</p>'}
+          ${visibleDms.map(renderDmRow).join('') || '<p class="nx-dm-empty-hint">No conversations yet. Search a handle or check Requests to connect.</p>'}
         </div>
       </div>
-      ${directChats.length < 3 ? renderPeopleDiscovery(6) : ''}
+      ${visibleDms.length < 3 ? renderPeopleDiscovery(6) : ''}
     `;
   }
 
   listEl.innerHTML = `
     <div class="nx-dm-tabs" role="tablist" aria-label="Message inbox filters">
-      <button type="button" role="tab" aria-selected="${activeTab === 'primary'}" class="nx-dm-tab-btn ${activeTab === 'primary' ? 'active' : ''}" data-action="set-dm-tab" data-dm-tab="primary">
-        <span>Primary</span>
+      <button type="button" role="tab" aria-selected="${activeTab === 'all'}" class="nx-dm-tab-btn ${activeTab === 'all' ? 'active' : ''}" data-action="set-dm-tab" data-dm-tab="all">
+        <span>All</span>
       </button>
-      <button type="button" role="tab" aria-selected="${activeTab === 'groups'}" class="nx-dm-tab-btn ${activeTab === 'groups' ? 'active' : ''}" data-action="set-dm-tab" data-dm-tab="groups">
-        <span>Groups</span>
-        ${groupChats.length > 0 ? `<span class="nx-dm-tab-count">${groupChats.length}</span>` : ''}
+      <button type="button" role="tab" aria-selected="${activeTab === 'unread'}" class="nx-dm-tab-btn ${activeTab === 'unread' ? 'active' : ''}" data-action="set-dm-tab" data-dm-tab="unread">
+        <span>Unread</span>
+        ${totalUnreadThreads > 0 ? `<span class="nx-dm-tab-count is-alert">${totalUnreadThreads}</span>` : ''}
       </button>
       <button type="button" role="tab" aria-selected="${activeTab === 'requests'}" class="nx-dm-tab-btn ${activeTab === 'requests' ? 'active' : ''}" data-action="set-dm-tab" data-dm-tab="requests">
         <span>Requests</span>
@@ -2276,6 +2409,8 @@ function renderDmSidebarList() {
           </div>`
         : ''
     }
+
+    ${errorBannerHtml}
 
     <div class="nx-dm-scroll-content">
       ${bodyHtml}
@@ -2300,19 +2435,38 @@ function renderSidebar() {
       scrollEl.innerHTML = `
         <div class="nx-dm-sidebar-top">
           <div class="nx-dm-sidebar-title-row">
-            <span class="nx-dm-sidebar-heading">Messages</span>
-            <button type="button" class="icon-btn nx-dm-compose-btn" data-action="open-create-group-chat" title="New Group Chat" aria-label="New Group Chat">
-              ${svgIcon('edit', 15)}
+            <h2 class="nx-dm-sidebar-heading">Messages</h2>
+            <div class="nx-dm-header-actions">
+              <button type="button" class="icon-btn nx-dm-compose-btn" data-action="open-create-group-chat" title="New message or group" aria-label="New message or group">
+                ${svgIcon('edit', 15)}
+              </button>
+              <button type="button" class="icon-btn nx-dm-compose-btn" data-action="open-messages-more" title="Message management options" aria-label="Message management options">
+                ${svgIcon('more', 15)}
+              </button>
+            </div>
+          </div>
+          <div class="nx-dm-search-wrap">
+            <span class="nx-dm-search-icon" aria-hidden="true">${svgIcon('search', 14)}</span>
+            <input
+              type="text"
+              class="sidebar-search-input nx-dm-search-input"
+              id="dm-user-search-input"
+              placeholder="Search conversations or @username..."
+              aria-label="Search conversations, names, and usernames"
+              value="${escapeHtml(state.dmSearchQuery)}"
+            />
+            <button
+              type="button"
+              class="nx-dm-search-clear"
+              id="dm-search-clear-btn"
+              data-action="clear-dm-search"
+              aria-label="Clear conversation search"
+              title="Clear search"
+              ${state.dmSearchQuery.trim() ? '' : 'hidden'}
+            >
+              ${svgIcon('close', 13)}
             </button>
           </div>
-          <input
-            type="search"
-            class="sidebar-search-input"
-            id="dm-user-search-input"
-            placeholder="Search messages or @handle..."
-            aria-label="Search NEXORA users and messages"
-            value="${escapeHtml(state.dmSearchQuery)}"
-          />
         </div>
         <div id="dm-sidebar-list"></div>
       `;
@@ -2647,11 +2801,42 @@ function renderEmptyHomeCard(scroll) {
   `;
 }
 
+function syncComposerState() {
+  const input = document.getElementById('message-input');
+  const sendBtn = document.getElementById('send-btn');
+  const attachInput = document.getElementById('msg-attach-input');
+  const voiceBtn = document.getElementById('msg-voice-btn');
+  const hasAcceptedHumanDm =
+    state.activeView === 'home' &&
+    !state.pendingPeerId &&
+    state.dms.some((d) => d.id === state.activeDmId && Array.isArray(d.participants) && d.participants.length >= 2);
+  const hasChannel = state.activeView === 'server' && Boolean(getActiveServer()) && Boolean(state.activeChannelId);
+
+  const canCompose = hasAcceptedHumanDm || hasChannel;
+  const busy = state.isSendingMessage;
+
+  if (input instanceof HTMLTextAreaElement) {
+    input.disabled = !canCompose || busy;
+  }
+  if (sendBtn instanceof HTMLButtonElement) {
+    sendBtn.disabled = !canCompose || busy;
+    sendBtn.textContent = state.isSendingMessage ? 'Sending...' : 'Send';
+    sendBtn.classList.toggle('is-sending', busy);
+  }
+  if (attachInput instanceof HTMLInputElement) {
+    attachInput.disabled = !canCompose || busy;
+  }
+  if (voiceBtn instanceof HTMLButtonElement) {
+    voiceBtn.disabled = !canCompose || busy;
+  }
+}
+
 function renderMainWorkspace() {
   const legacyEl = document.getElementById('nx-legacy-workspace');
   if (legacyEl) {
     legacyEl.setAttribute('data-workspace-mode', state.activeView === 'home' ? 'messages' : 'communities');
-    const hasThreadOpen = state.activeView === 'home' && Boolean(state.dmThreadActiveMobile) && Boolean(state.activeDmId || state.pendingPeerId);
+    const hasThreadOpen =
+      state.activeView === 'home' && Boolean(state.dmThreadActiveMobile) && Boolean(state.activeDmId || state.pendingPeerId);
     legacyEl.classList.toggle('nx-dm-thread-active', hasThreadOpen);
   }
 
@@ -2659,13 +2844,29 @@ function renderMainWorkspace() {
   const headerTopic = document.getElementById('header-topic');
   const headerPeerAvatar = document.getElementById('header-peer-avatar');
   const dmCallActions = document.getElementById('dm-call-actions');
+  const pinsBtn = document.getElementById('pins-btn');
+  const inspectorBtn = document.getElementById('inspector-toggle-btn');
+  const pollTrigger = document.getElementById('create-poll-trigger');
   const composerWrap = document.getElementById('composer-wrap');
   const chatCol = document.getElementById('chat-column');
   const voiceView = document.getElementById('voice-stage-view');
   const discView = document.getElementById('discovery-view');
   const searchInput = document.getElementById('msg-search-input');
+  const searchClearBtn = document.getElementById('msg-search-clear-btn');
+  const searchWrap = document.getElementById('msg-search-wrap');
 
-  if (searchInput) searchInput.value = state.searchQuery;
+  if (searchInput instanceof HTMLInputElement && searchInput.value !== state.searchQuery) {
+    searchInput.value = state.searchQuery;
+  }
+  if (searchClearBtn) {
+    searchClearBtn.hidden = !state.searchQuery.trim();
+  }
+  if (searchWrap) {
+    searchWrap.classList.toggle('is-open', state.threadSearchOpen || Boolean(state.searchQuery.trim()));
+  }
+  if (pollTrigger) {
+    pollTrigger.hidden = state.activeView === 'home';
+  }
 
   const setHeaderAvatar = (html) => {
     if (!headerPeerAvatar) return;
@@ -2681,6 +2882,8 @@ function renderMainWorkspace() {
   if (state.activeView === 'discover') {
     setHeaderAvatar('');
     if (dmCallActions) dmCallActions.hidden = true;
+    if (pinsBtn) pinsBtn.hidden = true;
+    if (inspectorBtn) inspectorBtn.hidden = true;
     if (headerName) headerName.textContent = 'Discover Communities';
     if (headerTopic) headerTopic.textContent = 'Browse public communities and request access or accept an invite.';
     if (chatCol) chatCol.hidden = true;
@@ -2702,12 +2905,15 @@ function renderMainWorkspace() {
       const target = getMember(state.pendingPeerId);
       setHeaderAvatar(renderUserAvatarHtml(target, 34));
       if (dmCallActions) dmCallActions.hidden = true;
+      if (pinsBtn) pinsBtn.hidden = true;
+      if (inspectorBtn) inspectorBtn.hidden = true;
       if (composerWrap) composerWrap.hidden = true;
       if (headerName) headerName.textContent = `Request · ${target.displayName}`;
       if (headerTopic) headerTopic.textContent = 'Connection request approval required before messaging or calling.';
       renderDmCallStage();
       const scroll = document.getElementById('messages-scroll');
       if (scroll) renderPendingPeerGate(scroll, state.pendingPeerId);
+      syncComposerState();
       return;
     }
 
@@ -2719,6 +2925,8 @@ function renderMainWorkspace() {
     if (!dm) {
       setHeaderAvatar('');
       if (dmCallActions) dmCallActions.hidden = true;
+      if (pinsBtn) pinsBtn.hidden = true;
+      if (inspectorBtn) inspectorBtn.hidden = true;
       if (composerWrap) composerWrap.hidden = true;
       if (headerName) headerName.textContent = 'Messages';
       if (headerTopic) headerTopic.textContent = 'Direct chats, group conversations, and chat requests.';
@@ -2726,38 +2934,45 @@ function renderMainWorkspace() {
       renderDmTypingIndicator();
       const scroll = document.getElementById('messages-scroll');
       if (scroll) renderEmptyHomeCard(scroll);
+      syncComposerState();
       return;
     }
 
     const peer = dm.userId ? getMember(dm.userId) : null;
+    const isOnline = dm.type !== 'group' && (state.onlineUids.has(dm.userId) || (peer?.status || dm.status) === 'online');
     if (dm.type === 'group') {
       setHeaderAvatar(`<span class="nx-dm-group-avatar is-header">${svgIcon('users', 16)}</span>`);
     } else {
       setHeaderAvatar(
-        `${renderUserAvatarHtml(peer || { displayName: dm.name, initials: dm.initials }, 34)}<span class="nx-online-dot ${escapeHtml(peer?.status || dm.status || 'online')}"></span>`
+        `${renderUserAvatarHtml(peer || { displayName: dm.name, initials: dm.initials }, 34)}${isOnline ? '<span class="nx-online-dot online" aria-label="Online"></span>' : ''}`
       );
     }
 
     if (composerWrap) composerWrap.hidden = false;
     if (dmCallActions) dmCallActions.hidden = dm.type === 'group';
+    if (pinsBtn) pinsBtn.hidden = false;
+    if (inspectorBtn) inspectorBtn.hidden = false;
     if (headerName) headerName.textContent = dm.name;
     if (headerTopic) {
       if (dm.type === 'group') {
         headerTopic.textContent = `${(dm.participants || []).length} members`;
       } else {
-        const statusText = (peer?.status || dm.status) === 'online' ? 'Active now' : `@${peer?.username || 'member'}`;
-        headerTopic.textContent = statusText;
+        const handle = peer?.username ? `@${peer.username}` : 'Direct message';
+        headerTopic.textContent = isOnline ? `${handle} · Active now` : handle;
       }
     }
     renderDmCallStage();
     renderDmTypingIndicator();
     updateComposerAttachmentBar();
     renderMessages(dm.id, dm.name, dm.topic, state.dmMessages[dm.id] || []);
+    syncComposerState();
     return;
   }
 
   setHeaderAvatar('');
   if (dmCallActions) dmCallActions.hidden = true;
+  if (pinsBtn) pinsBtn.hidden = false;
+  if (inspectorBtn) inspectorBtn.hidden = false;
   renderDmCallStage();
 
   const srv = getActiveServer();
@@ -2770,6 +2985,7 @@ function renderMainWorkspace() {
     if (chatCol) chatCol.hidden = false;
     const scroll = document.getElementById('messages-scroll');
     if (scroll) renderEmptyHomeCard(scroll);
+    syncComposerState();
     return;
   }
 
@@ -2788,6 +3004,7 @@ function renderMainWorkspace() {
     if (chatCol) chatCol.hidden = false;
     renderMessages(channel.id, `#${channel.name}`, channel.topic, state.messages[channel.id] || []);
   }
+  syncComposerState();
 }
 
 function renderMessages(streamId, label, topic, streamMessages) {
@@ -2796,7 +3013,9 @@ function renderMessages(streamId, label, topic, streamMessages) {
   const replyBar = document.getElementById('composer-reply-bar');
   const replyLabel = document.getElementById('composer-reply-label');
 
-  if (input) input.placeholder = `Message ${label}`;
+  if (input) {
+    input.placeholder = `Message ${label}`;
+  }
   if (replyBar && replyLabel) {
     if (state.replyToMsgId) {
       const target = streamMessages.find((m) => m.id === state.replyToMsgId);
@@ -2848,30 +3067,65 @@ function renderMessages(streamId, label, topic, streamMessages) {
           .join('')
       : '';
 
+  const dmErrorHtml =
+    state.activeView === 'home' && state.dmError
+      ? `<div class="nx-dm-error-banner" role="alert">
+          <span>${escapeHtml(state.dmError)}</span>
+          <button type="button" class="btn btn-secondary" style="height:26px;font-size:0.74rem;padding:0 9px;" data-action="retry-dm-sync">Retry</button>
+        </div>`
+      : '';
+
   const welcomeHtml = `
-    ${alertBannersHtml}
-    <div class="channel-welcome">
-      <h2>Welcome to ${escapeHtml(label)}</h2>
-      <p>${escapeHtml(topic || 'Focused conversation inside your workspace.')}</p>
-    </div>
-  `;
+      ${alertBannersHtml}
+      ${dmErrorHtml}
+      <div class="channel-welcome">
+        <h2>${escapeHtml(label)}</h2>
+        <p>${escapeHtml(topic || 'Focused conversation inside your workspace.')}</p>
+      </div>
+    `;
+
+  if (
+    state.activeView === 'home' &&
+    state.dmMessagesLoadingThreadId === streamId &&
+    streamMessages.length === 0
+  ) {
+    scroll.innerHTML =
+      welcomeHtml +
+      `<div class="nx-dm-skeleton-list" aria-label="Loading messages">
+        <div class="nx-dm-skeleton-row is-peer"><span class="nx-dm-skeleton-bubble"></span></div>
+        <div class="nx-dm-skeleton-row is-self"><span class="nx-dm-skeleton-bubble is-short"></span></div>
+        <div class="nx-dm-skeleton-row is-peer"><span class="nx-dm-skeleton-bubble is-mid"></span></div>
+      </div>`;
+    return;
+  }
 
   if (filtered.length === 0) {
     scroll.innerHTML =
       welcomeHtml +
-      `<p class="member-sub" style="padding:16px 10px;">${q ? 'No messages match your search filter.' : 'No messages yet. Say hello below.'}</p>`;
+      `<div class="nx-thread-empty-state">
+        <p class="member-sub">${q ? 'No messages match your search filter.' : 'No messages yet. Say hello below.'}</p>
+        ${q ? '<button type="button" class="btn btn-secondary" style="height:30px;font-size:0.78rem;" data-action="clear-msg-search">Clear Search</button>' : ''}
+      </div>`;
     return;
   }
 
   const bookmarkedIds = new Set(state.bookmarks.map((b) => b.messageId));
-  let lastAuthor = null;
+  let prevMsg = null;
+  let lastDayKey = '';
   const rowsHtml = filtered
     .map((msg) => {
+      const dayKey = getMessageDayKey(msg.timestamp);
+      const dateSeparatorHtml =
+        dayKey !== lastDayKey
+          ? `<div class="nx-msg-date-sep" role="separator"><span>${escapeHtml(formatMessageDateLabel(msg.timestamp))}</span></div>`
+          : '';
+      lastDayKey = dayKey;
+
       const member = getMember(msg.authorId);
       const authorName = msg.authorId === profile.id ? profile.displayName : msg.senderName || member.displayName;
       const authorInitials = msg.authorId === profile.id ? profile.initials : msg.senderInitials || member.initials;
-      const isGrouped = lastAuthor === msg.authorId && !msg.replyToId && !msg.poll;
-      lastAuthor = msg.authorId;
+      const isGrouped = shouldGroupMessages(prevMsg, msg);
+      prevMsg = msg;
 
       const replyTarget = msg.replyToId ? streamMessages.find((x) => x.id === msg.replyToId) : null;
       const replyHtml = replyTarget
@@ -2945,7 +3199,7 @@ function renderMessages(streamId, label, topic, streamMessages) {
       const isDmSelf = isDmMode && msg.authorId === profile.id;
       const otherSeen = isDmSelf && Array.isArray(msg.seenBy) && msg.seenBy.some((uid) => uid !== profile.id);
       const receiptHtml = isDmSelf
-        ? `<div class="nx-dm-receipt">${otherSeen ? 'Seen' : 'Sent'}</div>`
+        ? `<div class="nx-dm-receipt">${svgIcon(otherSeen ? 'checkDouble' : 'check', 12)} <span>${otherSeen ? 'Seen' : 'Sent'}</span> · <span class="nx-dm-inline-time">${escapeHtml(msg.time)}</span></div>`
         : '';
 
       const inviteCode = extractCommunityInviteCodeFromText(msg.content);
@@ -2969,13 +3223,15 @@ function renderMessages(streamId, label, topic, streamMessages) {
           </div>`
         : `<div class="msg-text">${formatMessageMarkdown(msg.content)}${msg.edited ? '<span class="msg-edited">(edited)</span>' : ''}</div>`;
 
+      const peerAvatarMarkup = `<button type="button" class="msg-avatar nx-dm-msg-avatar" data-action="open-member-popover" data-user-id="${escapeHtml(msg.authorId)}" aria-label="View profile of ${escapeHtml(authorName)}">${renderUserAvatarHtml(member, 28)}</button>`;
+
       const rowInnerHtml = isDmMode
         ? `
           ${
             !isDmSelf
               ? isGrouped
                 ? `<div class="nx-dm-avatar-spacer"></div>`
-                : `<button type="button" class="msg-avatar nx-dm-msg-avatar" data-action="open-member-popover" data-user-id="${escapeHtml(msg.authorId)}" aria-label="View profile of ${escapeHtml(authorName)}">${renderUserAvatarHtml(member, 28)}</button>`
+                : peerAvatarMarkup
               : ''
           }
           <div class="nx-dm-msg-stack ${isDmSelf ? 'is-self' : 'is-peer'}">
@@ -2988,7 +3244,7 @@ function renderMessages(streamId, label, topic, streamMessages) {
                   </div>`
                 : ''
             }
-            <div class="nx-dm-bubble ${isDmSelf ? 'is-self' : 'is-peer'}">
+            <div class="nx-dm-bubble ${isDmSelf ? 'is-self' : 'is-peer'} ${msg.isError ? 'is-error' : ''}">
               ${replyHtml}
               ${bodyContent}
               ${inviteCardHtml}
@@ -3027,10 +3283,7 @@ function renderMessages(streamId, label, topic, streamMessages) {
           </div>
         `;
 
-      return `
-        <article class="msg-row ${isDmMode ? `is-dm-msg ${isDmSelf ? 'is-self' : 'is-peer'}` : ''} ${isGrouped ? 'grouped' : ''} ${msg.pinned ? 'pinned-highlight' : ''}" data-msg-id="${escapeHtml(msg.id)}">
-          ${rowInnerHtml}
-          <div class="msg-actions" role="toolbar" aria-label="Message actions">
+      const toolbarHtml = `<div class="msg-actions" role="toolbar" aria-label="Message actions">
             <button type="button" class="msg-action-btn" data-action="toggle-reaction" data-msg-id="${escapeHtml(msg.id)}" data-emoji="👍" title="Thumbs Up" aria-label="Add thumbs up reaction">${svgIcon('heart', 13)}</button>
             <button type="button" class="msg-action-btn" data-action="reply-msg" data-msg-id="${escapeHtml(msg.id)}" title="Reply" aria-label="Reply to message">${svgIcon('reply', 13)}</button>
             <button type="button" class="msg-action-btn" data-action="open-thread" data-msg-id="${escapeHtml(msg.id)}" title="Open Thread" aria-label="Open message thread">${svgIcon('chat', 13)}</button>
@@ -3039,7 +3292,13 @@ function renderMessages(streamId, label, topic, streamMessages) {
             ${canEdit ? `<button type="button" class="msg-action-btn" data-action="edit-msg" data-msg-id="${escapeHtml(msg.id)}" title="Edit" aria-label="Edit message">${svgIcon('edit', 13)}</button>` : ''}
             ${canEdit || getActiveServer()?.ownerId === profile.id ? `<button type="button" class="msg-action-btn" data-action="delete-msg" data-msg-id="${escapeHtml(msg.id)}" title="Delete" aria-label="Delete message">${svgIcon('trash', 13)}</button>` : ''}
             ${!canEdit ? `<button type="button" class="msg-action-btn" data-action="open-report" data-target-type="message" data-target-id="${escapeHtml(msg.id)}" title="Report Message" aria-label="Report message">${svgIcon('flag', 13)}</button>` : ''}
-          </div>
+          </div>`;
+
+      return `
+        ${dateSeparatorHtml}
+        <article class="msg-row ${isDmMode ? `is-dm-msg ${isDmSelf ? 'is-self' : 'is-peer'}` : ''} ${isGrouped ? 'grouped' : ''} ${msg.pinned ? 'pinned-highlight' : ''}" data-msg-id="${escapeHtml(msg.id)}">
+          ${rowInnerHtml}
+          ${toolbarHtml}
         </article>
       `;
     })
@@ -4128,6 +4387,7 @@ function renderAll() {
   renderMainWorkspace();
   renderInspector();
   renderEmojiPicker();
+  notifyInboxBridge();
 }
 
 /* ---------- POPOVERS & MODALS ---------- */
@@ -4441,9 +4701,104 @@ async function logModerationAction(srv, actionText) {
   }
 }
 
+async function sendDmMessagePayload({ threadId, text, replyToId = null, attachment = null }) {
+  const activeDm = state.dms.find((d) => d.id === threadId);
+  if (!activeDm || !currentFirebaseUser || !Array.isArray(activeDm.participants) || activeDm.participants.length < 2) {
+    showToast('Select an accepted chat or group conversation first.');
+    return false;
+  }
+
+  const rawText = String(text || '').trim();
+  if (!rawText && !attachment) return false;
+  const messageText = (rawText || `[Attachment: ${attachment?.name || 'File'}]`).slice(0, 2000);
+  const msgId = `dmmsg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  const payload = {
+    id: msgId,
+    threadId: activeDm.id,
+    participantIds: activeDm.participants,
+    senderId: currentFirebaseUser.uid,
+    senderName: profile.displayName.slice(0, 50),
+    senderInitials: profile.initials.slice(0, 4),
+    content: messageText,
+    seenBy: [currentFirebaseUser.uid],
+    edited: false,
+    pinned: false,
+    reactions: [],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  };
+  if (replyToId) payload.replyToId = replyToId;
+  if (attachment) payload.attachment = attachment;
+
+  state.isSendingMessage = true;
+  notifyInboxBridge();
+  try {
+    await setDoc(doc(db, 'dm_threads', activeDm.id, 'messages', msgId), payload);
+    await updateDoc(doc(db, 'dm_threads', activeDm.id), {
+      lastMessage: messageText.slice(0, 300),
+      lastSenderId: currentFirebaseUser.uid,
+      seenBy: [currentFirebaseUser.uid],
+      [`typing.${currentFirebaseUser.uid}`]: 0,
+      updatedAt: serverTimestamp(),
+    });
+    const recipientIds = activeDm.participants.filter((uid) => uid !== currentFirebaseUser.uid);
+    if (nexoraWsClient && recipientIds.length > 0) {
+      nexoraWsClient.send({
+        type: 'dm:notify',
+        threadId: activeDm.id,
+        messageId: msgId,
+        recipientIds,
+      });
+      nexoraWsClient.send({
+        type: 'typing:stop',
+        threadId: activeDm.id,
+        recipientIds,
+      });
+    }
+    return true;
+  } catch (err) {
+    handleFirestoreError(
+      err,
+      OperationType.CREATE,
+      `dm_threads/${activeDm.id}/messages/${msgId}`,
+      'Could not send message right now. Site may be busy.'
+    );
+    return false;
+  } finally {
+    state.isSendingMessage = false;
+    syncComposerState();
+    notifyInboxBridge();
+  }
+}
+
+async function uploadChatAttachmentFile(file) {
+  if (!file) return null;
+  try {
+    const uploaded = await uploadMediaFileToServer(file, { folder: 'dm' });
+    if (uploaded?.url) {
+      return {
+        name: String(file.name || uploaded.name || 'file').slice(0, 80),
+        type: String(uploaded.mimeType || file.type || 'application/octet-stream').slice(0, 60),
+        size: Number(uploaded.size || file.size || 0),
+        dataUrl: uploaded.url,
+      };
+    }
+  } catch {}
+  const dataUrl = file.type.startsWith('image/')
+    ? await compressImageFile(file, { maxW: 1080, maxH: 1080, quality: 0.78, maxBytes: 240000 })
+    : await readMediaFileBounded(file, 520000);
+  return {
+    name: String(file.name || 'file').slice(0, 80),
+    type: String(file.type || 'application/octet-stream').slice(0, 60),
+    size: Number(file.size || 0),
+    dataUrl,
+  };
+}
+
 async function sendMessageFromComposer() {
   const input = document.getElementById('message-input');
   if (!(input instanceof HTMLTextAreaElement)) return;
+  if (state.isSendingMessage) return;
   const text = input.value.trim();
   const hasAttachment = Boolean(pendingMessageAttachment);
   if (!text && !hasAttachment) return;
@@ -4460,31 +4815,6 @@ async function sendMessageFromComposer() {
   }
 
   if (state.activeView === 'home') {
-    const activeDm = state.dms.find((d) => d.id === state.activeDmId);
-    if (!activeDm || !currentFirebaseUser || !Array.isArray(activeDm.participants) || activeDm.participants.length < 2) {
-      showToast('Select an accepted chat or group conversation first.');
-      return;
-    }
-
-    const msgId = `dmmsg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-    const payload = {
-      id: msgId,
-      threadId: activeDm.id,
-      participantIds: activeDm.participants,
-      senderId: currentFirebaseUser.uid,
-      senderName: profile.displayName.slice(0, 50),
-      senderInitials: profile.initials.slice(0, 4),
-      content: messageText,
-      seenBy: [currentFirebaseUser.uid],
-      edited: false,
-      pinned: false,
-      reactions: [],
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    };
-    if (state.replyToMsgId) payload.replyToId = state.replyToMsgId;
-    if (pendingMessageAttachment) payload.attachment = pendingMessageAttachment;
-
     const replyBackup = state.replyToMsgId;
     const attachBackup = pendingMessageAttachment;
     state.replyToMsgId = null;
@@ -4492,25 +4822,19 @@ async function sendMessageFromComposer() {
     updateComposerAttachmentBar();
     input.value = '';
     input.style.height = 'auto';
+    syncComposerState();
 
-    try {
-      await setDoc(doc(db, 'dm_threads', activeDm.id, 'messages', msgId), payload);
-      await updateDoc(doc(db, 'dm_threads', activeDm.id), {
-        lastMessage: messageText.slice(0, 300),
-        [`typing.${currentFirebaseUser.uid}`]: 0,
-        updatedAt: serverTimestamp(),
-      });
-    } catch (err) {
+    const ok = await sendDmMessagePayload({
+      threadId: state.activeDmId,
+      text: messageText,
+      replyToId: replyBackup,
+      attachment: attachBackup,
+    });
+    if (!ok) {
       state.replyToMsgId = replyBackup;
       pendingMessageAttachment = attachBackup;
       updateComposerAttachmentBar();
       input.value = text;
-      handleFirestoreError(
-        err,
-        OperationType.CREATE,
-        `dm_threads/${activeDm.id}/messages/${msgId}`,
-        'Could not send message right now. Site may be busy.'
-      );
     }
     return;
   }
@@ -4537,9 +4861,11 @@ async function sendMessageFromComposer() {
   const attachBackup = pendingMessageAttachment;
   state.replyToMsgId = null;
   pendingMessageAttachment = null;
+  state.isSendingMessage = true;
   updateComposerAttachmentBar();
   input.value = '';
   input.style.height = 'auto';
+  syncComposerState();
 
   try {
     await setDoc(doc(db, 'servers', srv.id, 'channels', state.activeChannelId, 'messages', msgId), payload);
@@ -4554,6 +4880,9 @@ async function sendMessageFromComposer() {
       `servers/${srv.id}/channels/${state.activeChannelId}/messages/${msgId}`,
       'You cannot send a message here right now. Check community membership.'
     );
+  } finally {
+    state.isSendingMessage = false;
+    syncComposerState();
   }
 }
 
@@ -4675,6 +5004,20 @@ function bindEvents() {
     }
   });
 
+  document.getElementById('msg-search-clear-btn')?.addEventListener('click', () => {
+    state.searchQuery = '';
+    state.threadSearchOpen = false;
+    renderMainWorkspace();
+  });
+
+  document.getElementById('msg-search-toggle-btn')?.addEventListener('click', () => {
+    state.threadSearchOpen = !state.threadSearchOpen;
+    renderMainWorkspace();
+    if (state.threadSearchOpen) {
+      document.getElementById('msg-search-input')?.focus();
+    }
+  });
+
   document.getElementById('cancel-reply-btn')?.addEventListener('click', () => {
     state.replyToMsgId = null;
     renderMainWorkspace();
@@ -4744,10 +5087,23 @@ function bindEvents() {
   msgInput?.addEventListener('input', () => {
     msgInput.style.height = 'auto';
     msgInput.style.height = `${Math.min(msgInput.scrollHeight, 140)}px`;
-    if (state.activeView === 'home' && state.activeDmId && currentFirebaseUser && !state.pendingPeerId) {
+    if (
+      state.activeView === 'home' &&
+      state.activeDmId &&
+      currentFirebaseUser &&
+      !state.pendingPeerId
+    ) {
       const now = Date.now();
       if (now - lastTypingSentMs > 2400) {
         lastTypingSentMs = now;
+        const activeDm = state.dms.find((d) => d.id === state.activeDmId);
+        if (nexoraWsClient && activeDm?.participants) {
+          nexoraWsClient.send({
+            type: 'typing:start',
+            threadId: state.activeDmId,
+            recipientIds: activeDm.participants.filter((uid) => uid !== currentFirebaseUser.uid),
+          });
+        }
         updateDoc(doc(db, 'dm_threads', state.activeDmId), {
           [`typing.${currentFirebaseUser.uid}`]: now,
           updatedAt: serverTimestamp(),
@@ -5151,15 +5507,7 @@ function bindEvents() {
       const file = e.target.files?.[0];
       if (!file) return;
       try {
-        const dataUrl = file.type.startsWith('image/')
-          ? await compressImageFile(file, { maxW: 1080, maxH: 1080, quality: 0.78, maxBytes: 240000 })
-          : await readMediaFileBounded(file, 520000);
-        pendingMessageAttachment = {
-          name: String(file.name || 'file').slice(0, 80),
-          type: String(file.type || 'application/octet-stream').slice(0, 60),
-          size: Number(file.size || 0),
-          dataUrl,
-        };
+        pendingMessageAttachment = await uploadChatAttachmentFile(file);
         updateComposerAttachmentBar();
       } catch (err) {
         showToast(formatFriendlyError(err, 'Could not attach selected file.'), 'error');
@@ -6057,11 +6405,62 @@ function bindEvents() {
         saveUiNav();
         renderAll();
         break;
+      case 'clear-dm-search':
+        state.dmSearchQuery = '';
+        renderSidebar();
+        document.getElementById('dm-user-search-input')?.focus();
+        break;
+      case 'clear-msg-search':
+        state.searchQuery = '';
+        state.threadSearchOpen = false;
+        renderMainWorkspace();
+        break;
+      case 'retry-dm-sync':
+        if (currentFirebaseUser) {
+          state.dmError = '';
+          subscribeDmThreads(currentFirebaseUser.uid);
+          if (state.activeDmId) {
+            subscribeDmMessages(state.activeDmId);
+          }
+          renderSidebar();
+          renderMainWorkspace();
+          notifyInboxBridge();
+        }
+        break;
+      case 'open-messages-more': {
+        e.stopPropagation();
+        openPopoverNear(
+          actionEl,
+          `
+            <strong>Messages Options</strong>
+            <div class="menu-list">
+              <button type="button" class="menu-item" data-action="open-create-group-chat">
+                <span>New Group Chat</span>
+                <span>${svgIcon('users', 14)}</span>
+              </button>
+              <button type="button" class="menu-item" data-action="open-share-community-link">
+                <span>Share Community Invite Link</span>
+                <span>${svgIcon('share', 14)}</span>
+              </button>
+              <button type="button" class="menu-item" data-action="open-join-community-link">
+                <span>Join Community via Link</span>
+                <span>${svgIcon('link', 14)}</span>
+              </button>
+              <button type="button" class="menu-item" data-action="toggle-show-archived-dms">
+                <span>${state.showArchivedDms ? 'Hide Archived Chats' : 'Show Archived Chats'}</span>
+                <span>${svgIcon('bookmark', 14)}</span>
+              </button>
+            </div>
+          `
+        );
+        break;
+      }
       case 'set-dm-tab': {
         const tab = actionEl.getAttribute('data-dm-tab');
-        if (tab === 'primary' || tab === 'groups' || tab === 'requests') {
-          state.dmInboxTab = tab;
+        if (tab === 'all' || tab === 'unread' || tab === 'requests' || tab === 'primary' || tab === 'groups') {
+          state.dmInboxTab = tab === 'primary' ? 'all' : tab;
           renderDmSidebarList();
+          notifyInboxBridge();
         }
         break;
       }
@@ -6786,6 +7185,427 @@ function openMemberPopover(userId, anchorEl, isSelf) {
   );
 }
 
+let nexoraWsClient = null;
+const inboxBridgeListeners = new Set();
+let lastBridgeEmitTimer = null;
+
+function connectNexoraWs(fbUser) {
+  if (!fbUser) return;
+  if (nexoraWsClient) {
+    nexoraWsClient.disconnect();
+    nexoraWsClient = null;
+  }
+  nexoraWsClient = createNexoraWsClient({
+    getToken: async () => (auth.currentUser ? await auth.currentUser.getIdToken() : ''),
+    onEvent: (ev) => {
+      if (!ev || typeof ev !== 'object') return;
+      if (ev.type === 'presence:snapshot') {
+        state.wsConnected = true;
+        state.onlineUids = new Set(Array.isArray(ev.onlineUids) ? ev.onlineUids : []);
+        notifyInboxBridge();
+        return;
+      }
+      if (ev.type === 'presence:update' && ev.uid) {
+        if (ev.online) state.onlineUids.add(ev.uid);
+        else state.onlineUids.delete(ev.uid);
+        notifyInboxBridge();
+        return;
+      }
+      if (ev.type === 'typing:start' && ev.threadId && ev.uid) {
+        if (!state.wsTypingMap[ev.threadId]) state.wsTypingMap[ev.threadId] = {};
+        state.wsTypingMap[ev.threadId][ev.uid] = Date.now() + 5500;
+        renderDmTypingIndicator();
+        notifyInboxBridge();
+        return;
+      }
+      if (ev.type === 'typing:stop' && ev.threadId && ev.uid) {
+        if (state.wsTypingMap[ev.threadId]) {
+          delete state.wsTypingMap[ev.threadId][ev.uid];
+        }
+        renderDmTypingIndicator();
+        notifyInboxBridge();
+        return;
+      }
+      if (ev.type === 'msg:read' || ev.type === 'msg:delivered' || ev.type === 'dm:notify') {
+        notifyInboxBridge();
+      }
+    },
+  });
+  void nexoraWsClient.connect();
+}
+
+function getInboxSnapshot() {
+  const now = Date.now();
+  const dms = state.dms.map((dm) => {
+    const peer = dm.userId ? getMember(dm.userId) : null;
+    const msgs = state.dmMessages[dm.id] || [];
+    const unreadCount = getDmUnreadCount(dm, msgs, profile.id);
+    const isOnline =
+      dm.type !== 'group' &&
+      Boolean(dm.userId) &&
+      (state.onlineUids.has(dm.userId) || (peer?.status || dm.status) === 'online');
+
+    const fsTypers = dm.typing
+      ? Object.entries(dm.typing)
+          .filter(([uid, ts]) => uid !== profile.id && now - Number(ts || 0) < 5500)
+          .map(([uid]) => uid)
+      : [];
+    const wsTypers = state.wsTypingMap[dm.id]
+      ? Object.entries(state.wsTypingMap[dm.id])
+          .filter(([uid, exp]) => uid !== profile.id && Number(exp || 0) > now)
+          .map(([uid]) => uid)
+      : [];
+    const typingUids = Array.from(new Set([...fsTypers, ...wsTypers]));
+    const typingNames = typingUids.map((uid) => getMember(uid).displayName);
+
+    return {
+      ...dm,
+      peer: peer
+        ? {
+            id: peer.id,
+            displayName: peer.displayName,
+            username: peer.username,
+            initials: peer.initials,
+            avatar: peer.avatar || '',
+            status: isOnline ? 'online' : peer.status || 'offline',
+            customStatus: peer.customStatus || '',
+          }
+        : null,
+      unreadCount,
+      isOnline,
+      typingNames,
+    };
+  });
+
+  const directoryUsers = state.directoryUsers.map((u) => ({
+    ...u,
+    isOnline: state.onlineUids.has(u.id) || u.status === 'online',
+  }));
+
+  return {
+    currentUser: {
+      id: profile.id,
+      displayName: profile.displayName,
+      username: profile.username,
+      initials: profile.initials,
+      avatar: profile.avatar || '',
+      status: profile.status || 'online',
+    },
+    dms,
+    dmMessages: { ...state.dmMessages },
+    directoryUsers,
+    connectionRequests: [...state.connectionRequests],
+    blockedIds: Array.from(state.blockedSet),
+    acceptedPeerIds: Array.from(state.acceptedPeerIds),
+    activeDmId: state.activeDmId,
+    pendingPeerId: state.pendingPeerId,
+    dmSearchQuery: state.dmSearchQuery,
+    dmInboxTab: state.dmInboxTab,
+    showArchivedDms: Boolean(state.showArchivedDms),
+    dmThreadActiveMobile: Boolean(state.dmThreadActiveMobile),
+    dmMessagesLoadingThreadId: state.dmMessagesLoadingThreadId,
+    dmError: state.dmError,
+    isSendingMessage: Boolean(state.isSendingMessage),
+    replyToMsgId: state.replyToMsgId,
+    onlineUids: Array.from(state.onlineUids),
+    wsConnected: Boolean(state.wsConnected),
+  };
+}
+
+function notifyInboxBridge() {
+  if (lastBridgeEmitTimer) return;
+  lastBridgeEmitTimer = window.setTimeout(() => {
+    lastBridgeEmitTimer = null;
+    const snap = getInboxSnapshot();
+    for (const listener of inboxBridgeListeners) {
+      try {
+        listener(snap);
+      } catch {}
+    }
+  }, 16);
+}
+
+window.NEXORA_APP_BRIDGE = {
+  getSnapshot: () => getInboxSnapshot(),
+  subscribe: (listener) => {
+    if (typeof listener !== 'function') return () => {};
+    inboxBridgeListeners.add(listener);
+    try {
+      listener(getInboxSnapshot());
+    } catch {}
+    return () => {
+      inboxBridgeListeners.delete(listener);
+    };
+  },
+  selectDm: (dmId) => {
+    if (!dmId) return;
+    state.activeDmId = dmId;
+    state.pendingPeerId = '';
+    state.activeView = 'home';
+    state.replyToMsgId = null;
+    state.dmThreadActiveMobile = true;
+    subscribeDmMessages(dmId);
+    saveUiNav();
+    renderAll();
+    notifyInboxBridge();
+  },
+  setMobileThreadOpen: (open) => {
+    state.dmThreadActiveMobile = Boolean(open);
+    notifyInboxBridge();
+  },
+  openPendingPeer: async (uid) => {
+    await openDirectMessageWithUser(uid);
+    notifyInboxBridge();
+  },
+  setDmSearchQuery: (q) => {
+    state.dmSearchQuery = String(q || '');
+    renderDmSidebarList();
+    notifyInboxBridge();
+  },
+  setDmInboxTab: (tab) => {
+    if (tab === 'all' || tab === 'unread' || tab === 'requests' || tab === 'groups') {
+      state.dmInboxTab = tab;
+      renderDmSidebarList();
+      notifyInboxBridge();
+    }
+  },
+  toggleShowArchivedDms: () => {
+    state.showArchivedDms = !state.showArchivedDms;
+    renderDmSidebarList();
+    notifyInboxBridge();
+  },
+  retryDmSync: () => {
+    if (!currentFirebaseUser) return;
+    state.dmError = '';
+    subscribeDmThreads(currentFirebaseUser.uid);
+    if (state.activeDmId) subscribeDmMessages(state.activeDmId);
+    notifyInboxBridge();
+  },
+  sendDmMessage: async (args) => sendDmMessagePayload(args),
+  uploadAttachment: async (file) => uploadChatAttachmentFile(file),
+  setReplyTo: (msgId) => {
+    state.replyToMsgId = msgId || null;
+    notifyInboxBridge();
+  },
+  toggleReaction: async (threadId, msgId, emoji) => {
+    if (!threadId || !msgId || !emoji || !profile.id) return;
+    const msg = (state.dmMessages[threadId] || []).find((m) => m.id === msgId);
+    if (!msg) return;
+    const nextReactions = (msg.reactions || []).map((r) => ({ emoji: r.emoji, userIds: [...(r.userIds || [])] }));
+    let entry = nextReactions.find((x) => x.emoji === emoji);
+    if (!entry) {
+      nextReactions.push({ emoji, userIds: [profile.id] });
+    } else if (entry.userIds.includes(profile.id)) {
+      entry.userIds = entry.userIds.filter((id) => id !== profile.id);
+    } else {
+      entry.userIds.push(profile.id);
+    }
+    const cleaned = nextReactions.filter((x) => x.userIds.length > 0);
+    await updateDoc(doc(db, 'dm_threads', threadId, 'messages', msgId), {
+      reactions: cleaned,
+      updatedAt: serverTimestamp(),
+    });
+  },
+  editDmMessage: async (threadId, msgId, newContent) => {
+    const clean = String(newContent || '').trim().slice(0, 2000);
+    if (!threadId || !msgId || !clean) return;
+    await updateDoc(doc(db, 'dm_threads', threadId, 'messages', msgId), {
+      content: clean,
+      edited: true,
+      updatedAt: serverTimestamp(),
+    });
+  },
+  deleteDmMessage: async (threadId, msgId) => {
+    if (!threadId || !msgId) return;
+    await deleteDoc(doc(db, 'dm_threads', threadId, 'messages', msgId));
+    showToast('Message deleted');
+  },
+  togglePinDmMessage: async (threadId, msgId) => {
+    if (!threadId || !msgId) return;
+    const msg = (state.dmMessages[threadId] || []).find((m) => m.id === msgId);
+    if (!msg) return;
+    await updateDoc(doc(db, 'dm_threads', threadId, 'messages', msgId), {
+      pinned: !msg.pinned,
+      updatedAt: serverTimestamp(),
+    });
+    showToast(!msg.pinned ? 'Message pinned' : 'Message unpinned');
+  },
+  toggleArchiveDm: async (dmId) => {
+    if (!dmId || !currentFirebaseUser) return;
+    const dm = state.dms.find((d) => d.id === dmId);
+    if (!dm) return;
+    const cur = Array.isArray(dm.archivedBy) ? dm.archivedBy : [];
+    const next = cur.includes(currentFirebaseUser.uid)
+      ? cur.filter((id) => id !== currentFirebaseUser.uid)
+      : [...cur, currentFirebaseUser.uid].slice(0, 30);
+    await updateDoc(doc(db, 'dm_threads', dmId), {
+      archivedBy: next,
+      updatedAt: serverTimestamp(),
+    });
+    showToast(next.includes(currentFirebaseUser.uid) ? 'Conversation archived' : 'Conversation restored');
+  },
+  sendTypingSignal: (threadId, isTyping) => {
+    if (!threadId || !currentFirebaseUser) return;
+    const activeDm = state.dms.find((d) => d.id === threadId);
+    if (!activeDm) return;
+    const recipientIds = (activeDm.participants || []).filter((uid) => uid !== currentFirebaseUser.uid);
+    if (nexoraWsClient && recipientIds.length > 0) {
+      nexoraWsClient.send({
+        type: isTyping ? 'typing:start' : 'typing:stop',
+        threadId,
+        recipientIds,
+      });
+    }
+    const now = Date.now();
+    if (!isTyping) {
+      updateDoc(doc(db, 'dm_threads', threadId), {
+        [`typing.${currentFirebaseUser.uid}`]: 0,
+        updatedAt: serverTimestamp(),
+      }).catch(() => {});
+    } else if (now - lastTypingSentMs > 2400) {
+      lastTypingSentMs = now;
+      updateDoc(doc(db, 'dm_threads', threadId), {
+        [`typing.${currentFirebaseUser.uid}`]: now,
+        updatedAt: serverTimestamp(),
+      }).catch(() => {});
+    }
+  },
+  markThreadRead: (threadId) => {
+    if (!threadId || !currentFirebaseUser) return;
+    const msgs = state.dmMessages[threadId] || [];
+    const activeDm = state.dms.find((d) => d.id === threadId);
+    const recipientIds = (activeDm?.participants || []).filter((uid) => uid !== currentFirebaseUser.uid);
+    for (const msg of msgs) {
+      const seenBy = Array.isArray(msg.seenBy) ? msg.seenBy : [];
+      if (
+        msg.authorId &&
+        msg.authorId !== currentFirebaseUser.uid &&
+        !seenBy.includes(currentFirebaseUser.uid) &&
+        !markedSeenIds.has(msg.id) &&
+        seenBy.length < 30
+      ) {
+        markedSeenIds.add(msg.id);
+        updateDoc(doc(db, 'dm_threads', threadId, 'messages', msg.id), {
+          seenBy: [...seenBy, currentFirebaseUser.uid],
+          updatedAt: serverTimestamp(),
+        }).catch(() => {});
+        if (nexoraWsClient && recipientIds.length > 0) {
+          nexoraWsClient.send({
+            type: 'msg:read',
+            threadId,
+            messageId: msg.id,
+            recipientIds,
+          });
+        }
+      }
+    }
+  },
+  acceptRequest: async (reqId, fromUid) => respondConnectionRequest(reqId, true, fromUid),
+  declineRequest: async (reqId) => respondConnectionRequest(reqId, false, ''),
+  sendConnectionRequest: async (targetUid, note) => sendConnectionRequest(targetUid, note),
+  startCall: async (userId, mode = 'audio') => startDmCallWithUser(userId, mode),
+  openNewGroupModal: () => {
+    const picker = document.getElementById('group-chat-members-picker');
+    const nameInput = document.getElementById('group-chat-name-input');
+    if (nameInput instanceof HTMLInputElement) nameInput.value = '';
+    if (picker) {
+      const candidates = state.directoryUsers.filter((u) => u.id !== profile.id && !state.blockedSet.has(u.id));
+      picker.innerHTML =
+        candidates
+          .map(
+            (u) => `<label style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;cursor:pointer;">
+              <input type="checkbox" name="group-member" value="${escapeHtml(u.id)}" />
+              <span style="font-weight:700;font-size:0.86rem;">${escapeHtml(u.displayName)}</span>
+              <span class="member-sub">@${escapeHtml(u.username)}</span>
+            </label>`
+          )
+          .join('') || '<span class="member-sub">No members available yet.</span>';
+    }
+    openModal('create-group-chat-modal');
+  },
+  openShareCommunityModal: () => {
+    const body = document.getElementById('share-community-link-body');
+    const activeDm = state.dms.find((d) => d.id === state.activeDmId);
+    if (body) {
+      const srvs = state.servers || [];
+      body.innerHTML =
+        srvs.length === 0
+          ? `<div style="display:grid;gap:10px;">
+              <p class="member-sub" style="white-space:normal;">You haven't joined or created any community yet. Create or join a community first to share its invite link here.</p>
+              <button type="button" class="btn btn-secondary" data-action="open-join-community-link">Join Community via Link</button>
+            </div>`
+          : `<div style="display:grid;gap:10px;">
+              <p class="member-sub" style="margin:0;white-space:normal;">
+                ${
+                  activeDm
+                    ? `Send a clickable invite card directly into <strong>${escapeHtml(activeDm.name)}</strong> or copy the link.`
+                    : 'Select a conversation to send directly, or copy the invite link below.'
+                }
+              </p>
+              <div style="display:grid;gap:8px;max-height:280px;overflow-y:auto;">
+                ${srvs
+                  .map(
+                    (s) => `
+                    <div class="file-row" style="justify-content:space-between;gap:10px;">
+                      <div style="min-width:0;">
+                        <strong>${escapeHtml(s.name)}</strong>
+                        <div class="member-sub mono">Code: ${escapeHtml(s.inviteCode || s.id)}</div>
+                      </div>
+                      <div style="display:flex;gap:6px;flex-shrink:0;">
+                        <button type="button" class="btn btn-secondary" data-action="copy-community-invite-link" data-server-id="${escapeHtml(s.id)}">Copy Link</button>
+                        ${
+                          activeDm
+                            ? `<button type="button" class="btn btn-primary" data-action="send-community-invite-to-chat" data-server-id="${escapeHtml(s.id)}">Send to Chat</button>`
+                            : ''
+                        }
+                      </div>
+                    </div>
+                  `
+                  )
+                  .join('')}
+              </div>
+            </div>`;
+    }
+    openModal('share-community-link-modal');
+  },
+  openJoinCommunityModal: () => {
+    const inp = document.getElementById('join-comm-link-input');
+    if (inp instanceof HTMLInputElement) inp.value = '';
+    openModal('join-community-link-modal');
+    setTimeout(() => document.getElementById('join-comm-link-input')?.focus(), 40);
+  },
+  joinCommunityInvite: async (code) => joinServerByInviteInput(code),
+  blockUser: async (uid) => {
+    if (!currentFirebaseUser || !uid || uid === currentFirebaseUser.uid) return;
+    const targetUser = getMember(uid);
+    await setDoc(doc(db, 'users', currentFirebaseUser.uid, 'blocks', uid), {
+      blockedUid: uid,
+      blockedName: String(targetUser.displayName || 'Member').slice(0, 80),
+      createdAt: serverTimestamp(),
+    });
+    showToast(`Blocked ${targetUser.displayName}`);
+    notifyInboxBridge();
+  },
+  openReportModal: (targetType, targetId) => {
+    const typeInput = document.getElementById('report-target-type');
+    const idInput = document.getElementById('report-target-id');
+    const summaryEl = document.getElementById('report-target-summary');
+    if (typeInput instanceof HTMLInputElement) typeInput.value = targetType || 'user';
+    if (idInput instanceof HTMLInputElement) idInput.value = targetId || '';
+    if (summaryEl) summaryEl.textContent = `Reporting ${targetType || 'user'} (${String(targetId || '').slice(0, 18)}) to community moderators.`;
+    openModal('report-modal');
+  },
+  viewProfile: (uid) => {
+    if (uid && socialModule?.navigateTo) {
+      socialModule.navigateTo('profile', { uid });
+    }
+  },
+};
+
+if (typeof window !== 'undefined') {
+  window.dispatchEvent(new CustomEvent('nexora:bridge-ready'));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   if (window.innerWidth <= 1080) {
     prefs.inspectorCollapsed = true;
@@ -6793,16 +7613,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initThemeSync();
   applyPrefsToDom();
   bindEvents();
-  initRagAssistant({
-    getAuthToken: async () => (auth.currentUser ? await auth.currentUser.getIdToken() : ''),
-    customTargets: [
-      { label: 'Home Feed', hint: 'Posts & 24h stories', onSelect: () => socialModule.setSection('home') },
-      { label: 'Social Circle Engine', hint: 'OAuth connectors & consent', onSelect: () => socialModule.setSection('social-circle') },
-      { label: 'AI Templates', hint: 'Creator studio', onSelect: () => socialModule.setSection('templates') },
-      { label: 'Video Calls', hint: 'WebRTC meetings', onSelect: () => socialModule.setSection('calls') },
-      { label: 'Settings', hint: 'Account & themes', onSelect: () => socialModule.setSection('settings') },
-    ],
-  });
 
   requireAuth({
     onAuthenticated: async (fbUser, loadedProfile) => {

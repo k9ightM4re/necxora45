@@ -204,7 +204,10 @@ export function matchServerByInviteCode(servers, rawInput) {
   );
 }
 
-export function buildPeerConnectionConfig() {
+export function buildPeerConnectionConfig(customIceServers = null) {
+  if (Array.isArray(customIceServers) && customIceServers.length > 0) {
+    return { iceServers: customIceServers };
+  }
   return {
     iceServers: [
       { urls: 'stun:stun.l.google.com:19302' },
@@ -313,4 +316,83 @@ export function buildDisplayMediaConstraintsList(isMobile = false) {
     },
   ];
 }
+
+/**
+ * @param {number} tsMs
+ */
+export function getMessageDayKey(tsMs) {
+  const d = new Date(Number(tsMs || 0) || Date.now());
+  if (Number.isNaN(d.getTime())) return 'today';
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * @param {number} tsMs
+ * @param {number} [nowMs]
+ */
+export function formatMessageDateLabel(tsMs, nowMs = Date.now()) {
+  const ms = Number(tsMs || 0);
+  if (!ms || Number.isNaN(ms)) return 'Today';
+  const target = new Date(ms);
+  const now = new Date(nowMs);
+  if (Number.isNaN(target.getTime())) return 'Today';
+
+  const targetDay = new Date(target.getFullYear(), target.getMonth(), target.getDate()).getTime();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const diffDays = Math.round((todayStart - targetDay) / 86400000);
+
+  if (diffDays === 0) return 'Today';
+  if (diffDays === 1) return 'Yesterday';
+  try {
+    const sameYear = target.getFullYear() === now.getFullYear();
+    return target.toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+      ...(sameYear ? {} : { year: 'numeric' }),
+    });
+  } catch {
+    return getMessageDayKey(ms);
+  }
+}
+
+/**
+ * @param {Record<string, any> | null} prevMsg
+ * @param {Record<string, any> | null} nextMsg
+ * @param {number} [maxGapMs]
+ */
+export function shouldGroupMessages(prevMsg, nextMsg, maxGapMs = 300000) {
+  if (!prevMsg || !nextMsg) return false;
+  if (prevMsg.authorId !== nextMsg.authorId) return false;
+  if (nextMsg.replyToId || nextMsg.poll) return false;
+  const prevTs = Number(prevMsg.timestamp || 0);
+  const nextTs = Number(nextMsg.timestamp || 0);
+  if (prevTs && nextTs) {
+    if (getMessageDayKey(prevTs) !== getMessageDayKey(nextTs)) return false;
+    if (Math.abs(nextTs - prevTs) > maxGapMs) return false;
+  }
+  return true;
+}
+
+/**
+ * @param {Record<string, any> | null} dm
+ * @param {Array<Record<string, any>>} [cachedMessages]
+ * @param {string} [selfUid]
+ */
+export function getDmUnreadCount(dm, cachedMessages = [], selfUid = '') {
+  if (!dm || !selfUid) return 0;
+  if (Array.isArray(cachedMessages) && cachedMessages.length > 0) {
+    let unread = 0;
+    for (const m of cachedMessages) {
+      if (!m || m.authorId === selfUid) continue;
+      const seenBy = Array.isArray(m.seenBy) ? m.seenBy : [];
+      if (!seenBy.includes(selfUid)) unread += 1;
+    }
+    return unread;
+  }
+  const hasUnreadSummary =
+    Boolean(dm.lastSenderId && dm.lastSenderId !== selfUid) &&
+    !(Array.isArray(dm.seenBy) && dm.seenBy.includes(selfUid));
+  return hasUnreadSummary ? 1 : 0;
+}
+
 

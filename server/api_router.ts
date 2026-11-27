@@ -15,6 +15,8 @@ import {
   testAiProviderConnection,
 } from './ai_template_engine.ts';
 import { mountSocialCircleRoutes } from './social_circle/router.ts';
+import { mountMediaRoutes } from './media_router.ts';
+import { mountDiscoveryRoutes } from './discovery_router.ts';
 
 const firebaseConfigPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
 const firebaseConfig = fs.existsSync(firebaseConfigPath)
@@ -28,8 +30,29 @@ interface EmailOtpEntry {
 }
 
 const emailOtpStore = new Map<string, EmailOtpEntry>();
-const SERVER_SECRET = process.env.SESSION_SECRET || 'nexora-otp-secret-2026';
+const EPHEMERAL_SERVER_SECRET = crypto.randomBytes(32).toString('hex');
+const SERVER_SECRET = process.env.SESSION_SECRET || EPHEMERAL_SERVER_SECRET;
+const ADMIN_EMAILS = new Set(['kj74647688@gmail.com', 'shrevansh7@gmail.com']);
 const rateBuckets = new Map<string, number[]>();
+
+function isAdminUserServer(user: any): boolean {
+  const email = String(user?.email || '').trim().toLowerCase();
+  return Boolean(email && ADMIN_EMAILS.has(email) && user?.emailVerified);
+}
+
+function isHttpsRequest(req: Request): boolean {
+  if (req.secure) return true;
+  const proto = String(req.headers['x-forwarded-proto'] || '').split(',')[0].trim().toLowerCase();
+  return proto === 'https';
+}
+
+function timingSafeHexEqual(aHex: string, bHex: string): boolean {
+  if (!aHex || !bHex) return false;
+  const a = Buffer.from(aHex, 'utf8');
+  const b = Buffer.from(bHex, 'utf8');
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
 
 export function checkRateLimit(
   key: string,
@@ -137,15 +160,18 @@ export function mountNexoraApiRoutes(app: Express): void {
         .createHmac('sha256', SERVER_SECRET)
         .update(`verified:${verified.email.toLowerCase()}`)
         .digest('hex');
-      if (match[1] === expected) {
+      if (timingSafeHexEqual(match[1], expected)) {
         otpVerified = true;
       }
     }
     res.json({ verified: true, otpVerified, user: verified });
   });
 
-  app.post('/api/auth/logout', (_req: Request, res: Response) => {
-    res.setHeader('Set-Cookie', 'nx_otp_sig=; HttpOnly; SameSite=Lax; Path=/; Max-Age=0');
+  app.post('/api/auth/logout', (req: Request, res: Response) => {
+    const cookieFlags = isHttpsRequest(req)
+      ? 'HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=0'
+      : 'HttpOnly; SameSite=Lax; Path=/; Max-Age=0';
+    res.setHeader('Set-Cookie', `nx_otp_sig=; ${cookieFlags}`);
     res.json({ ok: true });
   });
 
@@ -229,35 +255,22 @@ export function mountNexoraApiRoutes(app: Express): void {
 
     emailOtpStore.delete(email);
 
-    const internalPassword =
-      'Nx_' + crypto.createHmac('sha256', SERVER_SECRET).update(email).digest('hex').slice(0, 24) + '!9';
     const otpSig = crypto
       .createHmac('sha256', SERVER_SECRET)
       .update(`verified:${email}`)
       .digest('hex');
 
-    if (firebaseConfig.apiKey) {
-      try {
-        await fetch(
-          `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${encodeURIComponent(firebaseConfig.apiKey)}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email,
-              password: internalPassword,
-              returnSecureToken: true,
-            }),
-          }
-        );
-      } catch {}
-    }
+    const cookieFlags = isHttpsRequest(req)
+      ? 'HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=86400'
+      : 'HttpOnly; SameSite=Lax; Path=/; Max-Age=86400';
 
-    res.setHeader('Set-Cookie', `nx_otp_sig=${otpSig}; HttpOnly; SameSite=Lax; Path=/; Max-Age=86400`);
-    res.json({ ok: true, email, ticket: internalPassword, verified: true });
+    res.setHeader('Set-Cookie', `nx_otp_sig=${otpSig}; ${cookieFlags}`);
+    res.json({ ok: true, email, verified: true });
   });
 
   app.get('/api/search', async (req: Request, res: Response) => {
+    const user = await requireVerifiedBearer(req, res);
+    if (!user) return;
     try {
       const qParam = String(req.query.q || 'NEXORA Community platform');
       const apiKey = process.env.GEMINI_API_KEY;
@@ -429,6 +442,17 @@ export function mountNexoraApiRoutes(app: Express): void {
         retryable: true,
       });
     }
+  });
+
+  mountMediaRoutes(app, {
+    requireVerifiedBearer,
+    checkRateLimit,
+    isAdminUserServer,
+  });
+
+  mountDiscoveryRoutes(app, {
+    requireVerifiedBearer,
+    checkRateLimit,
   });
 
   mountSocialCircleRoutes(app, {

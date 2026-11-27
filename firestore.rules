@@ -27,7 +27,7 @@ service cloud.firestore {
 
     function isPrimaryAdminToken() {
       return isSignedIn()
-        && request.auth.token.email == 'kj74647688@gmail.com'
+        && request.auth.token.email in ['kj74647688@gmail.com', 'shrevansh7@gmail.com']
         && request.auth.token.email_verified == true;
     }
 
@@ -564,7 +564,7 @@ service cloud.firestore {
 
     function isValidDmThread(data) {
       return data.keys().hasAll(['id', 'participants', 'createdBy', 'createdAt', 'updatedAt'])
-        && data.keys().hasOnly(['id', 'type', 'groupName', 'participants', 'participantMeta', 'archivedBy', 'typing', 'lastMessage', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['id', 'type', 'groupName', 'participants', 'participantMeta', 'archivedBy', 'typing', 'lastMessage', 'lastSenderId', 'seenBy', 'createdBy', 'createdAt', 'updatedAt'])
         && data.id is string && data.id.size() <= 128
         && (!('type' in data) || data.type in ['dm', 'group'])
         && (!('groupName' in data) || (data.groupName is string && data.groupName.size() <= 80))
@@ -575,6 +575,8 @@ service cloud.firestore {
         && (!('archivedBy' in data) || (data.archivedBy is list && data.archivedBy.size() <= 30))
         && (!('typing' in data) || data.typing is map)
         && (!('lastMessage' in data) || (data.lastMessage is string && data.lastMessage.size() <= 300))
+        && (!('lastSenderId' in data) || (data.lastSenderId is string && data.lastSenderId.size() <= 128))
+        && (!('seenBy' in data) || (data.seenBy is list && data.seenBy.size() <= 30))
         && data.createdBy is string && data.createdBy.size() <= 128
         && data.createdAt is timestamp
         && data.updatedAt is timestamp;
@@ -824,7 +826,8 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow get: if isSignedIn() && isValidId(userId);
+      allow get: if isSignedIn() && isValidId(userId)
+        && (resource == null || isOwner(userId) || isAdmin() || !isBlockedBy(userId, request.auth.uid));
       allow list: if isSignedIn() && existing().status in ['online', 'idle', 'dnd', 'offline', 'invisible'];
       allow create: if isOwner(userId) && isValidId(userId)
         && isValidPublicUser(incoming())
@@ -1491,10 +1494,15 @@ service cloud.firestore {
         && incoming().createdAt == existing().createdAt
         && incoming().updatedAt == request.time
         && (
-          incoming().diff(existing()).affectedKeys().hasOnly(['lastMessage', 'participantMeta', 'archivedBy', 'typing', 'updatedAt']) ||
+          incoming().diff(existing()).affectedKeys().hasOnly(['lastMessage', 'lastSenderId', 'seenBy', 'participantMeta', 'archivedBy', 'typing', 'updatedAt']) ||
           (existing().type == 'group' && existing().createdBy == request.auth.uid && incoming().diff(existing()).affectedKeys().hasOnly(['groupName', 'participants', 'participantMeta', 'updatedAt']))
         );
-      allow delete: if isSignedIn() && isValidId(threadId) && request.auth.uid in existing().participants;
+      allow delete: if isSignedIn() && isValidId(threadId) && (
+        isAdmin() ||
+        (('type' in existing() && existing().type == 'group')
+          ? existing().createdBy == request.auth.uid
+          : request.auth.uid in existing().participants)
+      );
 
       match /messages/{messageId} {
         allow get: if isSignedIn() && isValidId(threadId) && isValidId(messageId) && (resource == null || isDmParticipant(threadId));

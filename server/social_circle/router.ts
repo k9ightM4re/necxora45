@@ -1,6 +1,5 @@
 import crypto from 'crypto';
 import type { Express, Request, Response } from 'express';
-import { GoogleGenAI } from '@google/genai';
 import { InstagramConnector } from './connectors/instagram.ts';
 import { SlackConnector } from './connectors/slack.ts';
 import { DiscordConnector } from './connectors/discord.ts';
@@ -11,10 +10,11 @@ import { sharedSocialCircleStore } from './store.ts';
 import type { Connector, SocialSource } from './types.ts';
 
 const VALID_SOURCES = new Set<SocialSource>(['instagram', 'slack', 'discord']);
+const EPHEMERAL_OAUTH_SECRET = crypto.randomBytes(32).toString('hex');
 const OAUTH_STATE_SECRET =
   process.env.SESSION_SECRET ||
   process.env.SOCIAL_CIRCLE_KEK ||
-  'nexora-social-circle-oauth-state-2026';
+  EPHEMERAL_OAUTH_SECRET;
 
 export interface SocialCircleDeps {
   verifyFirebaseToken: (idToken: string) => Promise<any | null>;
@@ -53,31 +53,36 @@ function verifyOAuthState(token: string): { uid: string; source: SocialSource; i
   }
 }
 
-function buildPopupCallbackHtml(payload: { ok: boolean; provider: string; error?: string }): string {
+function buildPopupCallbackHtml(
+  payload: { ok: boolean; provider: string; error?: string },
+  targetOrigin: string
+): string {
   const safeJson = JSON.stringify(payload).replace(/</g, '\\u003c');
+  const safeOriginJson = JSON.stringify(targetOrigin || '*').replace(/</g, '\\u003c');
   return `<!doctype html>
 <html lang="en">
 <head><meta charset="utf-8" /><title>Nexora Connector Authorization</title></head>
-<body style="font-family:system-ui,sans-serif;background:#07080F;color:#EDEFF7;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center;">
-  <div style="max-width:380px;padding:24px;border:1px solid rgba(255,255,255,0.14);border-radius:16px;background:#0E1020;">
+<body style="font-family:system-ui,sans-serif;background:#101318;color:#F2F4F7;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px;text-align:center;">
+  <div style="max-width:380px;padding:24px;border:1px solid rgba(255,255,255,0.14);border-radius:16px;background:#1D232C;">
     <h1 style="font-size:1.1rem;margin:0 0 8px;">${payload.ok ? 'Authorization complete' : 'Authorization issue'}</h1>
-    <p style="font-size:0.88rem;color:#9AA0B8;margin:0 0 16px;">${
+    <p style="font-size:0.88rem;color:#A8B0BB;margin:0 0 16px;">${
       payload.ok
         ? `Your ${payload.provider} connection succeeded. Returning to Nexora...`
         : String(payload.error || 'Could not finish authorization.')
     }</p>
-    <button type="button" onclick="window.close()" style="padding:8px 16px;border-radius:8px;border:0;background:#7C5CFF;color:#fff;font-weight:600;cursor:pointer;">Close window</button>
+    <button type="button" onclick="window.close()" style="padding:8px 16px;border-radius:8px;border:0;background:#3868CE;color:#fff;font-weight:600;cursor:pointer;">Close window</button>
   </div>
   <script>
     (function () {
       var data = ${safeJson};
+      var originTarget = ${safeOriginJson};
       try {
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage({
             type: data.ok ? 'OAUTH_AUTH_SUCCESS' : 'OAUTH_AUTH_ERROR',
             provider: data.provider,
             error: data.error || ''
-          }, '*');
+          }, originTarget);
         }
       } catch (e) {}
       setTimeout(function () { window.close(); }, 600);
@@ -205,71 +210,6 @@ export function mountSocialCircleRoutes(app: Express, deps: SocialCircleDeps): v
     }
   });
 
-  /* ---------------- Live Team Scene Optional Server AI Stream ---------------- */
-
-  app.post('/api/live-scene/run', async (req: Request, res: Response) => {
-    const body = req.body || {};
-    const task = String(body.task || '').trim().slice(0, 320);
-    if (!task) {
-      res.status(400).json({ error: 'Please enter a task for the team to work on.' });
-      return;
-    }
-
-    const ip = String(req.socket?.remoteAddress || 'local');
-    const rate = deps.checkRateLimit(`live-scene:${ip}`, 10, 60 * 1000);
-    if (!rate.allowed) {
-      res.status(429).json({ error: `Live mode rate limit reached. Try simulation or wait ${rate.retryAfterSec}s.` });
-      return;
-    }
-
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey) {
-      res.status(503).json({
-        error: 'Live AI mode requires a server-side GEMINI_API_KEY. Simulation mode remains active with zero cost.',
-        code: 'LIVE_AI_UNCONFIGURED',
-      });
-      return;
-    }
-
-    try {
-      const ai = new GoogleGenAI({ apiKey, httpOptions: { headers: { 'User-Agent': 'aistudio-build' } } });
-      const prompt =
-        `Task from visitor: "${task}".\n` +
-        `Generate a realistic, concise 4-step team execution sequence in JSON for agents: ` +
-        `1) atlas (planner), 2) nova (builder), 3) iris (reviewer), 4) orion (analyst).\n` +
-        `Return ONLY valid JSON with keys: atlasPlan, novaBuild, fileChip, irisReview, orionSummary. Each value under 180 characters.`;
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-4-hydrogen',
-        contents: prompt,
-        config: {
-          responseMimeType: 'application/json',
-          systemInstruction:
-            'You orchestrate a concise product engineering team (Atlas, Nova, Iris, Orion). Output plain accurate JSON only.',
-        },
-      });
-
-      const parsed = JSON.parse((response.text || '{}').trim());
-      res.json({
-        ok: true,
-        aiGenerated: true,
-        model: 'gemini-4-hydrogen',
-        steps: {
-          atlasPlan: String(parsed.atlasPlan || `Broken down "${task}" into scope, build slice, and verification gate.`),
-          novaBuild: String(parsed.novaBuild || `Implemented the core deliverables for "${task}" and attached artifact preview.`),
-          fileChip: String(parsed.fileChip || 'deliverable-plan.md'),
-          irisReview: String(parsed.irisReview || 'Checked edge cases, accessibility, and rollback path. Ready for sign-off.'),
-          orionSummary: String(parsed.orionSummary || `Baseline telemetry verified for "${task}".`),
-        },
-      });
-    } catch (err: any) {
-      res.status(502).json({
-        error: err?.message || 'Live AI generation failed upstream.',
-        code: 'LIVE_AI_FAILED',
-      });
-    }
-  });
-
   /* ---------------- Social Circle M1 Consent & Connector Framework ---------------- */
 
   app.get('/api/social-circle/status', async (req: Request, res: Response) => {
@@ -361,14 +301,15 @@ export function mountSocialCircleRoutes(app: Express, deps: SocialCircleDeps): v
     ['/api/social-circle/oauth/:provider/callback', '/api/social-circle/oauth/:provider/callback/'],
     async (req: Request, res: Response) => {
       const provider = String(req.params.provider || '') as SocialSource;
+      const appOrigin = getAppBaseUrl(req);
       if (!VALID_SOURCES.has(provider)) {
-        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider: 'unknown', error: 'Unknown provider.' }));
+        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider: 'unknown', error: 'Unknown provider.' }, appOrigin));
         return;
       }
 
       const errorParam = String(req.query.error_description || req.query.error || '');
       if (errorParam) {
-        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider, error: errorParam }));
+        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider, error: errorParam }, appOrigin));
         return;
       }
 
@@ -376,11 +317,11 @@ export function mountSocialCircleRoutes(app: Express, deps: SocialCircleDeps): v
       const stateToken = String(req.query.state || '');
       const verifiedState = verifyOAuthState(stateToken);
       if (!verifiedState || verifiedState.source !== provider || !code) {
-        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider, error: 'Invalid or expired OAuth state.' }));
+        res.status(400).send(buildPopupCallbackHtml({ ok: false, provider, error: 'Invalid or expired OAuth state.' }, appOrigin));
         return;
       }
 
-      const redirectUri = `${getAppBaseUrl(req)}/api/social-circle/oauth/${provider}/callback`;
+      const redirectUri = `${appOrigin}/api/social-circle/oauth/${provider}/callback`;
       try {
         let tokenPayload: any;
         if (provider === 'instagram') {
@@ -406,10 +347,10 @@ export function mountSocialCircleRoutes(app: Express, deps: SocialCircleDeps): v
           lastError: '',
         });
 
-        res.status(200).send(buildPopupCallbackHtml({ ok: true, provider }));
+        res.status(200).send(buildPopupCallbackHtml({ ok: true, provider }, appOrigin));
       } catch (err: any) {
         console.warn('SocialCircle OAuth callback failed:', JSON.stringify(redactForLog({ provider, error: err?.message })));
-        res.status(502).send(buildPopupCallbackHtml({ ok: false, provider, error: err?.message || 'OAuth exchange failed.' }));
+        res.status(502).send(buildPopupCallbackHtml({ ok: false, provider, error: err?.message || 'OAuth exchange failed.' }, appOrigin));
       }
     }
   );

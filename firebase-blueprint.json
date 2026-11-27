@@ -477,14 +477,17 @@
         "type": { "type": "string", "enum": ["dm", "group"] },
         "groupName": { "type": "string", "maxLength": 80 },
         "participants": { "type": "array", "maxItems": 30 },
+        "participantMeta": { "type": "object" },
         "archivedBy": { "type": "array", "maxItems": 30 },
         "typing": { "type": "object" },
         "createdBy": { "type": "string", "maxLength": 128 },
         "lastMessage": { "type": "string", "maxLength": 300 },
+        "lastSenderId": { "type": "string", "maxLength": 128 },
+        "seenBy": { "type": "array", "maxItems": 30 },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["id", "createdBy", "createdAt", "updatedAt"]
+      "required": ["id", "participants", "createdBy", "createdAt", "updatedAt"]
     },
     "dmMessage": {
       "title": "Direct or Group Message",

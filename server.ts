@@ -1,9 +1,11 @@
 import express from 'express';
 import fs from 'fs';
+import http from 'http';
 import path from 'path';
 import dotenv from 'dotenv';
 import { createServer as createViteServer } from 'vite';
-import { mountNexoraApiRoutes } from './server/api_router.ts';
+import { mountNexoraApiRoutes, verifyFirebaseToken } from './server/api_router.ts';
+import { attachNexoraWebSocketServer } from './server/realtime_ws.ts';
 
 dotenv.config();
 
@@ -12,9 +14,35 @@ const isProduction = process.env.NODE_ENV === 'production';
 
 async function startServer() {
   const app = express();
+  app.set('trust proxy', 1);
+
+  // Unified production security headers & WebRTC Permissions-Policy
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader(
+      'Permissions-Policy',
+      'camera=(self), microphone=(self), display-capture=(self), geolocation=(self)'
+    );
+    res.setHeader(
+      'Content-Security-Policy',
+      [
+        "default-src 'self'",
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://accounts.google.com",
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+        "font-src 'self' https://fonts.gstatic.com data:",
+        "img-src 'self' data: blob: https: http:",
+        "media-src 'self' data: blob: https: http:",
+        "connect-src 'self' https: wss: ws:",
+        "frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com https://*.firebaseapp.com",
+      ].join('; ')
+    );
+    next();
+  });
+
   app.use(
     express.json({
-      limit: '8mb',
+      limit: '15mb',
       verify: (req: any, _res, buf) => {
         req.rawBody = buf.toString('utf8');
       },
@@ -52,8 +80,13 @@ async function startServer() {
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`NEXORA server running on http://0.0.0.0:${PORT} (${isProduction ? 'production' : 'development'})`);
+  const httpServer = http.createServer(app);
+  attachNexoraWebSocketServer(httpServer, { verifyFirebaseToken });
+
+  httpServer.listen(PORT, '0.0.0.0', () => {
+    console.log(
+      `NEXORA server running on http://0.0.0.0:${PORT} (${isProduction ? 'production' : 'development'})`
+    );
   });
 }
 

@@ -37,7 +37,8 @@ export type PublicProviderConfig = Omit<StoredProviderRecord, 'encryptedKey'>;
 
 const VAULT_DIR = path.resolve(process.cwd(), '.data');
 const VAULT_PATH = path.join(VAULT_DIR, 'ai_vault.enc.json');
-const SESSION_SECRET = process.env.SESSION_SECRET || 'nexora-vault-master-key-2026';
+const EPHEMERAL_VAULT_SECRET = crypto.randomBytes(32).toString('hex');
+const SESSION_SECRET = process.env.SESSION_SECRET || EPHEMERAL_VAULT_SECRET;
 
 function getEncryptionKey(): Buffer {
   return crypto.scryptSync(SESSION_SECRET, 'nexora-ai-provider-salt', 32);

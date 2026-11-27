@@ -3,6 +3,79 @@
  */
 
 export const PRIMARY_ADMIN_EMAIL = 'kj74647688@gmail.com';
+export const PRIMARY_ADMIN_EMAILS = new Set([
+  'kj74647688@gmail.com',
+  'shrevansh7@gmail.com',
+]);
+
+export function sanitizeSafeUrl(rawUrl, fallback = '') {
+  const val = String(rawUrl || '').trim();
+  if (!val) return fallback;
+  if (/^(javascript|vbscript|file):/i.test(val)) return fallback;
+  if (val.startsWith('/api/media/') || val.startsWith('/assets/')) return val;
+  if (/^blob:/i.test(val)) return val;
+  if (/^data:image\/(png|jpeg|jpg|webp|gif);base64,[a-zA-Z0-9+/=]+$/i.test(val)) return val;
+  if (/^data:audio\/(webm|ogg|mp4|mpeg|wav);base64,[a-zA-Z0-9+/=]+$/i.test(val)) return val;
+  if (/^data:video\/(mp4|webm|ogg);base64,[a-zA-Z0-9+/=]+$/i.test(val)) return val;
+  try {
+    const parsed = new URL(val, typeof window !== 'undefined' ? window.location.origin : 'https://nexora.app');
+    if (parsed.protocol === 'https:' || parsed.protocol === 'http:') {
+      return val;
+    }
+  } catch {}
+  return fallback;
+}
+
+export async function uploadMediaFileToServer(file, { kind = 'general', token = '' } = {}) {
+  if (!file) throw new Error('No file provided');
+  if (file.size > 10 * 1024 * 1024) {
+    throw new Error('File must be 10 MB or smaller.');
+  }
+  const dataUrl = await new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error('Could not read file.'));
+    reader.onload = () => resolve(String(reader.result || ''));
+    reader.readAsDataURL(file);
+  });
+
+  if (token) {
+    try {
+      const res = await fetch('/api/media/upload', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: String(file.name || 'upload').slice(0, 120),
+          mimeType: String(file.type || 'application/octet-stream').slice(0, 80),
+          kind,
+          dataUrl,
+        }),
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json?.url) {
+          return {
+            url: json.url,
+            mediaId: json.id,
+            mimeType: json.mimeType || file.type,
+            size: Number(json.size || file.size),
+            storedOnServer: true,
+          };
+        }
+      }
+    } catch {}
+  }
+
+  return {
+    url: dataUrl,
+    mediaId: '',
+    mimeType: file.type,
+    size: file.size,
+    storedOnServer: false,
+  };
+}
 
 export function extractHashtags(text, maxTags = 20) {
   const matches = String(text || '').match(/#([a-zA-Z0-9_]{2,40})/g) || [];
@@ -110,7 +183,7 @@ export function isAdminUser(authUser, adminUidSet = new Set()) {
   const uid = authUser.uid || authUser.id || '';
   if (uid && adminUidSet instanceof Set && adminUidSet.has(uid)) return true;
   const email = String(authUser.email || '').trim().toLowerCase();
-  return email === PRIMARY_ADMIN_EMAIL && Boolean(authUser.emailVerified);
+  return PRIMARY_ADMIN_EMAILS.has(email) && Boolean(authUser.emailVerified);
 }
 
 export function scoreSearchMatches(queryText, { posts = [], users = [], reels = [], communities = [] } = {}) {

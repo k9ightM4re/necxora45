@@ -43,8 +43,10 @@ import {
   normalizeThemePreference,
   rankTrendingHashtags,
   readMediaFileBounded,
+  sanitizeSafeUrl,
   scoreSearchMatches,
   selectSuggestedUsers,
+  uploadMediaFileToServer,
 } from './social_utils.js';
 import { svgIcon } from './icons.js';
 import { getRoomCallId } from './comms.js';
@@ -137,6 +139,11 @@ export function createSocialModule(ctx) {
   let profileTab = 'posts';
   let profileEditing = false;
   let confirmDeleteOpen = false;
+  let nearbyCoords = null; // { lat, lon }
+  let nearbyPeople = [];
+  let nearbyEvents = [];
+  let nearbyLoading = false;
+  let nearbyError = '';
 
   // Composer transient state
   let composerText = '';
@@ -786,23 +793,41 @@ let pendingStoryStudioDataUrl = '';
 
   function syncWorkspaceVisibility() {
     const socialRoot = document.getElementById('nx-social-root');
+    const inboxRoot = document.getElementById('nx-inbox-react-root');
     const legacyWs = document.getElementById('nx-legacy-workspace');
     const frame = document.getElementById('app-shell');
     const leftNav = document.getElementById('nx-left-nav');
     updateNavActiveClasses();
 
-    const isCollapsedSection = currentSection === 'messages' || currentSection === 'communities';
+    const isMessagesSection = currentSection === 'messages';
+    const isCommunitiesSection = currentSection === 'communities';
+    const isCollapsedSection = isMessagesSection || isCommunitiesSection;
     if (leftNav) {
       leftNav.classList.toggle('collapsed', isCollapsedSection);
     }
 
-    if (isCollapsedSection) {
+    if (isMessagesSection) {
+      if (socialRoot) socialRoot.hidden = true;
+      if (legacyWs) {
+        legacyWs.hidden = true;
+        legacyWs.classList.remove('mobile-nav-open');
+      }
+      if (inboxRoot) inboxRoot.hidden = false;
+      frame?.classList.remove('nav-open');
+      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
+      return;
+    }
+
+    if (inboxRoot) inboxRoot.hidden = true;
+
+    if (isCommunitiesSection) {
       if (socialRoot) socialRoot.hidden = true;
       if (legacyWs) {
         legacyWs.hidden = false;
         legacyWs.classList.remove('mobile-nav-open');
       }
       frame?.classList.remove('nav-open');
+      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
       return;
     }
 
@@ -812,6 +837,7 @@ let pendingStoryStudioDataUrl = '';
     }
     if (socialRoot) socialRoot.hidden = false;
     frame?.classList.remove('nav-open');
+    window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
   }
 
   function navigateTo(section, opts = {}) {
@@ -872,7 +898,12 @@ let pendingStoryStudioDataUrl = '';
     let safe = escapeHtml(rawText || '');
     safe = safe.replace(
       /(https?:\/\/[^\s<]+)/g,
-      '<a href="$1" target="_blank" rel="noopener noreferrer" class="nx-hashtag-link">$1</a>'
+      (fullUrl) => {
+        const clean = sanitizeSafeUrl(fullUrl, '');
+        if (!clean) return fullUrl;
+        const safeHref = escapeHtml(clean);
+        return `<a href="${safeHref}" target="_blank" rel="noopener noreferrer" class="nx-hashtag-link">${fullUrl}</a>`;
+      }
     );
     safe = safe.replace(
       /(^|\s)(#[a-zA-Z0-9_]{2,40})/g,
@@ -883,6 +914,82 @@ let pendingStoryStudioDataUrl = '';
       '$1<button type="button" class="nx-mention-link" data-nx-act="open-mention" data-handle="$2">$2</button>'
     );
     return safe;
+  }
+
+  async function refreshNearbyDiscovery() {
+    if (!currentUser) return;
+    nearbyLoading = true;
+    nearbyError = '';
+    renderIfSocial();
+    try {
+      const token = await currentUser.getIdToken();
+      const params = new URLSearchParams({ radiusKm: '50' });
+      if (nearbyCoords) {
+        params.set('lat', String(nearbyCoords.lat));
+        params.set('lon', String(nearbyCoords.lon));
+      }
+      const res = await fetch(`/api/discovery/nearby?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Could not load nearby discovery.');
+      nearbyPeople = Array.isArray(data.people) ? data.people : [];
+      nearbyEvents = Array.isArray(data.events) ? data.events : [];
+    } catch (err) {
+      nearbyError = formatFriendlyError(err, 'Unable to load nearby discovery.');
+    } finally {
+      nearbyLoading = false;
+      renderIfSocial();
+    }
+  }
+
+  async function enableGeoDiscovery() {
+    if (!currentUser) return;
+    if (typeof navigator === 'undefined' || !navigator.geolocation) {
+      showToast('Browser geolocation is unavailable on this device.', 'error');
+      return;
+    }
+    nearbyLoading = true;
+    nearbyError = '';
+    renderIfSocial();
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          nearbyCoords = {
+            lat: pos.coords.latitude,
+            lon: pos.coords.longitude,
+          };
+          const token = await currentUser.getIdToken();
+          await fetch('/api/discovery/location', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              lat: nearbyCoords.lat,
+              lon: nearbyCoords.lon,
+              city: 'Local Area',
+              displayName: profile.displayName,
+              username: profile.username,
+              discoverable: true,
+            }),
+          });
+          showToast('Approximate area updated for nearby discovery.', 'success');
+          await refreshNearbyDiscovery();
+        } catch (err) {
+          nearbyError = formatFriendlyError(err, 'Could not update discovery area.');
+          nearbyLoading = false;
+          renderIfSocial();
+        }
+      },
+      () => {
+        nearbyLoading = false;
+        nearbyError = 'Location permission was declined. Local events remain visible.';
+        void refreshNearbyDiscovery();
+      },
+      { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
+    );
   }
 
   /* ---------- COMMENTS & ENGAGEMENT SUBSCRIPTIONS ---------- */
@@ -1890,14 +1997,90 @@ let pendingStoryStudioDataUrl = '';
             <input type="search" id="nx-explore-search-input" class="input" style="max-width:300px;" placeholder="Filter people, hashtags, posts..." value="${escapeHtml(exploreQuery)}" />
           </div>
           <div class="nx-feed-tabs">
-            ${['all', 'people', 'posts', 'reels', 'hashtags', 'communities']
+            ${['all', 'people', 'nearby', 'posts', 'reels', 'hashtags', 'communities']
               .map(
                 (t) =>
-                  `<button type="button" class="nx-tab-chip ${exploreTab === t ? 'active' : ''}" data-nx-act="set-explore-tab" data-tab="${t}">${t[0].toUpperCase() + t.slice(1)}</button>`
+                  `<button type="button" class="nx-tab-chip ${exploreTab === t ? 'active' : ''}" data-nx-act="set-explore-tab" data-tab="${t}">${t === 'nearby' ? 'Nearby & Local' : t[0].toUpperCase() + t.slice(1)}</button>`
               )
               .join('')}
           </div>
         </div>
+
+        ${
+          exploreTab === 'nearby'
+            ? `<section class="nx-card" style="display:grid;gap:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                  <div>
+                    <h3 style="margin:0;font-size:1rem;">Nearby People &amp; Local Events</h3>
+                    <p class="member-sub" style="margin:3px 0 0;">Approximate ~1 km radius discovery — exact coordinates are never stored or shared.</p>
+                  </div>
+                  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                    <button type="button" class="nx-btn-grad" data-nx-act="enable-geo-discovery" ${nearbyLoading ? 'disabled' : ''}>${nearbyLoading ? 'Locating...' : nearbyCoords ? 'Update My Area' : 'Share My Area'}</button>
+                    <button type="button" class="nx-btn-soft" data-nx-act="refresh-nearby-discovery" ${nearbyLoading ? 'disabled' : ''}>Refresh</button>
+                  </div>
+                </div>
+                ${nearbyError ? `<p class="member-sub" style="color:var(--danger);margin:0;">${escapeHtml(nearbyError)}</p>` : ''}
+
+                <div style="display:grid;gap:10px;">
+                  <strong style="font-size:0.9rem;">People Nearby (${nearbyPeople.length})</strong>
+                  ${
+                    nearbyPeople.length > 0
+                      ? `<div class="nx-two-col-grid">
+                          ${nearbyPeople
+                            .filter((p) => !state.blockedSet.has(p.uid))
+                            .map((p) => `
+                              <div class="file-row" style="justify-content:space-between;padding:10px;">
+                                <div>
+                                  <strong style="display:block;font-size:0.88rem;">${escapeHtml(p.displayName)}</strong>
+                                  <span class="member-sub">@${escapeHtml(p.username)} · ~${escapeHtml(String(p.distanceKm))} km away</span>
+                                </div>
+                                <div style="display:flex;gap:6px;">
+                                  <button type="button" class="nx-btn-soft" style="height:30px;font-size:0.76rem;" data-nx-act="view-user-profile" data-uid="${escapeHtml(p.uid)}">Profile</button>
+                                  <button type="button" class="nx-btn-grad" style="height:30px;font-size:0.76rem;" data-nx-act="open-dm-user" data-uid="${escapeHtml(p.uid)}">Message</button>
+                                </div>
+                              </div>
+                            `)
+                            .join('')}
+                        </div>`
+                      : `<span class="member-sub">${nearbyCoords ? 'No other discoverable members within 50 km yet.' : 'Click "Share My Area" above to discover people nearby.'}</span>`
+                  }
+                </div>
+
+                <div style="display:grid;gap:10px;border-top:1px solid var(--border-subtle);padding-top:12px;">
+                  <strong style="font-size:0.9rem;">Local Community Events (${nearbyEvents.length})</strong>
+                  <form id="nx-local-event-form" style="display:grid;gap:8px;background:var(--bg-elevated);padding:12px;border-radius:12px;">
+                    <div class="nx-two-col-grid">
+                      <input type="text" id="nx-local-event-title" class="input" placeholder="Host a local meetup or workshop..." required maxlength="100" />
+                      <input type="text" id="nx-local-event-starts" class="input" placeholder="When (e.g. Sat 5:00 PM)" required maxlength="64" />
+                    </div>
+                    <div class="nx-two-col-grid">
+                      <input type="text" id="nx-local-event-city" class="input" placeholder="Neighborhood / City" maxlength="80" />
+                      <button type="submit" class="nx-btn-grad">Publish Local Event</button>
+                    </div>
+                  </form>
+                  ${
+                    nearbyEvents.length > 0
+                      ? `<div class="nx-two-col-grid">
+                          ${nearbyEvents
+                            .map((ev) => {
+                              const going = Array.isArray(ev.rsvpUids) && ev.rsvpUids.includes(profile.id);
+                              return `
+                                <div class="nx-card" style="display:grid;gap:6px;padding:12px;">
+                                  <strong>${escapeHtml(ev.title)}</strong>
+                                  <span class="member-sub">${escapeHtml(ev.city || 'Local')} · ${escapeHtml(ev.startsAt)}${ev.distanceKm !== null ? ` · ~${ev.distanceKm} km` : ''}</span>
+                                  <span class="member-sub">Hosted by ${escapeHtml(ev.hostName)} · ${(ev.rsvpUids || []).length} going</span>
+                                  <button type="button" class="${going ? 'nx-btn-soft' : 'nx-btn-grad'}" style="height:32px;font-size:0.78rem;" data-nx-act="rsvp-local-event" data-event-id="${escapeHtml(ev.id)}">${going ? 'Going ✓' : 'RSVP'}</button>
+                                </div>
+                              `;
+                            })
+                            .join('')}
+                        </div>`
+                      : `<span class="member-sub">No local events published yet. Start one above!</span>`
+                  }
+                </div>
+              </section>`
+            : ''
+        }
 
         ${
           (exploreTab === 'all' || exploreTab === 'people') && results.users.length > 0
@@ -1966,7 +2149,7 @@ let pendingStoryStudioDataUrl = '';
                         .map(
                           (r, idx) => `
                         <div class="nx-card" style="display:grid;gap:10px;">
-                          <video src="${escapeHtml(r.videoUrl)}" controls muted playsinline style="width:100%;max-height:240px;border-radius:12px;background:#090915;"></video>
+                          <video src="${escapeHtml(sanitizeSafeUrl(r.videoUrl))}" controls muted playsinline style="width:100%;max-height:240px;border-radius:12px;background:#090915;"></video>
                           <strong>${escapeHtml(r.authorName)}</strong>
                           <span class="member-sub" style="white-space:normal;">${escapeHtml(r.caption)}</span>
                           <button type="button" class="nx-btn-grad" data-nx-act="open-reel-at" data-idx="${idx}">Watch in Reels</button>
@@ -3981,10 +4164,9 @@ let pendingStoryStudioDataUrl = '';
     document.getElementById('nx-top-msg-btn')?.addEventListener('click', () => {
       navigateTo('messages');
     });
-    document.getElementById('nx-top-profile-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
+    const openUserQuickMenu = (anchorEl) => {
       openPopoverNear(
-        e.currentTarget,
+        anchorEl,
         `
           <div style="display:flex;align-items:center;gap:10px;padding-bottom:8px;border-bottom:1px solid var(--nx-border);">
             ${renderUserAvatarHtml(profile, 38)}
@@ -4006,6 +4188,15 @@ let pendingStoryStudioDataUrl = '';
           </div>
         `
       );
+    };
+
+    document.getElementById('nx-top-profile-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openUserQuickMenu(e.currentTarget);
+    });
+    document.getElementById('nx-rail-user-btn')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openUserQuickMenu(e.currentTarget);
     });
 
     // Global Search Bar
@@ -4056,9 +4247,15 @@ let pendingStoryStudioDataUrl = '';
       if (!files.length) return;
 
       if (e.target.id === 'nx-post-photo-input') {
+        const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
         for (const f of files.slice(0, 4 - composerMedia.length)) {
           try {
-            const url = await compressImageFile(f, { maxBytes: 220000 });
+            let url = '';
+            try {
+              const uploaded = await uploadMediaFileToServer(f, { kind: 'post', token: tok });
+              if (uploaded.storedOnServer && uploaded.url) url = uploaded.url;
+            } catch {}
+            if (!url) url = await compressImageFile(f, { maxBytes: 220000 });
             composerMedia.push({ type: 'image', url });
           } catch (err) {
             showToast(formatFriendlyError(err, 'Could not process image.'));
@@ -4067,17 +4264,29 @@ let pendingStoryStudioDataUrl = '';
         e.target.value = '';
         render();
       } else if (e.target.id === 'nx-post-video-input') {
+        const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
         try {
-          const url = await readMediaFileBounded(files[0], 550000);
+          let url = '';
+          try {
+            const uploaded = await uploadMediaFileToServer(files[0], { kind: 'post', token: tok });
+            if (uploaded.storedOnServer && uploaded.url) url = uploaded.url;
+          } catch {}
+          if (!url) url = await readMediaFileBounded(files[0], 550000);
           composerMedia = [{ type: 'video', url }];
         } catch (err) {
-          showToast(formatFriendlyError(err, 'Please pick a short video clip under 540 KB.'));
+          showToast(formatFriendlyError(err, 'Please pick a video clip under 10 MB.'));
         }
         e.target.value = '';
         render();
       } else if (e.target.id === 'nx-avatar-upload-input') {
+        const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
         try {
-          const url = await compressImageFile(files[0], { maxW: 512, maxH: 512, maxBytes: 185000 });
+          let url = '';
+          try {
+            const uploaded = await uploadMediaFileToServer(files[0], { kind: 'avatar', token: tok });
+            if (uploaded.storedOnServer && uploaded.url) url = uploaded.url;
+          } catch {}
+          if (!url) url = await compressImageFile(files[0], { maxW: 512, maxH: 512, maxBytes: 185000 });
           const updated = await updateUserProfile(profile.id, { ...profile, avatar: url });
           if (updated) {
             profile.avatar = url;
@@ -4089,8 +4298,14 @@ let pendingStoryStudioDataUrl = '';
         }
         e.target.value = '';
       } else if (e.target.id === 'nx-cover-upload-input') {
+        const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
         try {
-          const url = await compressImageFile(files[0], { maxW: 1280, maxH: 540, maxBytes: 275000 });
+          let url = '';
+          try {
+            const uploaded = await uploadMediaFileToServer(files[0], { kind: 'cover', token: tok });
+            if (uploaded.storedOnServer && uploaded.url) url = uploaded.url;
+          } catch {}
+          if (!url) url = await compressImageFile(files[0], { maxW: 1280, maxH: 540, maxBytes: 275000 });
           const updated = await updateUserProfile(profile.id, { ...profile, coverPhoto: url });
           if (updated) {
             profile.coverPhoto = url;
@@ -4561,6 +4776,9 @@ let pendingStoryStudioDataUrl = '';
         case 'set-explore-tab':
           exploreTab = actEl.getAttribute('data-tab') || 'all';
           render();
+          if (exploreTab === 'nearby') {
+            void refreshNearbyDiscovery();
+          }
           break;
         case 'open-reel-at':
           activeReelIndex = Number(actEl.getAttribute('data-idx') || 0);
@@ -4788,6 +5006,28 @@ let pendingStoryStudioDataUrl = '';
           const bId = actEl.getAttribute('data-id');
           if (bId && currentUser) {
             await deleteDoc(doc(db, 'users', currentUser.uid, 'bookmarks', bId));
+          }
+          break;
+        }
+        case 'enable-geo-discovery':
+          await enableGeoDiscovery();
+          break;
+        case 'refresh-nearby-discovery':
+          await refreshNearbyDiscovery();
+          break;
+        case 'rsvp-local-event': {
+          const evId = actEl.getAttribute('data-event-id');
+          if (evId && currentUser) {
+            try {
+              const token = await currentUser.getIdToken();
+              const res = await fetch(`/api/discovery/events/${encodeURIComponent(evId)}/rsvp`, {
+                method: 'POST',
+                headers: { Authorization: `Bearer ${token}` },
+              });
+              if (res.ok) {
+                await refreshNearbyDiscovery();
+              }
+            } catch {}
           }
           break;
         }
@@ -5111,7 +5351,44 @@ let pendingStoryStudioDataUrl = '';
         return;
       }
 
-      if (e.target.id === 'create-reel-form') {
+        if (e.target.id === 'nx-local-event-form') {
+          e.preventDefault();
+          if (!currentUser) return;
+          const title = document.getElementById('nx-local-event-title')?.value?.trim() || '';
+          const startsAt = document.getElementById('nx-local-event-starts')?.value?.trim() || '';
+          const city = document.getElementById('nx-local-event-city')?.value?.trim() || 'Local Area';
+          if (!title || !startsAt) return;
+          try {
+            const token = await currentUser.getIdToken();
+            const res = await fetch('/api/discovery/events', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({
+                title,
+                startsAt,
+                city,
+                lat: nearbyCoords?.lat ?? 37.77,
+                lon: nearbyCoords?.lon ?? -122.41,
+              }),
+            });
+            if (res.ok) {
+              showToast('Local community event published!', 'success');
+              e.target.reset();
+              await refreshNearbyDiscovery();
+            } else {
+              const err = await res.json().catch(() => ({}));
+              showToast(err?.error || 'Could not publish local event.', 'error');
+            }
+          } catch {
+            showToast('Unable to publish local event.', 'error');
+          }
+          return;
+        }
+
+        if (e.target.id === 'create-reel-form') {
         e.preventDefault();
         const fileEl = document.getElementById('reel-video-file');
         const urlEl = document.getElementById('reel-video-url');
@@ -5128,10 +5405,17 @@ let pendingStoryStudioDataUrl = '';
           videoUrl = reelStudio.videoDataUrl;
         } else if (!videoUrl && fileEl instanceof HTMLInputElement && fileEl.files?.[0]) {
           try {
-            videoUrl = await readMediaFileBounded(fileEl.files[0], 450000);
+            const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
+            try {
+              const uploaded = await uploadMediaFileToServer(fileEl.files[0], { kind: 'reel', token: tok });
+              if (uploaded.storedOnServer && uploaded.url) videoUrl = uploaded.url;
+            } catch {}
+            if (!videoUrl) {
+              videoUrl = await readMediaFileBounded(fileEl.files[0], 450000);
+            }
             reelStudio.videoDataUrl = videoUrl;
           } catch (err) {
-            showToast(formatFriendlyError(err, 'Video file exceeds 450 KB cloud upload limit — paste a YouTube/MP4 URL or use "Export for YouTube".'));
+            showToast(formatFriendlyError(err, 'Video file must be under 10 MB — or paste a YouTube/MP4 URL.'));
             return;
           }
         }
@@ -5692,10 +5976,20 @@ let pendingStoryStudioDataUrl = '';
           reelStudio.youtubeId = '';
           reelStudio.videoDataUrl = '';
           try {
-            reelStudio.videoDataUrl = await readMediaFileBounded(file, 450000);
+            const tok = currentUser ? await currentUser.getIdToken().catch(() => '') : '';
+            const uploaded = await uploadMediaFileToServer(file, { kind: 'reel', token: tok });
+            if (uploaded.storedOnServer && uploaded.url) {
+              reelStudio.videoDataUrl = uploaded.url;
+            } else {
+              reelStudio.videoDataUrl = await readMediaFileBounded(file, 450000);
+            }
           } catch {
-            reelStudio.videoDataUrl = '';
-            showToast('Clip loaded in Studio preview! (Clips over 450 KB can be exported for YouTube, or paste a YouTube/MP4 URL to publish in Feed.)');
+            try {
+              reelStudio.videoDataUrl = await readMediaFileBounded(file, 450000);
+            } catch {
+              reelStudio.videoDataUrl = '';
+              showToast('Clip loaded in Studio preview! (Clips over 10 MB can be exported for YouTube, or paste a YouTube/MP4 URL.)');
+            }
           }
           renderReelStudioControls();
           syncReelStudioPreview();

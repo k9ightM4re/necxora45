@@ -1,0 +1,2118 @@
+# NEXORA — MASTER FULL-STACK PRODUCT ENGINEERING SPECIFICATION
+## Complete Frontend + Backend + Database + Algorithms + Realtime Infrastructure
+
+PROJECT NAME: NEXORA
+
+PRODUCT TYPE:
+Unified Social Networking, Communication, Community, Discovery and Social Commerce Platform.
+
+IMPLEMENTATION ENVIRONMENT:
+Google AI Studio — Hydrogen
+
+SOURCE OF TRUTH:
+The existing Nexora Git repository and its current application code.
+
+PROJECT OBJECTIVE:
+Transform the existing Nexora application into a fully functional, integrated, production-oriented social networking platform.
+
+THIS IS NOT A UI PROTOTYPE TASK.
+
+You must engineer the complete application across:
+
+1. Frontend.
+2. Backend.
+3. Database.
+4. Authentication.
+5. API architecture.
+6. Real-time communication.
+7. Media processing.
+8. Search.
+9. Recommendation algorithms.
+10. Location-based discovery.
+11. Communities.
+12. Social commerce.
+13. Virtual try-on integrations.
+14. Notifications.
+15. Privacy and security.
+16. Testing.
+17. Deployment readiness.
+
+All features must be connected to real application logic and persistent data.
+
+===========================================================
+SECTION 0 — NON-NEGOTIABLE PRODUCT IDENTITY
+===========================================================
+
+Nexora is an independent social networking platform.
+
+Its core purpose is to connect real people through content, communication, communities, discovery and commerce.
+
+The platform takes useful interaction inspiration from:
+
+- Instagram: feed, stories, profiles, reels, direct messaging.
+- Snapchat: camera, creative filters and stories.
+- Discord: organized communities and channels.
+- Slack: structured group communication and administration.
+- Pinterest: visual discovery and collections.
+- Modern social commerce: product discovery and shopping.
+- Modern location-based social applications: optional proximity discovery.
+
+These are functional references, not templates to copy.
+
+NEXORA MUST NOT BECOME AN AI BOT PLATFORM.
+
+Remove and do not implement:
+
+- OpenBot-style interfaces.
+- AI agent marketplaces.
+- Bot creation.
+- Bot profiles.
+- Bot directories.
+- Autonomous bot teams.
+- AI employee dashboards.
+- Bot management systems.
+- Bot-centric inboxes.
+- Bot-specific navigation.
+- Agent personality configuration.
+
+AI can power backend capabilities such as recommendation, visual search, moderation assistance and virtual try-on.
+
+It must not become the product's identity.
+
+The central participants are HUMAN USERS.
+
+===========================================================
+SECTION 1 — REPOSITORY AUDIT AND ENGINEERING STRATEGY
+===========================================================
+
+Before writing or modifying code, inspect the complete existing repository.
+
+Identify:
+
+- Frontend framework.
+- Backend framework.
+- Existing application routes.
+- Existing components.
+- Existing database.
+- Existing authentication.
+- Existing API contracts.
+- Existing media upload system.
+- Existing messaging implementation.
+- Existing social features.
+- Existing state management.
+- Existing dependencies.
+- Existing environment variables.
+- Existing deployment configuration.
+
+Generate the following engineering documents:
+
+/docs/NEXORA_SYSTEM_ARCHITECTURE.md
+/docs/NEXORA_DATABASE_DESIGN.md
+/docs/NEXORA_API_SPECIFICATION.md
+/docs/NEXORA_FEATURE_MATRIX.md
+/docs/NEXORA_SECURITY_MODEL.md
+/docs/NEXORA_IMPLEMENTATION_ROADMAP.md
+
+Do not blindly rewrite the existing project.
+
+Do not delete working functionality.
+
+Do not create duplicate APIs.
+
+Do not introduce unnecessary frameworks.
+
+Do not migrate the entire application simply because another framework is available.
+
+If the existing project has a functioning backend, evaluate it before deciding whether to extend it or introduce FastAPI.
+
+If migration is necessary, propose the migration plan, identify dependencies and preserve existing data.
+
+Use backward-compatible migrations wherever possible.
+
+===========================================================
+SECTION 2 — APPROVED TECHNOLOGY ARCHITECTURE
+===========================================================
+
+Preferred architecture:
+
+FRONTEND:
+
+- React.
+- TypeScript.
+- Vite.
+- Tailwind CSS.
+- CSS custom properties.
+- Radix UI primitives.
+- shadcn/ui components where useful.
+- TanStack Query for server-state management.
+- Zustand for lightweight client-state management.
+- React Hook Form.
+- Zod for frontend validation.
+- Motion for restrained animations.
+- React Router or the existing routing system.
+
+BACKEND:
+
+- Python.
+- FastAPI.
+- Pydantic v2.
+- SQLAlchemy 2.x.
+- Alembic.
+- PostgreSQL.
+- Redis.
+- Celery for background processing.
+
+DATABASE:
+
+- PostgreSQL as the primary source of truth.
+- PostGIS for geographic queries.
+- Proper foreign keys.
+- Constraints.
+- Indexes.
+- Transactions.
+- Pagination.
+- Auditable migrations.
+
+REALTIME:
+
+- FastAPI WebSockets.
+- Redis Pub/Sub or Streams for cross-process event distribution where appropriate.
+- Durable message persistence in PostgreSQL.
+- Redis for ephemeral presence and typing states.
+
+MEDIA:
+
+- S3-compatible object storage.
+- Signed upload URLs.
+- FFmpeg for video processing.
+- Image processing pipeline.
+- Thumbnail generation.
+- Multiple media resolutions.
+
+SEARCH:
+
+Initially use PostgreSQL full-text search and trigram indexes where suitable.
+
+Introduce Meilisearch or OpenSearch only when search requirements and traffic justify the additional infrastructure.
+
+BACKGROUND JOBS:
+
+- Celery.
+- Redis broker.
+- Retry policies.
+- Idempotent tasks.
+- Dead-letter or failed-task monitoring.
+
+TESTING:
+
+- Pytest.
+- HTTPX.
+- Playwright.
+- TypeScript type checking.
+- Integration tests.
+- End-to-end tests.
+
+DEPLOYMENT:
+
+- Docker.
+- Docker Compose for local development.
+- Production container deployment.
+- Environment-based configuration.
+- Automated CI/CD.
+
+IMPORTANT:
+
+These are approved preferred technologies, not permission to create unnecessary duplicate systems.
+
+Choose one implementation for each responsibility.
+
+===========================================================
+SECTION 3 — APPLICATION ARCHITECTURE
+===========================================================
+
+Start with a modular monolith.
+
+Do not introduce microservices prematurely.
+
+Organize the backend into independently maintainable modules:
+
+backend/
+  app/
+    main.py
+    core/
+      config.py
+      security.py
+      permissions.py
+      exceptions.py
+      logging.py
+    api/
+      dependencies.py
+      routes/
+    modules/
+      auth/
+      users/
+      profiles/
+      social/
+      feed/
+      posts/
+      comments/
+      reactions/
+      follows/
+      reels/
+      stories/
+      media/
+      messaging/
+      communities/
+      notifications/
+      discovery/
+      nearby/
+      commerce/
+      products/
+      virtual_tryon/
+      institutions/
+      moderation/
+    database/
+      models/
+      repositories/
+      migrations/
+    workers/
+      tasks/
+    integrations/
+      storage/
+      payments/
+      merchants/
+      media/
+      search/
+
+frontend/
+  src/
+    app/
+    components/
+    layouts/
+    features/
+      auth/
+      home/
+      feed/
+      explore/
+      profiles/
+      reels/
+      stories/
+      messages/
+      communities/
+      nearby/
+      marketplace/
+      studio/
+      notifications/
+      settings/
+    hooks/
+    services/
+    stores/
+    types/
+    utils/
+
+Adapt this structure to the existing repository rather than forcing a destructive restructuring.
+
+Each module should have:
+
+- Clear ownership.
+- Business logic.
+- API schemas.
+- Data access.
+- Permission checks.
+- Tests.
+
+Keep UI components separate from database and business logic.
+
+===========================================================
+SECTION 4 — AUTHENTICATION AND USER IDENTITY
+===========================================================
+
+Implement a secure user authentication system.
+
+USER REGISTRATION:
+
+- Email registration.
+- Email verification.
+- Secure password creation.
+- Password reset.
+- Login.
+- Logout.
+- Session management.
+- Account deactivation.
+- Account deletion.
+
+Evaluate phone-number authentication and social OAuth as additional supported providers.
+
+SECURITY:
+
+- Hash passwords with Argon2id.
+- Never store plaintext passwords.
+- Short-lived access tokens.
+- Secure refresh-token rotation.
+- Refresh-token revocation.
+- Rate-limit login attempts.
+- Prevent account enumeration.
+- Validate email verification.
+- Secure cookie settings where cookie authentication is used.
+- CSRF protection where applicable.
+- Protect against session fixation and replay.
+
+Do not store authentication tokens in insecure browser storage.
+
+USER PROFILE:
+
+Every user should have:
+
+- Unique user ID.
+- Unique username.
+- Display name.
+- Profile image.
+- Biography.
+- Optional website.
+- Optional location description.
+- Interests.
+- Account visibility.
+- Verification status.
+- Created timestamp.
+- Profile preferences.
+
+Implement public and private profiles.
+
+PRIVATE PROFILE RULES:
+
+- Only approved followers can access restricted content.
+- Follow requests require approval.
+- Blocked users cannot interact.
+- Private content must not leak through search, feeds or API responses.
+
+===========================================================
+SECTION 5 — SOCIAL GRAPH AND FOLLOWING ENGINE
+===========================================================
+
+Build the relationship system.
+
+FUNCTIONALITY:
+
+- Follow user.
+- Unfollow user.
+- Follow request.
+- Approve request.
+- Reject request.
+- Remove follower.
+- Block user.
+- Unblock user.
+- Mute user.
+- View followers.
+- View following.
+- Mutual connections.
+
+DATA MODEL:
+
+users
+follows
+follow_requests
+blocks
+mutes
+
+Use unique constraints to prevent duplicate relationships.
+
+Handle concurrent follow operations safely.
+
+Create appropriate indexes for:
+
+- Follower lookup.
+- Following lookup.
+- Pending requests.
+- Blocked relationships.
+
+Maintain accurate relationship state.
+
+Do not derive relationship status from frontend-only data.
+
+===========================================================
+SECTION 6 — SOCIAL FEED AND POST ENGINE
+===========================================================
+
+Build the complete Nexora feed.
+
+POST TYPES:
+
+- Text.
+- Single image.
+- Multiple images.
+- Video.
+- Product-linked post.
+- Shared post.
+- Community post.
+
+POST MANAGEMENT:
+
+- Create.
+- Edit.
+- Delete.
+- Publish.
+- Save as draft where supported.
+- Set audience.
+- Report.
+- Hide.
+- Share.
+
+INTERACTIONS:
+
+- Like.
+- Unlike.
+- Comment.
+- Reply.
+- Delete own comment.
+- Edit own comment.
+- React.
+- Save.
+- Unsave.
+- Share.
+
+DATABASE ENTITIES:
+
+posts
+post_media
+post_audiences
+post_likes
+comments
+comment_reactions
+saved_posts
+post_shares
+
+Ensure ownership checks.
+
+A user must not edit or delete another user's post without an authorized moderation permission.
+
+Use transactions for related database changes.
+
+Use pagination with stable ordering.
+
+FEED TABS:
+
+- For You.
+- Following.
+- Latest.
+
+FEED RANKING ENGINE:
+
+Create a dedicated ranking service.
+
+Potential ranking features:
+
+- Relationship strength.
+- Interest similarity.
+- Recency.
+- Engagement quality.
+- Content relevance.
+- User interactions.
+- Saves.
+- Shares.
+- Content diversity.
+- Negative feedback.
+- Repeated-content suppression.
+
+Do not use raw like counts as the only ranking mechanism.
+
+Create an initial deterministic weighted ranking system with documented parameters.
+
+Example conceptual score:
+
+score =
+  relationship_score
+  + interest_relevance
+  + recency_score
+  + meaningful_engagement
+  + content_quality_signals
+  + diversity_adjustment
+  - negative_feedback
+  - repetition_penalty
+
+Normalize features before combining them.
+
+Use time decay for older content.
+
+Apply eligibility and visibility filters BEFORE ranking.
+
+Do not expose private posts.
+
+Implement:
+
+- Cursor-based pagination.
+- Infinite scrolling.
+- Ranking metadata.
+- Duplicate suppression.
+- Feed refresh.
+- Caching.
+- Event tracking with consent and privacy controls.
+
+Do not claim that machine learning is operating if the implementation is only rule-based.
+
+===========================================================
+SECTION 7 — COMMENTS AND INTERACTION ENGINE
+===========================================================
+
+Create a scalable comment system.
+
+Support:
+
+- Nested replies with a documented depth limit.
+- Reactions.
+- Mentions.
+- Editing.
+- Deletion.
+- Reporting.
+- Pagination.
+- Sorting.
+
+Use stable IDs.
+
+Avoid unbounded nested queries.
+
+Use database constraints and authorization.
+
+Implement optimistic frontend interactions with rollback when the server rejects the operation.
+
+===========================================================
+SECTION 8 — EXPLORE AND DISCOVERY ENGINE
+===========================================================
+
+Create a unified discovery page.
+
+SEARCH CATEGORIES:
+
+- People.
+- Posts.
+- Topics.
+- Communities.
+- Products.
+
+SEARCH FEATURES:
+
+- Search suggestions.
+- Recent searches.
+- Clear search history.
+- Typo tolerance where supported.
+- Pagination.
+- Filters.
+- Ranking.
+- Access control.
+
+PEOPLE DISCOVERY:
+
+- Suggested people.
+- Mutual followers.
+- Shared interests.
+- Similar communities.
+- New creators.
+
+COMMUNITY DISCOVERY:
+
+- Trending communities.
+- Recommended communities.
+- Topic categories.
+- Member count where accurate.
+
+TRENDING:
+
+Calculate trending using time-aware engagement velocity, not total lifetime likes.
+
+Use abuse-resistant signals and rate limits.
+
+Do not reveal private user information in search results.
+
+===========================================================
+SECTION 9 — REELS AND VIDEO SYSTEM
+===========================================================
+
+Create a complete short-form video feature.
+
+FRONTEND:
+
+- Vertical full-screen video.
+- Swipe navigation.
+- Autoplay when visible.
+- Pause when outside viewport.
+- Mute and unmute.
+- Like.
+- Comment.
+- Share.
+- Save.
+- Creator profile.
+- Caption.
+- Audio metadata where supported.
+
+BACKEND:
+
+- Video metadata.
+- Original file reference.
+- Processed file references.
+- Thumbnail.
+- Duration.
+- Dimensions.
+- Processing status.
+- Visibility.
+- Owner.
+- Created timestamp.
+
+MEDIA PIPELINE:
+
+1. Create upload session.
+2. Generate authorized upload URL.
+3. Upload directly to object storage.
+4. Validate file.
+5. Queue processing.
+6. Transcode using FFmpeg.
+7. Generate thumbnails.
+8. Generate multiple resolutions.
+9. Update processing status.
+10. Publish only when processing succeeds.
+
+Implement retry handling.
+
+Never send large video binaries through the ordinary JSON API.
+
+Use adaptive streaming where justified by the media delivery architecture.
+
+VIDEO RECOMMENDATION SIGNALS:
+
+- Watch time.
+- Completion.
+- Replays.
+- Saves.
+- Shares.
+- Skips.
+- Negative feedback.
+
+Do not record fabricated analytics.
+
+===========================================================
+SECTION 10 — STORIES AND CAMERA
+===========================================================
+
+Create a story system.
+
+FEATURES:
+
+- Create story.
+- Upload image.
+- Upload video.
+- View story.
+- Story progress.
+- Next/previous.
+- Reply.
+- React.
+- Story audience.
+- Delete own story.
+- Story expiration.
+- Viewer list subject to privacy settings.
+
+Use background jobs for expiration and cleanup.
+
+CAMERA:
+
+Support browser camera APIs where available.
+
+Features:
+
+- Front/rear camera selection where supported.
+- Photo capture.
+- Video capture.
+- Gallery selection.
+- Preview.
+- Basic adjustments.
+- Filters.
+- Text overlays.
+- Stickers.
+
+Do not assume every browser supports every camera feature.
+
+Provide graceful fallback to gallery upload.
+
+ADVANCED AR:
+
+Do not simulate real face tracking.
+
+Use a compatible SDK only if genuinely required and documented.
+
+===========================================================
+SECTION 11 — NEXORA MESSAGING ENGINE
+===========================================================
+
+This is a critical subsystem.
+
+Build a real, persistent, real-time messaging application.
+
+VISUAL REFERENCE:
+
+Use the supplied three-column ChatApp screenshot for layout.
+
+Use Instagram Direct Messages for the conversation interaction model.
+
+PRODUCT REQUIREMENT:
+
+Messaging is exclusively for human users and legitimate human-created group conversations.
+
+Do not create AI bot identities, AI bot conversations or bot management.
+
+A. CONVERSATION MANAGEMENT
+
+Support:
+
+- One-to-one conversations.
+- Group conversations.
+- Conversation creation.
+- Conversation listing.
+- Conversation search.
+- Conversation archive.
+- Mute.
+- Unread count.
+- Conversation deletion from the user's view.
+- Group management.
+- Participant management.
+
+DATA ENTITIES:
+
+conversations
+conversation_members
+messages
+message_attachments
+message_reactions
+message_receipts
+conversation_user_state
+
+Enforce membership checks on every conversation operation.
+
+B. MESSAGE DELIVERY
+
+Support:
+
+- Text.
+- Image attachment.
+- Video attachment.
+- File attachment where allowed.
+- Emoji.
+- Reactions.
+- Replies.
+- Message editing.
+- Message deletion.
+- Read receipts.
+- Delivery status.
+- Typing indicators.
+
+Use a persistent message model.
+
+Each message should contain:
+
+- Unique ID.
+- Conversation ID.
+- Sender ID.
+- Message type.
+- Content or structured payload.
+- Client-generated idempotency key.
+- Server timestamp.
+- Edit timestamp.
+- Deletion status.
+- Delivery metadata where supported.
+
+C. REALTIME ARCHITECTURE
+
+Use WebSockets.
+
+Connection lifecycle:
+
+1. Authenticate connection.
+2. Verify active session.
+3. Verify user identity.
+4. Join authorized conversation channels.
+5. Receive permitted events.
+6. Handle disconnect.
+7. Restore connection.
+8. Synchronize missed messages.
+
+Use Redis to distribute events between multiple backend instances.
+
+PostgreSQL remains the durable source of truth.
+
+Do not rely on WebSocket memory for message persistence.
+
+MESSAGE SEND FLOW:
+
+1. Client creates a unique idempotency key.
+2. Client sends message request.
+3. Backend authenticates sender.
+4. Backend verifies conversation membership.
+5. Backend validates payload.
+6. Backend persists message in a transaction.
+7. Backend publishes a delivery event.
+8. Connected recipients receive the message.
+9. Sender receives authoritative acknowledgement.
+10. Delivery/read status updates are persisted as appropriate.
+
+Implement:
+
+- Reconnection.
+- Retry.
+- Duplicate-send prevention.
+- Ordering.
+- Pagination.
+- Offline synchronization.
+- Unread counters.
+- Authorization.
+- Rate limits.
+
+Do not claim end-to-end encryption unless it is genuinely implemented using an established protocol and independently reviewed.
+
+D. GROUP MESSAGING
+
+Support:
+
+- Create group.
+- Add participants.
+- Remove participants.
+- Leave group.
+- Rename group.
+- Group image.
+- Admin permissions.
+- Group history.
+- Member roles.
+
+E. TYPING AND PRESENCE
+
+Use Redis for ephemeral states.
+
+Typing indicators should expire automatically.
+
+Presence should use heartbeat and expiration.
+
+Do not store every typing event permanently.
+
+Presence visibility should respect user privacy preferences.
+
+F. MOBILE EXPERIENCE
+
+Conversation list first.
+
+Active conversation second.
+
+Full-screen chat.
+
+Back navigation.
+
+Keyboard-aware composer.
+
+G. RELIABILITY
+
+Test:
+
+- Simultaneous messages.
+- Repeated send requests.
+- Network interruption.
+- Reconnection.
+- Offline recipients.
+- Unauthorized conversation access.
+- Group membership changes.
+
+===========================================================
+SECTION 12 — COMMUNITIES ENGINE
+===========================================================
+
+Build human-led communities.
+
+COMMUNITY FEATURES:
+
+- Create community.
+- Edit details.
+- Upload cover.
+- Join.
+- Leave.
+- Invite.
+- Request to join.
+- Approve members.
+- Remove members.
+- Report community.
+- Manage channels.
+- Publish announcements.
+- Moderate content.
+
+CHANNEL TYPES:
+
+- General.
+- Announcements.
+- Questions.
+- Events.
+- Media.
+- Custom topics.
+
+ROLES:
+
+- Owner.
+- Administrator.
+- Moderator.
+- Member.
+
+Implement permission-based authorization.
+
+Do not rely only on hiding buttons in the frontend.
+
+Validate every privileged operation in the backend.
+
+Use audit records for sensitive administrative actions.
+
+===========================================================
+SECTION 13 — SCHOOL AND INSTITUTIONAL COMMUNITIES
+===========================================================
+
+Implement this as a separate organizational module.
+
+Do not mix school administration into the default social navigation.
+
+ORGANIZATION STRUCTURE:
+
+- Institution.
+- Owner / Principal.
+- Sub-administrators.
+- Coordinators.
+- Teachers.
+- Staff.
+- Students and parents where supported.
+
+ONE PRINCIPAL / OWNER:
+
+Each institution has one primary owner.
+
+The owner can delegate responsibilities to authorized sub-administrators.
+
+Use role-based and resource-scoped permissions.
+
+ORGANIZATION GROUPS:
+
+- Main school community.
+- Class groups.
+- Department groups.
+- Teacher groups.
+- Parent groups.
+- Announcement channels.
+
+CENTRAL ANNOUNCEMENT ENGINE:
+
+An authorized administrator can publish one announcement to multiple selected groups.
+
+Workflow:
+
+1. Create announcement.
+2. Select target groups.
+3. Review recipients.
+4. Confirm publication.
+5. Persist announcement.
+6. Create delivery records or notifications.
+7. Display publication status.
+
+Use asynchronous fan-out for large recipient groups.
+
+Prevent duplicate delivery through idempotency keys.
+
+Maintain audit history.
+
+Do not send external WhatsApp messages without an authorized WhatsApp Business API integration.
+
+===========================================================
+SECTION 14 — NEARBY DISCOVERY ENGINE
+===========================================================
+
+Implement privacy-first proximity discovery.
+
+TECHNOLOGY:
+
+PostgreSQL + PostGIS.
+
+Use geographic indexes and distance queries.
+
+Consider geohash or H3 only if actual indexing, aggregation or scaling requirements justify it.
+
+USER CONTROLS:
+
+- Enable nearby discovery.
+- Disable nearby discovery.
+- Select discovery radius.
+- Pause discovery.
+- Block users.
+- Control visibility.
+
+Initial radius options:
+
+- 100m.
+- 200m.
+- Custom permitted range.
+
+BACKEND LOGIC:
+
+1. Validate user authentication.
+2. Verify discovery opt-in.
+3. Verify location permission and freshness.
+4. Apply privacy and block filters.
+5. Query eligible users within permitted distance.
+6. Apply visibility settings.
+7. Return limited profile information.
+8. Never return exact coordinates.
+
+Use ST_DWithin with an appropriate geography representation and spatial index.
+
+SECURITY:
+
+- Never expose raw latitude/longitude of other users.
+- Do not expose precise distances if that creates tracking risk.
+- Use coarse distance labels.
+- Limit query frequency.
+- Prevent repeated coordinate probing.
+- Avoid storing unnecessary location history.
+- Apply retention policies.
+- Provide opt-out.
+- Require explicit consent.
+
+WEB LIMITATION:
+
+A web application cannot guarantee continuous background location discovery when closed.
+
+Do not falsely promise background proximity functionality.
+
+Document native mobile requirements separately.
+
+===========================================================
+SECTION 15 — NOTIFICATION ENGINE
+===========================================================
+
+Implement a unified notification service.
+
+TYPES:
+
+- Follow.
+- Follow request.
+- Like.
+- Comment.
+- Mention.
+- Message.
+- Group invitation.
+- Community announcement.
+- Community activity.
+- Nearby discovery.
+- Shopping updates where supported.
+
+BACKEND:
+
+notifications
+notification_preferences
+notification_deliveries
+device_tokens where push notifications are implemented
+
+Implement:
+
+- Read.
+- Unread.
+- Mark all as read.
+- Preferences.
+- Notification pagination.
+- Deep links.
+- Delivery retries.
+- Deduplication.
+
+Use background jobs for non-critical notification delivery.
+
+Do not create duplicate notifications for the same event.
+
+===========================================================
+SECTION 16 — SOCIAL COMMERCE AND MARKETPLACE
+===========================================================
+
+Create a social commerce subsystem.
+
+FEATURES:
+
+- Product discovery.
+- Product details.
+- Product images.
+- Merchant profiles.
+- Pricing.
+- Availability where provided.
+- Product collections.
+- Saved products.
+- Product-linked posts.
+- External merchant redirection.
+
+DATA ENTITIES:
+
+products
+merchants
+product_images
+product_offers
+saved_products
+product_collections
+product_collection_items
+merchant_integrations
+
+Do not assume that all merchants offer accessible APIs.
+
+Build an adapter architecture for authorized merchant integrations.
+
+Every product offer should preserve:
+
+- Source.
+- Merchant.
+- Product identifier.
+- Price.
+- Currency.
+- Last updated.
+- Product URL.
+- Availability status when available.
+
+Use clear stale-data indicators.
+
+Do not fabricate live prices or inventory.
+
+Do not scrape websites against their terms or access controls.
+
+Do not store third-party payment credentials.
+
+===========================================================
+SECTION 17 — VISUAL PRODUCT SEARCH
+===========================================================
+
+FEATURE NAME:
+
+Find This Product.
+
+USER EXPERIENCE:
+
+1. Upload product photo.
+2. Preview image.
+3. Submit search.
+4. Process image.
+5. Extract visual characteristics.
+6. Query authorized product catalogs.
+7. Rank relevant results.
+8. Display matching products.
+9. Open merchant listing.
+
+TECHNICAL ARCHITECTURE:
+
+Create an independent visual-search service interface.
+
+Potential implementation:
+
+- Image preprocessing.
+- Vision model for product descriptions.
+- Image embeddings.
+- Vector similarity search.
+- Product metadata filtering.
+- Merchant catalog adapters.
+
+Start with the simplest architecture that works.
+
+Do not introduce a dedicated vector database unless justified by actual catalog size and query requirements.
+
+Use pgvector if embedding search is needed and compatible with the existing PostgreSQL environment.
+
+Handle:
+
+- Unsupported file types.
+- Excessive file size.
+- Failed image processing.
+- No matches.
+- Provider timeouts.
+- Rate limits.
+
+Do not claim that a product is an exact match unless the data supports that conclusion.
+
+===========================================================
+SECTION 18 — NEXORA STUDIO: OUTFIT BUILDER AND VIRTUAL TRY-ON
+===========================================================
+
+Create Nexora Studio as a dedicated product feature.
+
+This is not an AI chatbot.
+
+It is a visual workspace.
+
+A. PERSONAL PHOTO
+
+- Upload photo.
+- Preview.
+- Replace.
+- Remove.
+- Consent.
+- Processing status.
+
+B. PRODUCT SELECTION
+
+Allow users to choose products from connected catalogs.
+
+Examples:
+
+- Shirt.
+- Trousers.
+- Shoes.
+- Jacket.
+- Accessories.
+
+C. OUTFIT BUILDER
+
+Create a visual canvas.
+
+Support:
+
+- Add product.
+- Remove product.
+- Replace product.
+- Reorder.
+- Save outfit.
+- Duplicate outfit.
+- Compare outfits.
+
+D. VIRTUAL TRY-ON
+
+Create a provider-independent integration interface.
+
+Provider flow:
+
+1. Validate user authorization.
+2. Validate photo.
+3. Validate selected products.
+4. Create processing job.
+5. Submit to authorized try-on provider.
+6. Store provider job reference.
+7. Poll or receive webhook.
+8. Validate result.
+9. Store output securely.
+10. Notify user.
+11. Display result.
+
+Use background jobs.
+
+Do not block ordinary API requests while generating images.
+
+E. RESULT MANAGEMENT
+
+- Preview.
+- Save look.
+- Delete result.
+- Share only with user consent.
+- View selected products.
+- Open merchant listing.
+
+F. FUTURE VIDEO PREVIEW
+
+Keep video try-on as an extensible future capability.
+
+Do not present static images as real motion video.
+
+G. PRIVACY
+
+Personal images must be private by default.
+
+Use restricted signed URLs.
+
+Set retention and deletion policies.
+
+Explain third-party image processing.
+
+===========================================================
+SECTION 19 — SAVED COLLECTIONS
+===========================================================
+
+Implement collections for:
+
+- Posts.
+- Reels.
+- Products.
+- Outfits.
+- Communities.
+
+Features:
+
+- Create collection.
+- Rename.
+- Delete.
+- Add item.
+- Remove item.
+- Change visibility.
+- Reorder items.
+
+Apply owner authorization.
+
+Use persistent database records.
+
+===========================================================
+SECTION 20 — MODERATION AND TRUST SYSTEM
+===========================================================
+
+Build a safety and moderation foundation.
+
+Features:
+
+- Report user.
+- Report post.
+- Report comment.
+- Report message where permitted.
+- Report community.
+- Block.
+- Mute.
+- Hide.
+- Moderation queue.
+- Admin review.
+- Action history.
+
+Use status workflows:
+
+- Pending.
+- Under review.
+- Actioned.
+- Dismissed.
+
+Implement rate limits and abuse detection.
+
+AI-assisted moderation may be introduced through a provider adapter, but human review and appeal mechanisms should remain available.
+
+Do not automatically ban users solely on an unreviewed AI classification.
+
+===========================================================
+SECTION 21 — DATABASE ENGINEERING
+===========================================================
+
+Use PostgreSQL as the primary transactional database.
+
+Design normalized relational schemas.
+
+Required core tables should include, as appropriate:
+
+IDENTITY:
+users
+profiles
+user_settings
+user_sessions
+user_devices
+
+SOCIAL:
+follows
+follow_requests
+blocks
+mutes
+
+CONTENT:
+posts
+post_media
+comments
+post_likes
+comment_reactions
+saved_posts
+post_shares
+
+MEDIA:
+media_assets
+media_variants
+media_processing_jobs
+
+MESSAGING:
+conversations
+conversation_members
+messages
+message_attachments
+message_reactions
+message_receipts
+conversation_user_state
+
+COMMUNITIES:
+communities
+community_members
+community_roles
+community_channels
+community_posts
+community_invites
+
+STORIES:
+stories
+story_views
+story_reactions
+
+NOTIFICATIONS:
+notifications
+notification_preferences
+notification_deliveries
+
+DISCOVERY:
+search_history
+recommendation_events
+user_interests
+
+NEARBY:
+nearby_preferences
+ephemeral_location_records only where strictly necessary
+
+COMMERCE:
+merchants
+products
+product_offers
+product_images
+saved_products
+product_collections
+
+STUDIO:
+outfits
+outfit_items
+tryon_jobs
+tryon_results
+
+INSTITUTIONS:
+institutions
+institution_members
+institution_roles
+institution_groups
+institution_announcements
+
+MODERATION:
+reports
+moderation_cases
+moderation_actions
+audit_logs
+
+ENGINEERING REQUIREMENTS:
+
+- UUID primary keys where appropriate.
+- Foreign keys.
+- Unique constraints.
+- Check constraints.
+- Indexes.
+- Timestamps.
+- Soft deletion only where justified.
+- Transactions.
+- Migration versioning.
+- Data retention rules.
+- Referential integrity.
+
+Avoid creating one enormous table.
+
+Do not store large media files inside PostgreSQL.
+
+Use object storage and retain references in the database.
+
+Create a database relationship diagram in the documentation.
+
+===========================================================
+SECTION 22 — API ENGINEERING
+===========================================================
+
+Create versioned APIs.
+
+Base path:
+
+/api/v1/
+
+Use consistent REST conventions.
+
+Required endpoint groups:
+
+AUTH:
+POST /auth/register
+POST /auth/login
+POST /auth/refresh
+POST /auth/logout
+POST /auth/forgot-password
+POST /auth/reset-password
+POST /auth/verify-email
+
+PROFILES:
+GET /users/{username}
+PATCH /users/me
+GET /users/{username}/followers
+GET /users/{username}/following
+
+SOCIAL:
+POST /users/{user_id}/follow
+DELETE /users/{user_id}/follow
+GET /feed
+POST /posts
+GET /posts/{post_id}
+PATCH /posts/{post_id}
+DELETE /posts/{post_id}
+POST /posts/{post_id}/like
+POST /posts/{post_id}/comments
+
+DISCOVERY:
+GET /search
+GET /discover/people
+GET /discover/communities
+GET /discover/trending
+
+MESSAGING:
+GET /conversations
+POST /conversations
+GET /conversations/{id}/messages
+POST /conversations/{id}/messages
+POST /conversations/{id}/read
+
+COMMUNITIES:
+GET /communities
+POST /communities
+GET /communities/{id}
+POST /communities/{id}/join
+POST /communities/{id}/leave
+
+NEARBY:
+GET /nearby/preferences
+PUT /nearby/preferences
+POST /nearby/discover
+
+MEDIA:
+POST /media/upload-session
+POST /media/complete
+GET /media/{id}
+
+COMMERCE:
+GET /products
+GET /products/{id}
+POST /products/visual-search
+POST /products/{id}/save
+
+STUDIO:
+POST /studio/outfits
+POST /studio/try-on
+GET /studio/jobs/{id}
+GET /studio/results
+
+NOTIFICATIONS:
+GET /notifications
+POST /notifications/read
+
+The final API must be derived from actual implemented schemas and authorization requirements.
+
+Do not implement endpoints that return hardcoded success.
+
+Generate accurate OpenAPI documentation from FastAPI.
+
+For all mutations:
+
+- Validate input.
+- Authenticate.
+- Authorize.
+- Execute business logic.
+- Persist changes.
+- Return consistent responses.
+- Handle errors.
+
+Use consistent error codes and pagination formats.
+
+===========================================================
+SECTION 23 — FRONTEND ENGINEERING
+===========================================================
+
+Build a consistent application with shared layout primitives.
+
+PUBLIC PAGES:
+
+- Landing page.
+- About.
+- Features.
+- Privacy.
+- Terms.
+- Sign in.
+- Register.
+
+AUTHENTICATED PAGES:
+
+- Home.
+- Explore.
+- Reels.
+- Messages.
+- Communities.
+- Nearby.
+- Marketplace.
+- Nexora Studio.
+- Notifications.
+- Profile.
+- Settings.
+
+Every page must have:
+
+- Loading state.
+- Error state.
+- Empty state.
+- Permission state where relevant.
+- Responsive layout.
+- Keyboard accessibility.
+- Proper focus handling.
+
+Use reusable components.
+
+Do not duplicate UI logic.
+
+Use server state for API data.
+
+Use local state only for temporary interface state.
+
+Keep URL state for shareable filters and search where appropriate.
+
+===========================================================
+SECTION 24 — NEXORA DESIGN LANGUAGE
+===========================================================
+
+Use the approved Nexora identity.
+
+COLOR PALETTE:
+
+Primary Graphite: #242B35
+Signal Blue: #4777DF
+Soft Amber: #C49A52
+
+DARK THEME:
+
+#101318
+#171C23
+#1D232C
+#242B35
+
+LIGHT THEME:
+
+#F5F6F8
+#EBEEF2
+#FFFFFF
+
+TYPOGRAPHY:
+
+Manrope:
+- Hero headings.
+- Section titles.
+- Page titles.
+
+Inter:
+- Body.
+- Inbox.
+- Message text.
+- Metadata.
+- Buttons.
+- Inputs.
+
+DESIGN PRINCIPLES:
+
+- Minimal architectural futurism.
+- Restrained glassmorphism.
+- Editorial typography.
+- Fine borders.
+- Intentional spacing.
+- Neutral surfaces.
+- Controlled shadows.
+- Consistent radii.
+- Accessible contrast.
+
+PUBLIC LANDING PAGE:
+
+Use the previously supplied SynApse screenshot as a composition reference.
+
+Create a strong public-facing hero section.
+
+Include:
+
+- Clear Nexora identity.
+- Compelling headline.
+- Short product explanation.
+- Primary registration CTA.
+- Secondary exploration CTA.
+- A realistic product-interface mockup.
+- Feature preview.
+- Social proof only when genuine.
+
+Do not use purple gradients.
+
+Do not create generic AI marketing language.
+
+AUTHENTICATED INBOX:
+
+Use the supplied three-column messaging reference.
+
+- Narrow icon rail.
+- Conversation list.
+- Active conversation.
+- Instagram-inspired message typography.
+- Clear incoming and outgoing messages.
+- High information density.
+
+GLASSMORPHISM:
+
+Apply only where useful:
+
+- Floating navigation.
+- Menus.
+- Popovers.
+- Dialogs.
+- Contextual controls.
+
+Do not make every card translucent.
+
+Do not sacrifice readability.
+
+DARK AND LIGHT THEMES must both work.
+
+Use semantic design tokens rather than scattering raw colors throughout the application.
+
+===========================================================
+SECTION 25 — PERFORMANCE AND SCALABILITY
+===========================================================
+
+Design for an initial production target of approximately 100 concurrent active users, with an architecture that can grow.
+
+Do not claim that capacity has been verified without load tests.
+
+Implement:
+
+- Database connection pooling.
+- Query optimization.
+- Appropriate indexes.
+- Redis caching.
+- Cursor pagination.
+- Lazy loading.
+- Image resizing.
+- CDN-ready media delivery.
+- Background processing.
+- WebSocket connection management.
+- Rate limiting.
+- Structured logging.
+- Health checks.
+
+Avoid N+1 queries.
+
+Avoid synchronous processing of heavy media jobs.
+
+Avoid loading an entire feed or conversation history at once.
+
+Prepare for horizontal backend scaling.
+
+Use Redis-backed cross-instance event distribution.
+
+Create basic observability:
+
+- Request latency.
+- Error rate.
+- Database performance.
+- Background queue depth.
+- WebSocket connection counts.
+- Failed jobs.
+- Storage usage.
+
+Use metrics and load tests to determine actual capacity.
+
+===========================================================
+SECTION 26 — SECURITY AND PRIVACY
+===========================================================
+
+Security is part of the architecture, not a final visual feature.
+
+Implement:
+
+- Authentication.
+- Authorization.
+- Role-based access control.
+- Resource ownership checks.
+- Rate limiting.
+- Input validation.
+- Output encoding.
+- SQL injection protection.
+- XSS protection.
+- CSRF protection where applicable.
+- Secure CORS configuration.
+- File upload validation.
+- MIME verification.
+- Signed URLs.
+- Secret management.
+- Audit logs.
+- Session revocation.
+- Backup strategy.
+
+Use OWASP ASVS as a security verification reference.
+
+For user-generated content:
+
+- Validate files.
+- Restrict file sizes.
+- Prevent malicious uploads.
+- Sanitize rendered content.
+- Restrict dangerous file types.
+
+For location:
+
+- Explicit opt-in.
+- Data minimization.
+- Coarse disclosure.
+- Short retention.
+
+For personal images:
+
+- Private storage.
+- Consent.
+- Controlled access.
+- Deletion mechanisms.
+
+For Indian deployment, assess applicable Digital Personal Data Protection Act obligations, platform obligations and other applicable laws with qualified legal review.
+
+Do not claim legal compliance solely because technical controls exist.
+
+===========================================================
+SECTION 27 — TESTING AND VERIFICATION
+===========================================================
+
+Create tests at three levels.
+
+BACKEND UNIT TESTS:
+
+- Business logic.
+- Permissions.
+- Validation.
+- Ranking.
+- Visibility.
+- Message delivery logic.
+- Location filtering.
+
+INTEGRATION TESTS:
+
+- Database persistence.
+- API endpoints.
+- Authentication.
+- Redis event distribution.
+- Background jobs.
+- Storage integration.
+
+FRONTEND END-TO-END TESTS:
+
+- Register.
+- Login.
+- Edit profile.
+- Follow user.
+- Publish post.
+- Like.
+- Comment.
+- Search.
+- Open conversation.
+- Send message.
+- Receive message.
+- Create group.
+- Join community.
+- Upload media.
+- Save product.
+- Use nearby discovery with simulated test data and explicit consent.
+
+TEST SECURITY CASES:
+
+- Unauthorized post editing.
+- Unauthorized message access.
+- Private profile leakage.
+- Cross-user data access.
+- Unauthorized community administration.
+- Invalid upload.
+- Duplicate message submission.
+- Repeated API requests.
+
+Use isolated test databases and test accounts.
+
+Do not run destructive tests against production data.
+
+===========================================================
+SECTION 28 — IMPLEMENTATION PHASES
+===========================================================
+
+Do not attempt a massive unreviewed rewrite.
+
+Use the following engineering sequence.
+
+PHASE 0 — REPOSITORY AUDIT
+
+Understand current architecture and dependencies.
+
+PHASE 1 — INFRASTRUCTURE FOUNDATION
+
+Database.
+Authentication.
+API foundation.
+Migrations.
+Configuration.
+Logging.
+Permissions.
+
+PHASE 2 — SOCIAL FOUNDATION
+
+Profiles.
+Follow graph.
+Posts.
+Likes.
+Comments.
+Feed.
+
+PHASE 3 — MESSAGING
+
+Conversations.
+Messages.
+WebSockets.
+Redis.
+Receipts.
+Attachments.
+Groups.
+Offline synchronization.
+
+PHASE 4 — COMMUNITIES
+
+Communities.
+Channels.
+Roles.
+Announcements.
+Moderation.
+
+PHASE 5 — DISCOVERY
+
+Search.
+Recommendations.
+Explore.
+Trending.
+
+PHASE 6 — MEDIA
+
+Uploads.
+Stories.
+Reels.
+FFmpeg.
+Media processing.
+
+PHASE 7 — NEARBY
+
+PostGIS.
+Location permissions.
+Privacy.
+Proximity discovery.
+
+PHASE 8 — COMMERCE
+
+Products.
+Merchants.
+Visual search.
+Product collections.
+
+PHASE 9 — NEXORA STUDIO
+
+Outfit builder.
+Try-on provider integration.
+Result management.
+
+PHASE 10 — INSTITUTIONS
+
+School ownership.
+Delegated administration.
+Class groups.
+Announcements.
+
+PHASE 11 — PRODUCTION HARDENING
+
+Testing.
+Security.
+Performance.
+Monitoring.
+Deployment.
+
+At the end of each phase:
+
+1. Run tests.
+2. Run type checks.
+3. Run database migration checks.
+4. Run production build.
+5. Verify affected features.
+6. Document missing dependencies.
+7. Fix regressions before continuing.
+
+===========================================================
+SECTION 29 — REQUIRED ENGINEERING DELIVERABLES
+===========================================================
+
+Maintain these documents:
+
+/docs/NEXORA_SYSTEM_ARCHITECTURE.md
+/docs/NEXORA_DATABASE_DESIGN.md
+/docs/NEXORA_API_SPECIFICATION.md
+/docs/NEXORA_MESSAGING_ARCHITECTURE.md
+/docs/NEXORA_ALGORITHM_DESIGN.md
+/docs/NEXORA_SECURITY_MODEL.md
+/docs/NEXORA_DEPLOYMENT_GUIDE.md
+/docs/NEXORA_TESTING_STRATEGY.md
+/docs/NEXORA_FEATURE_MATRIX.md
+/docs/NEXORA_CHANGELOG.md
+
+Include:
+
+- Architecture diagrams.
+- Database ER diagrams.
+- API examples.
+- Environment variable documentation.
+- Local development instructions.
+- Migration instructions.
+- Test commands.
+- Deployment instructions.
+- Third-party integration requirements.
+
+Do not commit secrets.
+
+Provide a safe .env.example.
+
+===========================================================
+SECTION 30 — FINAL ACCEPTANCE CRITERIA
+===========================================================
+
+Nexora is not considered complete because the pages look attractive.
+
+A feature is complete only when its required frontend, backend, database, permissions, validation and tests are implemented.
+
+For every feature, document:
+
+1. Frontend status.
+2. Backend status.
+3. Database status.
+4. API status.
+5. Authorization status.
+6. Integration status.
+7. Test status.
+
+Use these statuses:
+
+- Implemented and verified.
+- Implemented but not verified.
+- Frontend only.
+- Backend only.
+- Blocked by external integration.
+- Not implemented.
+
+Do not mark a feature complete merely because its UI exists.
+
+FINAL INSTRUCTION:
+
+You are engineering Nexora as a complete independent social platform.
+
+Do not turn it into an AI bot product.
+
+Do not rewrite working functionality without justification.
+
+Do not fabricate data, APIs, analytics or integrations.
+
+Do not create mock functionality and present it as production functionality.
+
+Inspect the repository.
+
+Establish the architecture.
+
+Build the database.
+
+Implement the APIs.
+
+Connect the frontend.
+
+Implement real-time messaging.
+
+Build the algorithms.
+
+Verify the entire system.
+
+Proceed systematically and produce working, maintainable, secure software.
+
+THE PRODUCT MUST BE NEXORA — NOT A COLLECTION OF UNCONNECTED DEMO PAGES.

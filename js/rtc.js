@@ -80,6 +80,23 @@ export function createRtcManager({ db, auth, onStateChange, onToast, onScreenSha
   let unsubPeers = null;
   let unsubSignals = null;
   let globalUid = '';
+  let cachedIceServers = null;
+
+  async function refreshIceServersConfig() {
+    try {
+      const token = auth.currentUser ? await auth.currentUser.getIdToken() : '';
+      if (!token) return;
+      const res = await fetch('/api/rtc/ice-servers', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data?.iceServers) && data.iceServers.length > 0) {
+          cachedIceServers = data.iceServers;
+        }
+      }
+    } catch {}
+  }
 
   const state = {
     activeCall: null, // { id, kind, targetId, title, peerUserId, sessionId, mode, status, startedAtMs }
@@ -352,7 +369,10 @@ export function createRtcManager({ db, auth, onStateChange, onToast, onScreenSha
     if (peerConnections.has(remoteUid)) return peerConnections.get(remoteUid);
     if (typeof RTCPeerConnection === 'undefined') return null;
 
-    const pc = new RTCPeerConnection(buildPeerConnectionConfig());
+    if (!cachedIceServers) {
+      void refreshIceServersConfig();
+    }
+    const pc = new RTCPeerConnection(buildPeerConnectionConfig(cachedIceServers));
     peerConnections.set(remoteUid, pc);
 
     attachLocalTracksToPc(pc);
