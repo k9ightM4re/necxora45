@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Community Welcome &amp; Invite — Nexora</title>
+    <meta
+      name="description"
+      content="Review community guidelines, accept friend invites, manage connection requests, or launch a new Nexora community."
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/welcome.css" />
+  </head>
+  <body>
+    <div
+      id="auth-loading-gate"
+      style="position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#101318;color:#F2F4F7;"
+      aria-live="polite"
+    >
+      <div style="display:grid;gap:12px;justify-items:center;text-align:center;padding:24px;">
+        <div class="nx-loading-mark"><span class="nx-loading-ring"></span><img src="/assets/logo.svg" alt="Nexora" /></div>
+        <div style="font-size:1rem;font-weight:700;">Verifying your session...</div>
+        <div style="font-size:0.84rem;color:#8C96A5;">Loading Nexora Welcome Hub</div>
+      </div>
+    </div>
+
+    <div id="app-shell" hidden>
+      <header class="welcome-topbar">
+        <a href="/app.html" class="welcome-brand">
+          <img src="/assets/logo.svg" alt="" width="30" height="30" />
+          <span>Nexora Welcome Hub</span>
+        </a>
+        <div class="welcome-top-actions">
+          <button type="button" class="w-btn w-btn-ghost-light" data-theme-switch aria-label="Toggle Light or Dark theme" aria-pressed="true">
+            <span data-theme-label>Dark</span>
+          </button>
+          <span id="welcome-user-chip" style="font-size:0.84rem;color:var(--nx-text-secondary);"></span>
+          <a href="/app.html" class="w-btn w-btn-primary" id="open-workspace-link">Open Workspace</a>
+          <button type="button" class="w-btn w-btn-ghost-light" id="welcome-signout-btn">Sign Out</button>
+        </div>
+      </header>
+
+      <main class="welcome-shell">
+        <section class="welcome-hero">
+          <div>
+            <h1 id="welcome-greeting">Welcome to NEXORA</h1>
+            <p>
+              Accept a friend’s invite link, agree to community rules before entering, review incoming 1-on-1 chat requests,
+              or create a new private or public community space.
+            </p>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="/app.html" class="w-btn w-btn-primary" id="hero-open-workspace">Go to Workspace</a>
+          </div>
+        </section>
+
+        <div id="welcome-feedback" class="w-status-banner" hidden aria-live="polite"></div>
+
+        <div class="welcome-grid">
+          <!-- Left Column: Friend Invite Screening & Pending Requests -->
+          <div style="display:grid;gap:22px;">
+            <section class="welcome-card" aria-labelledby="invite-heading">
+              <h2 id="invite-heading">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                </svg>
+                <span>Join Community via Friend Invite</span>
+              </h2>
+              <form class="invite-lookup-form" id="invite-lookup-form">
+                <input
+                  type="text"
+                  class="w-input"
+                  id="invite-code-input"
+                  placeholder="Paste invite code or full ?invite=... link"
+                  style="flex:1;min-width:210px;"
+                  aria-label="Invite code or link"
+                />
+                <button type="submit" class="w-btn w-btn-navy" id="lookup-invite-btn">Preview Invite</button>
+              </form>
+
+              <div id="invite-preview-container"></div>
+            </section>
+
+            <section class="welcome-card" aria-labelledby="friend-requests-heading">
+              <h2 id="friend-requests-heading">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="8.5" cy="7" r="4"/>
+                  <line x1="20" y1="8" x2="20" y2="14"/>
+                  <line x1="23" y1="11" x2="17" y2="11"/>
+                </svg>
+                <span>Incoming Chat &amp; Call Requests</span>
+              </h2>
+              <div class="req-list" id="incoming-requests-list">
+                <p style="margin:0;color:var(--ink-muted);font-size:0.86rem;">Loading connection requests...</p>
+              </div>
+            </section>
+          </div>
+
+          <!-- Right Column: Create New Community -->
+          <section class="welcome-card" aria-labelledby="create-community-heading">
+            <h2 id="create-community-heading">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>Create a New Community</span>
+            </h2>
+            <form id="welcome-create-server-form" style="display:grid;gap:12px;">
+              <label style="display:grid;gap:5px;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Community Name</span>
+                <input type="text" class="w-input" id="w-srv-name" placeholder="e.g. Product Engineering" minlength="2" maxlength="50" required />
+              </label>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <label style="display:grid;gap:5px;">
+                  <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Category</span>
+                  <select class="w-select" id="w-srv-category">
+                    <option value="Technology">Technology</option>
+                    <option value="Design">Design</option>
+                    <option value="Education">Education</option>
+                    <option value="Creators">Creators</option>
+                    <option value="Gaming">Gaming</option>
+                  </select>
+                </label>
+                <label style="display:grid;gap:5px;">
+                  <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Access Mode</span>
+                  <select class="w-select" id="w-srv-visibility">
+                    <option value="private">Private (Invite Only)</option>
+                    <option value="public">Public (Approval / Invite)</option>
+                  </select>
+                </label>
+              </div>
+
+              <label style="display:grid;gap:5px;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Description</span>
+                <textarea class="w-textarea" id="w-srv-desc" rows="2" maxlength="300" placeholder="What members collaborate on here..."></textarea>
+              </label>
+
+              <label style="display:grid;gap:5px;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Community Rules &amp; Guidelines</span>
+                <textarea class="w-textarea" id="w-srv-rules" rows="3" maxlength="1000">1. Treat every member with respect.
+2. No unsolicited spam, phishing, or external scam links.
+3. Ask permission before recording live voice or screen sessions.</textarea>
+              </label>
+
+              <label style="display:grid;gap:5px;">
+                <span style="font-size:0.8rem;font-weight:700;color:var(--ink-secondary);">Welcome Message</span>
+                <input type="text" class="w-input" id="w-srv-welcome" maxlength="400" placeholder="Welcome to the space! Introduce yourself in #general." />
+              </label>
+
+              <button type="submit" class="w-btn w-btn-primary" id="welcome-create-btn">Create Community &amp; Open</button>
+            </form>
+          </section>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/js/welcome.js"></script>
+      <script type="module" src="/js/pwa.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify Email — Nexora</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body data-page="verify">
+    <header class="auth-topbar">
+      <a href="/index.html" class="back-link">← Back to NEXORA</a>
+      <a href="/index.html" class="brand-lockup">
+        <img src="/assets/logo.svg" alt="" width="28" height="28" />
+        <span>NEXORA</span>
+      </a>
+    </header>
+
+    <main class="auth-main">
+      <section class="auth-card" aria-labelledby="verify-heading">
+        <div class="auth-header">
+          <h1 id="verify-heading">Verify your email</h1>
+          <p>We sent a verification link to <strong id="verify-email-address">your email address</strong>.</p>
+        </div>
+
+        <div class="form-alert" id="form-alert" role="alert" aria-live="polite"></div>
+
+        <div class="auth-form">
+          <button type="button" class="btn-submit" id="check-verify-btn">I’ve Verified — Open Workspace</button>
+          <button type="button" class="btn-secondary" id="resend-verify-btn">Resend Verification Email</button>
+          <button type="button" class="link-btn" id="verify-logout-btn" style="margin-top: 6px;">Sign out and use a different account</button>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="/js/auth.js"></script>
+      <script type="module" src="/js/pwa.js"></script>
+  </body>
+</html>

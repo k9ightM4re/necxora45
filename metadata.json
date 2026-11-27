@@ -1,0 +1,8 @@
+{
+  "name": "Remix NEXORA - Community \u0026 Voice Platform",
+  "description": "Connect. Communicate. Create Communities. An original high-performance community platform with servers, real-time channels, voice and stage rooms, direct messages, and administration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

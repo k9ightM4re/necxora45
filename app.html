@@ -1,0 +1,1454 @@
+<!doctype html>
+<html lang="en" data-theme="dark" data-density="cozy">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nexora — Connect. Create. Share.</title>
+    <meta
+      name="description"
+      content="Nexora social ecosystem — Social Feed, Stories, Reels, Real-Time Messaging, Video Calls, Communities, and Live Streaming."
+    />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/app.css" />
+    <link rel="stylesheet" href="/css/social.css" />
+    <link rel="stylesheet" href="/css/templates.css" />
+  </head>
+  <body>
+    <div
+      id="auth-loading-gate"
+      style="position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#101318;color:#F2F4F7;"
+      aria-live="polite"
+    >
+      <div style="display:grid;gap:14px;justify-items:center;text-align:center;padding:24px;">
+        <div class="nx-loading-mark"><span class="nx-loading-ring"></span><img src="/assets/logo.svg" alt="Nexora" /></div>
+        <div style="font-family:var(--font-display);font-size:1.08rem;font-weight:700;letter-spacing:-0.01em;">Nexora</div>
+        <div style="font-size:0.84rem;color:#8C96A5;">Verifying your session...</div>
+      </div>
+    </div>
+
+    <div class="nx-app-frame" id="app-shell" hidden>
+      <div class="nx-nav-scrim" id="nx-nav-scrim" aria-hidden="true"></div>
+
+      <!-- Unified NEXORA Left Navigation Sidebar -->
+      <aside class="nx-left-nav" id="nx-left-nav" aria-label="Main NEXORA navigation">
+        <div>
+          <a href="#home" class="nx-brand-block" id="nx-brand-home-link">
+            <img src="/assets/logo.svg" alt="NEXORA" width="34" height="34" />
+            <span class="nx-brand-wordmark">NEXORA</span>
+          </a>
+
+          <nav class="nx-nav-list" id="nx-nav-list" aria-label="Platform sections">
+            <button type="button" class="nx-nav-btn active" data-nx-nav="home">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span class="nx-nav-label">Home</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="explore">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+              <span class="nx-nav-label">Explore</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="reels">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+              <span class="nx-nav-label">Reels</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="templates">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+              <span class="nx-nav-label">Templates</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="social-circle">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+              <span class="nx-nav-label">Social Circle</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="messages">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span class="nx-nav-label">Messages</span>
+              <span class="nx-nav-badge" id="nx-nav-msg-badge" hidden>0</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="calls">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <span class="nx-nav-label">Video Calls</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="communities">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <span class="nx-nav-label">Communities</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="nx-nav-label">Notifications</span>
+              <span class="nx-nav-badge" id="nx-nav-notif-badge" hidden>0</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="profile">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span class="nx-nav-label">My Profile</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="saved">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              <span class="nx-nav-label">Saved Posts</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="settings">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span class="nx-nav-label">Settings</span>
+            </button>
+            <button type="button" class="nx-nav-btn" data-nx-nav="admin" id="nx-admin-nav-btn" hidden>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span class="nx-nav-label">Admin Dashboard</span>
+            </button>
+          </nav>
+        </div>
+
+        <div>
+          <div class="nx-live-promo">
+            <div class="nx-live-promo-head">
+              <div class="nx-live-icon-circle">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div>
+                <div class="nx-live-promo-title">Go Live</div>
+                <div class="nx-live-promo-sub">Broadcast directly to your circle</div>
+              </div>
+            </div>
+            <button type="button" class="nx-live-start-btn" data-nx-nav="live" id="nx-start-live-btn">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <span>Start Live</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Column: Unified Top Bar + Dynamic Views -->
+      <div class="nx-main-column">
+        <header class="nx-top-header">
+          <div class="nx-top-left">
+            <button type="button" class="nx-mobile-menu-btn" id="nx-mobile-menu-btn" aria-label="Open navigation menu">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></svg>
+            </button>
+            <div class="nx-search-pill">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="search" id="nx-global-search" placeholder="Search Nexora..." aria-label="Search on Nexora" autocomplete="off" />
+            </div>
+            <div class="nx-search-dropdown" id="nx-search-dropdown" hidden></div>
+          </div>
+
+          <div class="nx-top-right">
+            <button type="button" class="btn btn-secondary nx-top-utility-btn" data-open-rag-assistant="ask" title="Ask AI &amp; Semantic Search">
+              Ask AI
+            </button>
+
+            <select class="select nx-top-theme-select" data-theme-select aria-label="Choose color theme">
+              <option value="dark">Dark (Graphite)</option>
+              <option value="light">Light (Daylight)</option>
+            </select>
+
+            <button type="button" class="nx-theme-pill" id="nx-theme-pill" aria-label="Switch Light or Dark theme" title="Toggle Light / Dark Mode">
+              <span class="nx-theme-pill-option" data-mode="light">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+              </span>
+              <span class="nx-theme-pill-option" data-mode="dark">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              </span>
+            </button>
+
+            <button type="button" class="nx-top-icon-btn" id="nx-top-notif-btn" aria-label="Notifications" title="Notifications">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="nx-top-badge" id="nx-top-notif-badge" hidden>0</span>
+            </button>
+
+            <button type="button" class="nx-top-icon-btn" id="nx-top-msg-btn" aria-label="Messages" title="Messages">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <span class="nx-top-badge" id="nx-top-msg-badge" hidden>0</span>
+            </button>
+
+            <button type="button" class="nx-top-profile-btn" id="nx-top-profile-btn" aria-label="Account menu" aria-haspopup="menu">
+              <span class="nx-top-avatar-wrap" id="nx-top-avatar">
+                <span>--</span>
+                <span class="nx-online-dot" id="nx-top-status-dot"></span>
+              </span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="nx-workspace-area" id="nx-workspace-area">
+          <!-- Social Views (Home, Explore, Reels, Video Calls, Notifications, Profile, Saved, Settings, Live, Admin) -->
+          <div class="nx-social-root" id="nx-social-root"></div>
+
+          <!-- Dedicated Active Call Tab & Post-Call Rating Workspace -->
+          <section class="nx-call-tab-workspace" id="nx-call-tab-workspace" hidden aria-label="Active Call Tab"></section>
+
+          <!-- Legacy Real-Time Messages & Communities Workspace -->
+          <div class="nx-legacy-workspace app-shell" id="nx-legacy-workspace" hidden>
+            <div class="drawer-scrim" id="drawer-scrim" aria-hidden="true"></div>
+
+            <!-- 1. Compact Server Navigation Rail -->
+            <nav class="server-rail" id="server-rail" aria-label="Servers and workspace views">
+        <div class="rail-stack" id="rail-top">
+          <div class="rail-item" data-rail-view="home">
+            <button
+              type="button"
+              class="rail-btn"
+              data-action="nav-home"
+              aria-label="Home, Requests and Direct Messages"
+              title="Home &amp; Direct Messages"
+            >
+              <img src="/assets/logo.svg" alt="NEXORA" width="24" height="24" />
+              <span class="rail-badge" id="home-req-badge" style="display:none;">0</span>
+            </button>
+          </div>
+          <div class="rail-divider" role="separator"></div>
+          <div id="rail-servers-list" class="rail-stack"></div>
+          <div class="rail-item">
+            <button
+              type="button"
+              class="rail-btn"
+              data-action="open-create-server"
+              aria-label="Create or join a community"
+              title="Create or Request Community"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+          </div>
+          <div class="rail-item" data-rail-view="discover">
+            <button
+              type="button"
+              class="rail-btn"
+              data-action="nav-discover"
+              aria-label="Discover communities"
+              title="Discover Communities"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+              </svg>
+            </button>
+          </div>
+          <div class="rail-item">
+            <a
+              href="/welcome.html"
+              class="rail-btn"
+              id="welcome-hub-btn"
+              aria-label="Open Invite Welcome Hub"
+              title="Invite &amp; Welcome Hub"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="rail-stack">
+          <div class="rail-item">
+            <button
+              type="button"
+              class="rail-btn"
+              id="notifications-btn"
+              data-action="toggle-notifications"
+              aria-label="Notifications"
+              title="Notifications"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+              </svg>
+              <span class="rail-badge" id="notif-badge" style="display:none;">0</span>
+            </button>
+          </div>
+          <div class="rail-item">
+            <button
+              type="button"
+              class="rail-btn"
+              data-action="open-settings"
+              aria-label="User settings and theme studio"
+              title="User Settings"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <!-- 2. Collapsible Community Sidebar -->
+      <aside class="channel-sidebar" id="channel-sidebar" aria-label="Community navigation">
+        <div class="sidebar-head">
+          <button
+            type="button"
+            class="server-menu-trigger"
+            id="server-menu-btn"
+            aria-haspopup="menu"
+            aria-expanded="false"
+          >
+            <span id="sidebar-server-name">Workspace</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="sidebar-quickfind">
+          <button type="button" class="quickfind-btn" id="quickfind-btn">
+            <span>Search users &amp; channels...</span>
+            <span class="kbd-chip">Ctrl+K</span>
+          </button>
+        </div>
+
+        <div class="sidebar-scroll" id="sidebar-scroll"></div>
+
+        <div class="voice-dock" id="voice-dock" hidden>
+          <div class="voice-dock-meta">
+            <div class="voice-dock-state">Voice Connected</div>
+            <div class="voice-dock-room" id="voice-dock-room">Live Room</div>
+          </div>
+          <button type="button" class="icon-btn danger-active" id="leave-voice-dock-btn" aria-label="Disconnect from voice" title="Disconnect">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.42 19.42 0 0 1-3.33-2.67m-2.67-3.34a19.79 19.79 0 0 1-3.07-8.63A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91" />
+              <line x1="23" y1="1" x2="1" y2="23" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="user-dock" id="user-dock">
+          <button type="button" class="user-trigger" id="profile-popover-btn" aria-label="Open profile menu">
+            <div class="avatar-circle" id="dock-avatar">
+              <span id="dock-initials">--</span>
+              <span class="status-dot" id="dock-status-dot"></span>
+            </div>
+            <div class="user-dock-names">
+              <div class="user-dock-display" id="dock-display-name">Loading...</div>
+              <div class="user-dock-sub" id="dock-custom-status">Connecting</div>
+            </div>
+          </button>
+
+          <div class="dock-controls">
+            <button type="button" class="icon-btn" id="mute-btn" aria-label="Mute microphone" aria-pressed="false" title="Mute">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                <line x1="12" y1="19" x2="12" y2="23" />
+              </svg>
+            </button>
+            <button type="button" class="icon-btn" id="deafen-btn" aria-label="Deafen audio" aria-pressed="false" title="Deafen">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- 3. Main Chat & Workspace Viewport -->
+      <main class="workspace-main">
+        <header class="workspace-header">
+          <div class="header-left">
+            <button type="button" class="icon-btn nx-dm-back-btn" id="dm-mobile-back-btn" aria-label="Back to messages list" title="Back to Messages">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+            <button type="button" class="icon-btn mobile-nav-btn" id="mobile-nav-btn" aria-label="Open navigation sidebar">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="3" y1="7" x2="21" y2="7" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="17" x2="21" y2="17" />
+              </svg>
+            </button>
+
+            <button
+              type="button"
+              class="icon-btn sidebar-collapse-btn"
+              id="sidebar-toggle-btn"
+              aria-label="Collapse or expand community sidebar"
+              title="Toggle Sidebar ([)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <line x1="9" y1="3" x2="9" y2="21" />
+              </svg>
+            </button>
+
+            <div class="nx-dm-header-avatar" id="header-peer-avatar" hidden></div>
+
+            <div class="header-title-wrap">
+              <h1 class="header-channel-name" id="header-channel-name">Workspace</h1>
+              <span class="header-sep" aria-hidden="true"></span>
+              <span class="header-topic" id="header-topic">Select a direct message or community channel.</span>
+            </div>
+          </div>
+
+          <div class="header-right">
+            <div class="header-call-actions" id="dm-call-actions" hidden>
+              <button type="button" class="btn btn-secondary header-call-btn" data-action="start-dm-call" data-call-mode="audio" title="Start Voice Call">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                <span>Call</span>
+              </button>
+              <button type="button" class="btn btn-secondary header-call-btn" data-action="start-dm-call" data-call-mode="video" title="Start Video Call">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <polygon points="23 7 16 12 23 17 23 7" />
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+                </svg>
+                <span>Video</span>
+              </button>
+              <button type="button" class="btn btn-primary header-call-btn" data-action="start-dm-call" data-call-mode="screen" title="Share Live Screen">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                <span>Share Screen</span>
+              </button>
+            </div>
+            <input
+              type="search"
+              class="search-inline"
+              id="msg-search-input"
+              placeholder="Filter messages..."
+              aria-label="Filter messages in active channel"
+            />
+
+            <button type="button" class="icon-btn" id="theme-toggle-btn" aria-label="Switch light or dark navy theme" title="Switch Theme">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+              </svg>
+            </button>
+            <button type="button" class="icon-btn" id="server-manage-btn" aria-label="Server management and moderation" title="Community Management">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+            </button>
+            <button type="button" class="icon-btn" id="pins-btn" aria-label="Pinned messages" title="Pinned Messages">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <line x1="12" y1="17" x2="12" y2="22" />
+                <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+              </svg>
+            </button>
+            <button type="button" class="icon-btn active" id="inspector-toggle-btn" aria-label="Toggle members and saved panel" title="Toggle Inspector">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              class="icon-btn"
+              id="messages-more-btn"
+              aria-label="Messages and Community Link Options"
+              aria-haspopup="menu"
+              title="More Options (Community Links &amp; Groups)"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <circle cx="12" cy="5" r="1.8" />
+                <circle cx="12" cy="12" r="1.8" />
+                <circle cx="12" cy="19" r="1.8" />
+              </svg>
+            </button>
+          </div>
+        </header>
+
+        <div class="workspace-body">
+          <!-- Text / Forum / DM Chat Column -->
+          <section class="chat-column" id="chat-column" aria-label="Messages workspace">
+            <div class="story-shelf" id="story-shelf"></div>
+            <div class="dm-call-stage" id="dm-call-stage" hidden></div>
+            <div class="messages-scroll" id="messages-scroll" role="log" aria-live="polite"></div>
+
+            <div class="composer-wrap" id="composer-wrap">
+              <div id="dm-typing-indicator" class="member-sub" style="padding:0 6px 4px;font-size:0.75rem;min-height:18px;" hidden></div>
+              <div id="composer-attachment-bar" class="composer-reply-bar" style="gap:8px;" hidden>
+                <span id="composer-attachment-label">Attachment ready</span>
+                <button type="button" class="icon-btn" id="cancel-attachment-btn" aria-label="Remove attachment">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div class="composer-reply-bar" id="composer-reply-bar">
+                <span id="composer-reply-label">Replying to message</span>
+                <button type="button" class="icon-btn" id="cancel-reply-btn" aria-label="Cancel reply">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+
+              <div class="composer-box">
+                <button
+                  type="button"
+                  class="icon-btn"
+                  id="create-poll-trigger"
+                  aria-label="Create poll"
+                  title="Create Poll"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <line x1="12" y1="5" x2="12" y2="19" />
+                    <line x1="5" y1="12" x2="19" y2="12" />
+                  </svg>
+                </button>
+                <label class="icon-btn" style="cursor:pointer;display:grid;place-items:center;" title="Attach Image, Video, or File" aria-label="Attach Image, Video, or File">
+                  <input type="file" id="msg-attach-input" hidden />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" />
+                  </svg>
+                </label>
+                <button
+                  type="button"
+                  class="icon-btn"
+                  id="msg-voice-btn"
+                  aria-label="Record voice note"
+                  title="Record Voice Note"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" y1="19" x2="12" y2="23" />
+                  </svg>
+                </button>
+                <textarea
+                  id="message-input"
+                  class="composer-input"
+                  rows="1"
+                  placeholder="Write a message..."
+                  aria-label="Message input"
+                ></textarea>
+                <button
+                  type="button"
+                  class="icon-btn"
+                  id="emoji-toggle-btn"
+                  aria-label="Open emoji picker"
+                  aria-expanded="false"
+                  title="Insert Emoji"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2" />
+                    <line x1="9" y1="9" x2="9.01" y2="9" />
+                    <line x1="15" y1="9" x2="15.01" y2="9" />
+                  </svg>
+                </button>
+                <button type="button" class="composer-send" id="send-btn">Send</button>
+              </div>
+
+              <!-- Searchable Emoji Picker Popover -->
+              <div class="emoji-popover" id="emoji-popover" role="dialog" aria-label="Emoji picker">
+                <input type="search" class="emoji-search" id="emoji-search-input" placeholder="Search emojis..." aria-label="Search emojis" />
+                <div class="emoji-cats" id="emoji-cats">
+                  <button type="button" class="emoji-cat-btn active" data-emoji-cat="all">All</button>
+                  <button type="button" class="emoji-cat-btn" data-emoji-cat="smileys">Smileys</button>
+                  <button type="button" class="emoji-cat-btn" data-emoji-cat="gestures">Gestures</button>
+                  <button type="button" class="emoji-cat-btn" data-emoji-cat="objects">Objects</button>
+                </div>
+                <div class="emoji-grid" id="emoji-grid"></div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Voice / Stage View -->
+          <section class="voice-stage-view" id="voice-stage-view" hidden aria-label="Voice and stage room"></section>
+
+          <!-- Community Discovery View -->
+          <section class="discovery-view" id="discovery-view" hidden aria-label="Community discovery"></section>
+
+          <!-- 4. Collapsible Right Context Inspector -->
+          <aside class="right-inspector" id="right-inspector" aria-label="People, saved bookmarks, and threads">
+            <div class="inspector-tabs" role="tablist">
+              <button type="button" class="inspector-tab active" data-inspector-tab="members" role="tab" aria-selected="true">People</button>
+              <button type="button" class="inspector-tab" data-inspector-tab="saved" role="tab" aria-selected="false">Saved</button>
+              <button type="button" class="inspector-tab" data-inspector-tab="thread" role="tab" aria-selected="false">Thread</button>
+            </div>
+            <div class="inspector-scroll" id="inspector-scroll"></div>
+          </aside>
+        </div>
+      </main>
+          </div>
+        </div>
+
+        <!-- Mobile Quick Bottom Navigation Bar (<= 900px) -->
+        <nav class="nx-mobile-bottom-nav" id="nx-mobile-bottom-nav" aria-label="Mobile primary navigation">
+          <button type="button" class="nx-mob-nav-btn active" data-nx-nav="home" aria-label="Home feed">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </button>
+          <button type="button" class="nx-mob-nav-btn" data-nx-nav="reels" aria-label="Reels">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+            <span>Reels</span>
+          </button>
+          <button type="button" class="nx-mob-nav-btn" data-nx-nav="messages" aria-label="Messages">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            <span>Messages</span>
+            <span class="nx-mob-badge" id="nx-mob-msg-badge" hidden>0</span>
+          </button>
+          <button type="button" class="nx-mob-nav-btn" data-nx-nav="communities" aria-label="Communities">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            <span>Spaces</span>
+          </button>
+          <button type="button" class="nx-mob-nav-btn" data-nx-nav="templates" aria-label="AI Templates">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+            <span>Templates</span>
+          </button>
+          <button type="button" class="nx-mob-nav-btn" id="nx-mob-more-btn" aria-label="All Sections">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span>More</span>
+          </button>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Reusable Floating Popover (Profile, Notifications, Server Menu, Pins) -->
+    <div class="popover-panel" id="popover-panel" role="dialog" aria-modal="false"></div>
+
+    <!-- Quick Switcher Modal (Ctrl+K) -->
+    <div class="modal-backdrop" id="quickswitcher-modal" role="dialog" aria-modal="true" aria-labelledby="qs-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="qs-title">Quick Jump</h2>
+          <button type="button" class="icon-btn" data-close-modal="quickswitcher-modal" aria-label="Close quick switcher">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input type="search" class="input" id="qs-input" placeholder="Type channel, community, or person..." aria-label="Search channels, communities, and people" />
+          <div class="menu-list" id="qs-results"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- User Settings & Theme Studio Modal -->
+    <div class="modal-backdrop" id="settings-modal" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+      <div class="modal-dialog wide">
+        <div class="modal-head">
+          <h2 id="settings-title">User Settings &amp; Privacy</h2>
+          <button type="button" class="icon-btn" data-close-modal="settings-modal" aria-label="Close user settings">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Settings sections">
+            <button type="button" class="settings-tab-btn active" data-user-tab="account">My Account &amp; Privacy</button>
+            <button type="button" class="settings-tab-btn" data-user-tab="appearance">Appearance</button>
+            <button type="button" class="settings-tab-btn" data-user-tab="notifications">Notifications</button>
+            <button type="button" class="settings-tab-btn" data-user-tab="keybinds">Keybinds</button>
+          </nav>
+          <div class="settings-content" id="settings-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Server Management & Moderation Dashboard Modal -->
+    <div class="modal-backdrop" id="server-admin-modal" role="dialog" aria-modal="true" aria-labelledby="admin-title">
+      <div class="modal-dialog wide">
+        <div class="modal-head">
+          <h2 id="admin-title">Community Management &amp; Safety</h2>
+          <button type="button" class="icon-btn" data-close-modal="server-admin-modal" aria-label="Close community management">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="settings-layout">
+          <nav class="settings-nav" aria-label="Community management sections">
+            <button type="button" class="settings-tab-btn active" data-admin-tab="overview">Overview</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="requests">Join Requests</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="invites">Invites</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="events">Events</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="roles">Roles &amp; Permissions</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="guard">Server Guard</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="members">Members</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="reports">Reports</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="audit">Moderation Log</button>
+            <button type="button" class="settings-tab-btn" data-admin-tab="analytics">Analytics</button>
+          </nav>
+          <div class="settings-content" id="admin-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create or Join Server Modal -->
+    <div class="modal-backdrop" id="create-server-modal" role="dialog" aria-modal="true" aria-labelledby="cs-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="cs-title">Create or Join Community</h2>
+          <button type="button" class="icon-btn" data-close-modal="create-server-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form id="join-invite-form" style="display:grid;gap:8px;padding-bottom:14px;border-bottom:1px solid var(--border-subtle);">
+            <label>
+              <span class="member-sub">Have a Friend Invite Code or Link?</span>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <input type="text" class="input" id="join-invite-input" placeholder="Paste invite code or ?invite=... URL" />
+                <button type="submit" class="btn btn-secondary">Review Invite</button>
+              </div>
+            </label>
+          </form>
+
+          <form id="create-server-form" style="display:grid;gap:12px;">
+            <label>
+              <span class="member-sub">Community Name</span>
+              <input type="text" class="input" id="new-server-name" placeholder="e.g. Product Engineering" required minlength="2" maxlength="50" />
+            </label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <label>
+                <span class="member-sub">Category</span>
+                <select class="select" id="new-server-cat">
+                  <option value="Technology">Technology</option>
+                  <option value="Design">Design</option>
+                  <option value="Education">Education</option>
+                  <option value="Creators">Creators</option>
+                  <option value="Gaming">Gaming</option>
+                </select>
+              </label>
+              <label>
+                <span class="member-sub">Access</span>
+                <select class="select" id="new-server-visibility">
+                  <option value="private">Private (Invite Only)</option>
+                  <option value="public">Public (Request / Invite)</option>
+                </select>
+              </label>
+            </div>
+            <label>
+              <span class="member-sub">Description</span>
+              <textarea class="textarea" id="new-server-desc" rows="2" placeholder="What is this community about?"></textarea>
+            </label>
+            <label>
+              <span class="member-sub">Community Guidelines</span>
+              <textarea class="textarea" id="new-server-rules" rows="2">1. Respect every member.
+2. No spam or unverified external links.</textarea>
+            </label>
+            <button type="submit" class="btn btn-primary">Create Community</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Channel Modal -->
+    <div class="modal-backdrop" id="create-channel-modal" role="dialog" aria-modal="true" aria-labelledby="cc-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="cc-title">Create Channel</h2>
+          <button type="button" class="icon-btn" data-close-modal="create-channel-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form class="modal-body" id="create-channel-form">
+          <label>
+            <span class="member-sub">Channel Name</span>
+            <input type="text" class="input" id="new-channel-name" placeholder="e.g. design-system" required />
+          </label>
+          <label>
+            <span class="member-sub">Channel Type</span>
+            <select class="select" id="new-channel-type">
+              <option value="text">Text Channel</option>
+              <option value="announcement">Announcement</option>
+              <option value="voice">Voice Room</option>
+              <option value="stage">Stage Session</option>
+            </select>
+          </label>
+          <label>
+            <span class="member-sub">Topic (optional)</span>
+            <input type="text" class="input" id="new-channel-topic" placeholder="Brief purpose of this channel" />
+          </label>
+          <button type="submit" class="btn btn-primary">Create Channel</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Create Poll Modal -->
+    <div class="modal-backdrop" id="create-poll-modal" role="dialog" aria-modal="true" aria-labelledby="cp-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="cp-title">Create Channel Poll</h2>
+          <button type="button" class="icon-btn" data-close-modal="create-poll-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form class="modal-body" id="create-poll-form">
+          <label>
+            <span class="member-sub">Poll Question</span>
+            <input type="text" class="input" id="poll-question-input" placeholder="What would you like the group to vote on?" required />
+          </label>
+          <label>
+            <span class="member-sub">Option 1</span>
+            <input type="text" class="input" id="poll-opt-1" placeholder="Option A" required />
+          </label>
+          <label>
+            <span class="member-sub">Option 2</span>
+            <input type="text" class="input" id="poll-opt-2" placeholder="Option B" required />
+          </label>
+          <label>
+            <span class="member-sub">Option 3 (optional)</span>
+            <input type="text" class="input" id="poll-opt-3" placeholder="Option C" />
+          </label>
+          <button type="submit" class="btn btn-primary">Post Poll</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Report Safety Issue Modal -->
+    <div class="modal-backdrop" id="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="report-title">Report Safety Concern</h2>
+          <button type="button" class="icon-btn" data-close-modal="report-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form class="modal-body" id="report-form">
+          <input type="hidden" id="report-target-type" value="user" />
+          <input type="hidden" id="report-target-id" value="" />
+          <div class="member-sub" id="report-target-summary">Submitting report to community moderators.</div>
+          <label>
+            <span class="member-sub">Reason</span>
+            <textarea class="textarea" id="report-reason-input" rows="3" minlength="3" maxlength="300" placeholder="Describe harassment, spam, or guideline violation..." required></textarea>
+          </label>
+          <button type="submit" class="btn btn-danger">Submit Report</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Mobile & Cross-Platform Screen / Media Share Modal -->
+    <div class="modal-backdrop" id="mobile-share-modal" role="dialog" aria-modal="true" aria-labelledby="mobile-share-title">
+      <div class="modal-dialog wide">
+        <div class="modal-head">
+          <h2 id="mobile-share-title">Share Screen &amp; Live Media</h2>
+          <button type="button" class="icon-btn" data-close-modal="mobile-share-modal" aria-label="Close share options">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body" id="mobile-share-body">
+          <div class="request-banner-card" id="mobile-share-compat-banner" style="margin:0;padding:12px 14px;">
+            <strong id="mobile-share-platform-label" style="display:block;font-size:0.9rem;">Mobile Share Ready</strong>
+            <p class="member-sub" id="mobile-share-compat-note" style="margin:4px 0 0;white-space:normal;"></p>
+          </div>
+
+          <div class="mobile-share-grid" id="mobile-share-options-grid">
+            <button type="button" class="mobile-share-option-card" id="btn-share-display" data-action="mobile-share-display">
+              <span class="mobile-share-opt-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+              </span>
+              <strong>Share Device Screen</strong>
+              <span class="member-sub" id="mobile-share-display-sub" style="white-space:normal;">Stream phone or desktop screen via WebRTC</span>
+            </button>
+
+            <label class="mobile-share-option-card" for="share-photo-input" style="cursor:pointer;">
+              <input type="file" id="share-photo-input" accept="image/*" hidden />
+              <span class="mobile-share-opt-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <polyline points="21 15 16 10 5 21" />
+                </svg>
+              </span>
+              <strong>Share Photo / Screenshot</strong>
+              <span class="member-sub" style="white-space:normal;">iOS &amp; Android: present any screenshot or slide live</span>
+            </label>
+
+            <button type="button" class="mobile-share-option-card" data-action="mobile-share-board">
+              <span class="mobile-share-opt-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 19l7-7 3 3-7 7-3-3z" />
+                  <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" />
+                  <path d="M2 2l7.586 7.586" />
+                </svg>
+              </span>
+              <strong>Live Whiteboard Stream</strong>
+              <span class="member-sub" style="white-space:normal;">iOS &amp; Android: draw, sketch, and post notes live</span>
+            </button>
+
+            <button type="button" class="mobile-share-option-card" data-action="mobile-share-rear-cam">
+              <span class="mobile-share-opt-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M11 19H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h5" />
+                  <path d="M13 5h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-5" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </span>
+              <strong>Share Rear Camera</strong>
+              <span class="member-sub" style="white-space:normal;">iOS &amp; Android: show notes, docs, or another screen</span>
+            </button>
+          </div>
+
+          <div class="share-board-studio" id="share-board-studio">
+            <div class="share-board-toolbar">
+              <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                <span class="member-sub" style="font-weight:600;">Ink:</span>
+                <button type="button" class="share-color-dot active" data-action="share-ink-color" data-color="#FF7A2F" style="background:#FF7A2F;" aria-label="Copper ink"></button>
+                <button type="button" class="share-color-dot" data-action="share-ink-color" data-color="#FFFFFF" style="background:#FFFFFF;" aria-label="White ink"></button>
+                <button type="button" class="share-color-dot" data-action="share-ink-color" data-color="#38BDF8" style="background:#38BDF8;" aria-label="Sky ink"></button>
+                <button type="button" class="share-color-dot" data-action="share-ink-color" data-color="#10B981" style="background:#10B981;" aria-label="Green ink"></button>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn btn-secondary" data-action="share-clear-board">Clear Ink</button>
+                <button type="button" class="btn btn-primary" data-action="mobile-share-board">Stream Live</button>
+                <button type="button" class="btn btn-danger" id="btn-stop-board-share" data-action="stop-mobile-share" hidden>Stop Share</button>
+              </div>
+            </div>
+
+            <div class="share-canvas-wrap">
+              <canvas id="share-canvas" width="960" height="540" class="share-canvas"></canvas>
+            </div>
+
+            <form id="share-note-form" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input type="text" class="input" id="share-note-input" placeholder="Stamp a note onto the live shared board..." maxlength="90" style="flex:1;min-width:180px;" />
+              <button type="submit" class="btn btn-secondary">Add Note to Stream</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Post Story Modal -->
+    <div class="modal-backdrop" id="post-story-modal" role="dialog" aria-modal="true" aria-labelledby="post-story-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="post-story-title">Create 24-Hour Story</h2>
+          <button type="button" class="icon-btn" data-close-modal="post-story-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <form class="modal-body" id="post-story-form">
+          <label>
+            <span class="member-sub">Story Caption / Text</span>
+            <textarea class="textarea" id="story-content-input" rows="3" placeholder="Share what you are doing right now..." maxlength="250" required></textarea>
+          </label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <label>
+              <span class="member-sub">Upload Photo or Video (optional)</span>
+              <input type="file" id="story-media-input" accept="image/*,video/*" class="input" style="padding:6px;" />
+            </label>
+            <label>
+              <span class="member-sub">Snapchat / IG Sticker</span>
+              <select class="select" id="story-sticker-select">
+                <option value="">None</option>
+                <option value="✨ Dreamy Vibes">✨ Dreamy Vibes</option>
+                <option value="👑 Main Character">👑 Main Character</option>
+                <option value="🔴 LIVE MOMENT">🔴 LIVE MOMENT</option>
+                <option value="☀️ Golden Hour">☀️ Golden Hour</option>
+                <option value="😎 Cool Mode">😎 Cool Mode</option>
+                <option value="📷 35mm Film">📷 35mm Film</option>
+                <option value="Live Vibes">Live Vibes</option>
+                <option value="Travel">Travel</option>
+              </select>
+            </label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <label>
+              <span class="member-sub">Photo Filter (IG / Snap)</span>
+              <select class="select" id="story-filter-select">
+                <option value="none">Normal (Original)</option>
+                <option value="clarendon">Clarendon (IG)</option>
+                <option value="juno">Juno (IG)</option>
+                <option value="vivid">Vivid Pop</option>
+                <option value="warm">Golden Hour</option>
+                <option value="valencia">Valencia</option>
+                <option value="snap-peach">Snap Peach</option>
+                <option value="snap-tokyo">Tokyo Neon</option>
+                <option value="snap-mint">Fresh Mint</option>
+                <option value="retro-vhs">Retro VHS</option>
+                <option value="pastel-dream">Pastel Glow</option>
+                <option value="noir">Noir B&amp;W</option>
+              </select>
+            </label>
+            <label>
+              <span class="member-sub">Card Background Theme</span>
+              <select class="select" id="story-bg-select">
+                <option value="linear-gradient(135deg, #101318 0%, #1D232C 55%, #3868CE 100%)">Signal Graphite</option>
+                <option value="linear-gradient(135deg, #171C23 0%, #242B35 62%, #4777DF 100%)">Deep Cobalt</option>
+                <option value="linear-gradient(135deg, #171C23 0%, #242B35 60%, #C49A52 100%)">Amber Slate</option>
+                <option value="linear-gradient(135deg, #101318 0%, #242B35 100%)">Carbon Graphite</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-primary">Publish Story (24h)</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- View Story Modal -->
+    <div class="modal-backdrop" id="view-story-modal" role="dialog" aria-modal="true" aria-labelledby="view-story-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="view-story-title">Member Story</h2>
+          <button type="button" class="icon-btn" data-close-modal="view-story-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body" id="view-story-body"></div>
+      </div>
+    </div>
+
+    <!-- Instagram-Style NEXORA Reel Studio & YouTube Upload Modal -->
+    <div class="modal-backdrop" id="create-reel-modal" role="dialog" aria-modal="true" aria-labelledby="create-reel-title">
+      <div class="modal-dialog nx-reel-studio-dialog">
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2 id="create-reel-title">NEXORA Reel Studio</h2>
+            <span class="nx-studio-badge">Song • Text Edit • YouTube</span>
+          </div>
+          <button type="button" class="icon-btn" data-close-modal="create-reel-modal" aria-label="Close Reel Studio">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="modal-body nx-reel-studio-form" id="create-reel-form">
+          <div class="nx-reel-studio-grid">
+            <!-- Left Column: Live 9:16 Instagram-Style Preview Stage -->
+            <div class="nx-reel-studio-preview-col">
+              <div class="nx-reel-studio-preview" id="reel-studio-stage">
+                <div class="nx-reel-studio-empty" id="reel-studio-empty">
+                  <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                    <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18" />
+                    <line x1="7" y1="2" x2="7" y2="22" />
+                    <line x1="17" y1="2" x2="17" y2="22" />
+                    <line x1="2" y1="12" x2="22" y2="12" />
+                  </svg>
+                  <strong>Upload Video or Paste YouTube URL</strong>
+                  <span>Add songs, drag text edits on canvas, apply filters &amp; publish.</span>
+                </div>
+                <video id="reel-studio-video" playsinline loop muted hidden></video>
+                <iframe
+                  id="reel-studio-youtube"
+                  title="YouTube Reel Preview"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowfullscreen
+                  hidden
+                ></iframe>
+                <div class="nx-reel-overlay-layer" id="reel-studio-overlay-layer"></div>
+
+                <div class="nx-reel-studio-hud">
+                  <button type="button" class="nx-studio-hud-btn" id="studio-play-toggle" aria-label="Play or pause studio preview">Play / Pause</button>
+                  <button type="button" class="nx-studio-hud-btn" id="studio-mute-toggle" aria-label="Mute or unmute studio preview">Audio On</button>
+                </div>
+
+                <div class="nx-reel-studio-song-pill" id="reel-studio-song-pill">Original Video Audio</div>
+              </div>
+              <div class="member-sub" style="text-align:center;font-size:0.74rem;white-space:normal;">
+                Tip: Drag any text sticker directly inside the 9:16 preview to reposition it.
+              </div>
+            </div>
+
+            <!-- Right Column: Tabbed Studio Editor -->
+            <div class="nx-reel-studio-controls-col">
+              <div class="nx-studio-tabs" role="tablist" aria-label="Reel editing tools">
+                <button type="button" class="nx-studio-tab active" data-reel-tab="source" role="tab" aria-selected="true">Video / YT</button>
+                <button type="button" class="nx-studio-tab" data-reel-tab="templates" role="tab" aria-selected="false">Templates</button>
+                <button type="button" class="nx-studio-tab" data-reel-tab="music" role="tab" aria-selected="false">Add Song</button>
+                <button type="button" class="nx-studio-tab" data-reel-tab="text" role="tab" aria-selected="false">Text Edit</button>
+                <button type="button" class="nx-studio-tab" data-reel-tab="filters" role="tab" aria-selected="false">IG &amp; Snap Filters</button>
+                <button type="button" class="nx-studio-tab" data-reel-tab="youtube" role="tab" aria-selected="false">YouTube</button>
+              </div>
+
+              <!-- Tab 1: Video / YouTube Import + Caption -->
+              <div class="nx-studio-pane active" data-reel-pane="source">
+                <label>
+                  <span class="member-sub">Upload Short Video Clip (MP4 / WebM / MOV)</span>
+                  <input type="file" id="reel-video-file" accept="video/*" class="input" style="padding:6px;" />
+                </label>
+                <label>
+                  <span class="member-sub">Or Paste YouTube / Shorts / Direct MP4 URL</span>
+                  <input type="url" id="reel-video-url" class="input" placeholder="https://youtube.com/shorts/... or https://..." />
+                </label>
+                <div class="nx-yt-detected-banner" id="studio-yt-detected" hidden>
+                  YouTube link detected — embedded preview &amp; overlays ready.
+                </div>
+                <label>
+                  <span class="member-sub">Caption &amp; Hashtags</span>
+                  <textarea id="reel-caption-input" class="textarea" rows="3" placeholder="Describe your reel... #NexoraReels #Trending" maxlength="1000" required></textarea>
+                </label>
+              </div>
+
+              <!-- Tab 1b: 1-Click Video Making Templates -->
+              <div class="nx-studio-pane" data-reel-pane="templates" hidden>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+                  <span class="member-sub" style="font-weight:700;">1-Click Video Making Templates (Filter + Music + Text)</span>
+                  <button type="button" class="btn btn-secondary" id="studio-clear-template-btn" style="height:28px;font-size:0.74rem;padding:0 10px;">Reset Look</button>
+                </div>
+                <div class="nx-template-grid" id="studio-template-grid"></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding-top:4px;">
+                  <span class="member-sub" id="studio-template-clip-hint" style="white-space:normal;">No clip uploaded? Generate an animated 9:16 video clip from this template.</span>
+                  <button type="button" class="btn btn-primary" id="studio-render-template-btn" style="height:32px;font-size:0.78rem;padding:0 12px;">Create Video From Template</button>
+                </div>
+              </div>
+
+              <!-- Tab 2: Add New Song (Built-in Tracks + Custom MP3/WAV Upload) -->
+              <div class="nx-studio-pane" data-reel-pane="music" hidden>
+                <div style="display:grid;gap:8px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <span class="member-sub" style="font-weight:700;">Select Soundtrack or Upload New Song</span>
+                    <button type="button" class="btn btn-secondary" id="studio-stop-song-btn" style="height:28px;font-size:0.74rem;padding:0 10px;">Stop Preview</button>
+                  </div>
+                  <div class="nx-song-library" id="studio-song-library"></div>
+                </div>
+                <label>
+                  <span class="member-sub">Upload Your Own Song (MP3 / WAV / M4A, under 200 KB for cloud sync)</span>
+                  <input type="file" id="reel-song-file" accept="audio/*" class="input" style="padding:6px;" />
+                </label>
+                <label>
+                  <span class="member-sub">Song / Audio Display Title</span>
+                  <input type="text" id="reel-audio-input" class="input" placeholder="Original Audio — NEXORA Creator" maxlength="100" />
+                </label>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <label>
+                    <span class="member-sub">Music Volume (<span id="studio-music-vol-label">75%</span>)</span>
+                    <input type="range" id="studio-music-volume" min="0" max="100" value="75" />
+                  </label>
+                  <label>
+                    <span class="member-sub">Video Audio (<span id="studio-video-vol-label">50%</span>)</span>
+                    <input type="range" id="studio-video-volume" min="0" max="100" value="50" />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Tab 3: Instagram-Style Text Edit -->
+              <div class="nx-studio-pane" data-reel-pane="text" hidden>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <span class="member-sub" style="font-weight:700;">Interactive Text Overlays</span>
+                  <button type="button" class="btn btn-primary" id="reel-add-text-btn" style="height:30px;font-size:0.78rem;padding:0 12px;">+ Add Text</button>
+                </div>
+                <div class="nx-text-overlay-chips" id="studio-text-chips"></div>
+                <div id="studio-text-inspector" style="display:grid;gap:10px;">
+                  <label>
+                    <span class="member-sub">Edit Text Content</span>
+                    <input type="text" id="studio-text-value-input" class="input" placeholder="Type on-screen Reel text..." maxlength="120" />
+                  </label>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <label>
+                      <span class="member-sub">Font Style</span>
+                      <select id="studio-text-style-select" class="select">
+                        <option value="modern">Modern</option>
+                        <option value="classic">Classic</option>
+                        <option value="neon">Neon</option>
+                        <option value="typewriter">Typewriter</option>
+                        <option value="strong">Strong</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span class="member-sub">Background Box</span>
+                      <select id="studio-text-bg-select" class="select">
+                        <option value="pill">White Pill</option>
+                        <option value="dark">Dark Glass</option>
+                        <option value="none">No Box</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+                    <div class="nx-color-swatches" id="studio-text-colors" role="group" aria-label="Text color"></div>
+                    <button type="button" class="btn btn-danger" id="studio-text-delete-btn" style="height:30px;font-size:0.75rem;padding:0 10px;">Remove Text</button>
+                  </div>
+                  <label>
+                    <span class="member-sub">Text Size (<span id="studio-text-size-label">24px</span>)</span>
+                    <input type="range" id="studio-text-size-range" min="14" max="44" value="24" />
+                  </label>
+                </div>
+              </div>
+
+              <!-- Tab 4: Instagram & Snapchat Visual Filters, Lens Stickers & Speed -->
+              <div class="nx-studio-pane" data-reel-pane="filters" hidden>
+                <span class="member-sub" style="font-weight:700;">Instagram &amp; Snapchat Filters</span>
+                <div class="nx-filter-grid" id="studio-filter-grid"></div>
+                <span class="member-sub" style="font-weight:700;margin-top:4px;">Snapchat Mood &amp; Lens Stickers (Tap to Add)</span>
+                <div class="nx-lens-grid" id="studio-lens-grid"></div>
+                <label style="margin-top:6px;">
+                  <span class="member-sub">Playback Speed (<span id="studio-speed-label">1.0x</span>)</span>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;" id="studio-speed-row">
+                    <button type="button" class="btn btn-secondary" data-studio-speed="0.5">0.5x</button>
+                    <button type="button" class="btn btn-primary" data-studio-speed="1">1.0x</button>
+                    <button type="button" class="btn btn-secondary" data-studio-speed="1.5">1.5x</button>
+                    <button type="button" class="btn btn-secondary" data-studio-speed="2">2.0x</button>
+                  </div>
+                </label>
+              </div>
+
+              <!-- Tab 5: Export & Upload to YouTube -->
+              <div class="nx-studio-pane" data-reel-pane="youtube" hidden>
+                <div class="request-banner-card" style="margin:0;padding:12px 14px;">
+                  <strong style="display:block;font-size:0.9rem;">Export Edited Reel &amp; Upload to YouTube</strong>
+                  <p class="member-sub" style="margin:4px 0 0;white-space:normal;line-height:1.45;">
+                    Render your video with all Instagram-style text edits, filters, and soundtrack burned into a 9:16 WebM video, then upload directly to YouTube Studio.
+                  </p>
+                </div>
+                <div style="display:grid;gap:8px;">
+                  <button type="button" class="btn btn-primary" id="reel-export-yt-btn">
+                    Render &amp; Download Video for YouTube
+                  </button>
+                  <div class="member-sub" id="reel-export-status" style="white-space:normal;"></div>
+                  <a
+                    href="https://studio.youtube.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-secondary"
+                    style="text-align:center;text-decoration:none;"
+                  >
+                    Open YouTube Studio Upload ↗
+                  </a>
+                </div>
+              </div>
+
+              <div class="nx-studio-footer-actions">
+                <button type="button" class="btn btn-secondary" id="reel-quick-export-btn">Export for YouTube</button>
+                <button type="submit" class="btn btn-primary" id="reel-publish-btn">Publish Reel</button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Photo Templates & Instagram/Snapchat Filter Studio Modal -->
+    <div class="modal-backdrop" id="photo-studio-modal" role="dialog" aria-modal="true" aria-labelledby="photo-studio-title">
+      <div class="modal-dialog nx-reel-studio-dialog">
+        <div class="modal-head">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <h2 id="photo-studio-title">Photo Templates &amp; Filter Studio</h2>
+            <span class="nx-studio-badge">Polaroid • Magazine • IG &amp; Snap Filters</span>
+          </div>
+          <button type="button" class="icon-btn" data-close-modal="photo-studio-modal" aria-label="Close Photo Studio">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body nx-photo-studio-grid">
+          <div class="nx-photo-studio-preview-col">
+            <div class="nx-photo-studio-preview-box">
+              <img id="photo-studio-preview-img" alt="Templated photo preview" />
+            </div>
+            <label style="width:100%;">
+              <span class="member-sub">Choose Photo (optional — Quote/Poster work without a photo)</span>
+              <input type="file" id="photo-studio-file-input" accept="image/*" class="input" style="padding:6px;" />
+            </label>
+          </div>
+          <div class="nx-reel-studio-controls-col">
+            <div>
+              <span class="member-sub" style="font-weight:700;display:block;margin-bottom:6px;">Photo Template Layout</span>
+              <div class="nx-template-grid" id="photo-studio-template-grid"></div>
+            </div>
+            <div>
+              <span class="member-sub" style="font-weight:700;display:block;margin-bottom:6px;">Instagram &amp; Snapchat Filters</span>
+              <div class="nx-filter-grid" id="photo-studio-filter-grid"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <label>
+                <span class="member-sub">Headline / Caption on Card</span>
+                <input type="text" id="photo-studio-headline" class="input" placeholder="Weekend Vibes ✨" maxlength="90" />
+              </label>
+              <label>
+                <span class="member-sub">Subline / Credit</span>
+                <input type="text" id="photo-studio-subline" class="input" placeholder="@username · NEXORA" maxlength="50" />
+              </label>
+            </div>
+            <label>
+              <span class="member-sub">Snapchat Mood Sticker Badge</span>
+              <select id="photo-studio-sticker" class="select">
+                <option value="">No Sticker</option>
+                <option value="✨ Dreamy Vibes">✨ Dreamy Vibes</option>
+                <option value="👑 Main Character">👑 Main Character</option>
+                <option value="☀️ Golden Hour">☀️ Golden Hour</option>
+                <option value="🔴 LIVE MOMENT">🔴 LIVE MOMENT</option>
+                <option value="📷 35MM FILM">📷 35MM FILM</option>
+                <option value="😎 COOL MODE">😎 COOL MODE</option>
+              </select>
+            </label>
+            <div class="nx-studio-footer-actions">
+              <button type="button" class="btn btn-secondary" id="photo-studio-to-story-btn">Use in 24h Story</button>
+              <button type="button" class="btn btn-primary" id="photo-studio-apply-btn">Attach to Post</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Schedule / Create Meeting Modal -->
+    <div class="modal-backdrop" id="create-meeting-modal" role="dialog" aria-modal="true" aria-labelledby="create-meeting-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="create-meeting-title">Schedule Video Meeting</h2>
+          <button type="button" class="icon-btn" data-close-modal="create-meeting-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="modal-body" id="create-meeting-form">
+          <label>
+            <span class="member-sub">Meeting Title</span>
+            <input type="text" id="meeting-title-input" class="input" placeholder="e.g. Product Sync or Study Group" required minlength="2" maxlength="120" />
+          </label>
+          <label>
+            <span class="member-sub">When (Date &amp; Time)</span>
+            <input type="text" id="meeting-when-input" class="input" placeholder="e.g. Today • 4:00 PM" required maxlength="64" />
+          </label>
+          <label>
+            <span class="member-sub">Agenda / Notes (optional)</span>
+            <textarea id="meeting-desc-input" class="textarea" rows="2" placeholder="What will be discussed?" maxlength="300"></textarea>
+          </label>
+          <button type="submit" class="btn btn-primary">Create Meeting</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Create Group Chat Modal -->
+    <div class="modal-backdrop" id="create-group-chat-modal" role="dialog" aria-modal="true" aria-labelledby="create-group-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="create-group-title">Create Group Chat</h2>
+          <button type="button" class="icon-btn" data-close-modal="create-group-chat-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="modal-body" id="create-group-chat-form">
+          <label>
+            <span class="member-sub">Group Name</span>
+            <input type="text" id="group-chat-name-input" class="input" placeholder="e.g. Design Team" required minlength="2" maxlength="80" />
+          </label>
+          <div style="display:grid;gap:6px;">
+            <span class="member-sub">Select Members</span>
+            <div id="group-chat-members-picker" style="max-height:200px;overflow-y:auto;display:grid;gap:6px;padding:6px;border:1px solid var(--border-subtle);border-radius:10px;"></div>
+          </div>
+          <button type="submit" class="btn btn-primary">Create Group Conversation</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Share Community Invite Link in Messages Modal -->
+    <div class="modal-backdrop" id="share-community-link-modal" role="dialog" aria-modal="true" aria-labelledby="share-comm-link-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="share-comm-link-title">Share Community Invite Link</h2>
+          <button type="button" class="icon-btn" data-close-modal="share-community-link-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div class="modal-body" id="share-community-link-body"></div>
+      </div>
+    </div>
+
+    <!-- Join Community via Invite Link Modal -->
+    <div class="modal-backdrop" id="join-community-link-modal" role="dialog" aria-modal="true" aria-labelledby="join-comm-link-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="join-comm-link-title">Join Community via Link</h2>
+          <button type="button" class="icon-btn" data-close-modal="join-community-link-modal" aria-label="Close dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="modal-body" id="join-comm-link-form">
+          <label>
+            <span class="member-sub">Paste Community Invite Link or Code</span>
+            <input type="text" id="join-comm-link-input" class="input" placeholder="e.g. https://myzora.netlify.app/welcome.html?invite=..." required />
+          </label>
+          <p class="member-sub" style="white-space:normal;line-height:1.45;">
+            Joining via a shared invite link lets you review the community rules and enter right away.
+          </p>
+          <button type="submit" class="btn btn-primary">Review &amp; Join Community</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Community Leader Abuse Alert Modal -->
+    <div class="modal-backdrop" id="leader-alert-modal" role="dialog" aria-modal="true" aria-labelledby="leader-alert-title">
+      <div class="modal-dialog">
+        <div class="modal-head">
+          <h2 id="leader-alert-title">Send Community Abuse Alert</h2>
+          <button type="button" class="icon-btn" data-close-modal="leader-alert-modal" aria-label="Close abuse alert dialog">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <form class="modal-body" id="leader-alert-form">
+          <input type="hidden" id="leader-alert-server-id" value="" />
+          <input type="hidden" id="leader-alert-target-uid" value="" />
+          <input type="hidden" id="leader-alert-target-name" value="" />
+          <div class="nx-leader-alert-target-box" id="leader-alert-target-summary">
+            Sending moderation warning to community member.
+          </div>
+          <label>
+            <span class="member-sub">Severity Level</span>
+            <select class="select" id="leader-alert-severity">
+              <option value="warning">Warning — Conduct Notice</option>
+              <option value="urgent">Urgent Alert — Abuse / Harassment</option>
+            </select>
+          </label>
+          <div style="display:grid;gap:6px;">
+            <span class="member-sub">Quick Abuse Presets</span>
+            <div class="nx-leader-preset-row" id="leader-alert-presets"></div>
+          </div>
+          <label>
+            <span class="member-sub">Alert Message / Reason</span>
+            <textarea class="textarea" id="leader-alert-reason" rows="3" minlength="3" maxlength="300" placeholder="Explain what abusive behavior or rule violation occurred..." required></textarea>
+          </label>
+          <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-secondary" data-close-modal="leader-alert-modal">Cancel</button>
+            <button type="submit" class="btn btn-danger">Send Abuse Alert</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Minimized Live Call Floating Pill -->
+    <div class="nx-call-mini-pill" id="nx-call-mini-pill" hidden role="region" aria-label="Minimized live call">
+      <span class="nx-call-tab-dot"></span>
+      <span id="nx-call-mini-label">On Live Call</span>
+      <button type="button" class="btn btn-primary" data-action="open-call-tab" style="height:28px;padding:0 10px;font-size:0.76rem;">Open Call Tab</button>
+      <button type="button" class="btn btn-danger" data-action="leave-voice" style="height:28px;padding:0 10px;font-size:0.76rem;">End</button>
+    </div>
+
+    <!-- Incoming Call Banner -->
+    <div class="incoming-call-banner" id="incoming-call-banner" hidden role="alertdialog" aria-live="assertive"></div>
+
+    <div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+
+    <script type="module" src="/js/app.js"></script>
+      <script type="module" src="/js/pwa.js"></script>
+  <script type="module" src="/js/supabase.js"></script>
+  </body>
+</html>

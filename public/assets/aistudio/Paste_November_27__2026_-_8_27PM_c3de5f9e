@@ -1,0 +1,1407 @@
+# NEXORA — MASTER FRONTEND ENGINEERING & DESIGN SYSTEM SPECIFICATION
+## Google AI Studio / Hydrogen Implementation Brief
+
+PROJECT: NEXORA
+VERSION: 1.0
+SCOPE: PUBLIC WEBSITE + AUTHENTICATED FRONTEND DESIGN SYSTEM
+IMPLEMENTATION: EXISTING REPOSITORY
+PRIMARY GOAL: PREMIUM, PRODUCTION-QUALITY FRONTEND
+DEFAULT THEME: DARK
+ALTERNATE THEME: LIGHT
+DESIGN REFERENCES: USER-SUPPLIED SYNAPSE SCREENSHOT, INSTAGRAM MESSAGING EXPERIENCE, MODERN EDITORIAL SAAS INTERFACES
+
+========================================================
+PART 1 — YOUR ROLE AND EXECUTION RESPONSIBILITY
+========================================================
+
+You are acting as:
+
+- Principal Product Designer.
+- Senior Frontend Architect.
+- Design System Engineer.
+- Senior React / TypeScript Engineer, if applicable to the existing project.
+- UI/UX Interaction Designer.
+- Responsive Web Specialist.
+- Frontend Performance Engineer.
+
+Your task is to engineer a complete and consistent frontend design experience for Nexora.
+
+This is not a request for a generic visual redesign.
+
+This is not a request to generate a new SaaS template.
+
+This is not permission to replace the existing application.
+
+You must inspect the existing Nexora repository and understand its architecture before modifying anything.
+
+Your work must produce a cohesive visual system covering:
+
+1. Public-facing landing page.
+2. Public website navigation.
+3. Public hero section.
+4. Product preview.
+5. Public feature sections.
+6. Authentication entry points.
+7. Authenticated application design consistency.
+8. Instagram-inspired messaging inbox.
+9. Light and dark theme infrastructure.
+10. Responsive behavior.
+11. Reusable frontend components.
+12. Motion and interaction states.
+
+The visual result must be distinctive, professional, minimal, premium and technologically sophisticated.
+
+========================================================
+PART 2 — UNDERSTAND NEXORA
+========================================================
+
+Nexora is an AI-native social and collaborative network.
+
+The platform brings together:
+
+- Humans.
+- AI agents.
+- Communities.
+- Conversations.
+- Social content.
+- Collaborative workflows.
+- Intelligent discovery.
+
+The central product proposition:
+
+ONE NETWORK. INFINITE POSSIBILITIES.
+
+The platform should allow people and intelligent agents to coexist, communicate, collaborate and discover one another.
+
+The public website must make this proposition understandable immediately.
+
+Do not position Nexora as merely an AI chatbot or conventional social media clone.
+
+The product identity must communicate a connected intelligence ecosystem.
+
+========================================================
+PART 3 — MANDATORY REPOSITORY INSPECTION
+========================================================
+
+Before implementation, audit the actual repository.
+
+Inspect:
+
+- Project structure.
+- package.json.
+- Lockfiles.
+- Frontend framework.
+- Existing route definitions.
+- Existing landing page.
+- Authentication pages.
+- Authenticated application shell.
+- Inbox and messaging components.
+- Existing global CSS.
+- Tailwind configuration, if applicable.
+- Existing fonts.
+- Design tokens.
+- Theme infrastructure.
+- Component library.
+- State management.
+- API contracts.
+- Existing image assets.
+- Existing animation dependencies.
+
+Identify which components can be reused.
+
+Create:
+
+NEXORA_FRONTEND_AUDIT.md
+NEXORA_DESIGN_SYSTEM_SPEC.md
+NEXORA_IMPLEMENTATION_PLAN.md
+
+Record the existing implementation before modifying it.
+
+Do not assume the framework.
+
+Do not create duplicate components.
+
+Do not change working routes unnecessarily.
+
+Do not modify database schemas or backend logic.
+
+Do not remove existing functionality to achieve a visual result.
+
+If the current application uses an established design system, adapt it rather than introducing an incompatible second system.
+
+========================================================
+PART 4 — SCREENSHOT ANALYSIS
+========================================================
+
+The user has supplied a SynApse AI SaaS landing-page screenshot.
+
+Treat this screenshot as the PRIMARY COMPOSITIONAL REFERENCE for the Nexora public website.
+
+Study its layout and extract the following visual principles:
+
+A. FLOATING NAVIGATION
+
+- Centered horizontal navigation.
+- Floating capsule-like container.
+- Thin outline.
+- Restrained transparency.
+- Compact spacing.
+- Logo on the left.
+- Navigation in the center.
+- Authentication and CTA actions on the right.
+
+B. HERO COMPOSITION
+
+- Centered hero typography.
+- Small category eyebrow above the headline.
+- Large, confident headline.
+- Short supporting description.
+- Two clear CTA buttons.
+- Small secondary supporting statement.
+
+C. ARCHITECTURAL BACKGROUND
+
+- Dark, dimensional canvas.
+- Fine geometric grid.
+- Thin structural lines.
+- Subtle background depth.
+- Controlled ambient illumination.
+
+D. PRODUCT PRESENTATION
+
+- Large application preview beneath the headline.
+- Slightly tilted perspective.
+- Application UI visible inside the mockup.
+- The product preview overlaps the lower hero area.
+- Strong sense of depth without excessive decoration.
+
+E. VISUAL HIERARCHY
+
+The page is not filled with unnecessary cards.
+
+Typography and product presentation are the primary visual elements.
+
+IMPORTANT COLOR CHANGE:
+
+The reference screenshot contains purple, magenta and pink ambient lighting.
+
+Do not reproduce these colors.
+
+Replace that color language with Nexora's Graphite, Signal Blue and Soft Amber palette.
+
+Do not recreate the SynApse logo or branding.
+
+Create an original Nexora composition.
+
+========================================================
+PART 5 — OFFICIAL NEXORA COLOR IDENTITY
+========================================================
+
+The final brand palette is:
+
+GRAPHITE:
+#242B35
+
+SIGNAL BLUE:
+#4777DF
+
+SOFT AMBER:
+#C49A52
+
+These three colors are the primary brand colors.
+
+Do not introduce purple, pink, neon gradients or random additional accent colors.
+
+Define the complete design system using these brand colors alongside appropriate neutral shades.
+
+DARK THEME TOKENS:
+
+--nx-bg: #101318;
+--nx-bg-secondary: #171C23;
+--nx-surface: #1D232C;
+--nx-surface-elevated: #242B35;
+
+--nx-primary: #4777DF;
+--nx-primary-hover: #3868CE;
+--nx-primary-muted: rgba(71,119,223,0.14);
+
+--nx-accent: #C49A52;
+--nx-accent-muted: rgba(196,154,82,0.13);
+
+--nx-text-primary: #F2F4F7;
+--nx-text-secondary: #A8B0BB;
+--nx-text-muted: #77818F;
+
+--nx-border: rgba(255,255,255,0.09);
+--nx-border-strong: rgba(255,255,255,0.15);
+
+LIGHT THEME TOKENS:
+
+--nx-bg: #F5F6F8;
+--nx-bg-secondary: #EBEEF2;
+--nx-surface: #FFFFFF;
+--nx-surface-elevated: #FFFFFF;
+
+--nx-primary: #3868C8;
+--nx-primary-hover: #2D58AD;
+--nx-primary-muted: rgba(56,104,200,0.09);
+
+--nx-accent: #A67B38;
+--nx-accent-muted: rgba(166,123,56,0.10);
+
+--nx-text-primary: #202630;
+--nx-text-secondary: #596473;
+--nx-text-muted: #828C99;
+
+--nx-border: rgba(32,38,48,0.09);
+--nx-border-strong: rgba(32,38,48,0.15);
+
+Treat these as initial engineering tokens and verify actual text contrast.
+
+COLOR USAGE:
+
+GRAPHITE:
+Use for the brand's structural identity, dark surfaces and navigation.
+
+SIGNAL BLUE:
+Use for primary actions, selected navigation, links, active states, focus states and important interactions.
+
+SOFT AMBER:
+Use sparingly for highlights, selected secondary indicators, premium details and carefully chosen accents.
+
+Do not make amber the primary button color.
+
+Do not use blue glow on every component.
+
+Do not create purple or pink lighting.
+
+Do not use gradients merely to make a component look futuristic.
+
+The design should feel premium because of composition, spacing, typography and detail.
+
+========================================================
+PART 6 — TYPOGRAPHY SYSTEM
+========================================================
+
+The official Nexora typography combination is:
+
+PRIMARY FONT: MANROPE
+
+SECONDARY FONT: INTER
+
+Do not introduce Space Grotesk, Poppins, Montserrat or unrelated decorative typefaces.
+
+MANROPE:
+
+Use for:
+
+- Brand wordmark where appropriate.
+- Main hero heading.
+- Major public page headings.
+- Section titles.
+- Feature headlines.
+- Important statements.
+
+Recommended weights:
+
+500, 600, 700, 800.
+
+INTER:
+
+Use for:
+
+- Body copy.
+- Navigation.
+- Buttons.
+- Labels.
+- Product interface.
+- Dashboard content.
+- Inbox messages.
+- Conversation metadata.
+- Form elements.
+- Settings.
+- General application UI.
+
+Recommended weights:
+
+400, 500, 600, 700.
+
+Load fonts reliably using Google Fonts or the existing project's font-loading system.
+
+Avoid font loading that blocks the first meaningful page render.
+
+TYPOGRAPHY SCALE:
+
+Public hero desktop:
+64–84px.
+
+Public hero mobile:
+40–52px.
+
+Public section headings:
+38–52px.
+
+Body:
+15–18px.
+
+Navigation:
+13–15px.
+
+Buttons:
+14–15px.
+
+Metadata:
+11–13px.
+
+Use fluid sizing through clamp().
+
+Headings should have precise line-height and restrained letter spacing.
+
+Do not make every heading oversized.
+
+========================================================
+PART 7 — DESIGN LANGUAGE
+========================================================
+
+The official Nexora design language is:
+
+MINIMAL ARCHITECTURAL FUTURISM
++
+EDITORIAL TYPOGRAPHY
++
+RESTRAINED GLASSMORPHISM
++
+PRECISE PRODUCT PRESENTATION.
+
+This is the identity to follow across the public website.
+
+VISUAL CHARACTERISTICS:
+
+- Architectural grid backgrounds.
+- Thin geometric dividing lines.
+- Carefully controlled negative space.
+- Strong editorial typography.
+- Precise alignment.
+- Restrained glass surfaces.
+- Fine outlines.
+- Subtle depth.
+- Clean product mockups.
+- Minimal motion.
+- Consistent radius and spacing.
+- Carefully chosen ambient lighting.
+
+Avoid:
+
+- Purple AI gradients.
+- Pink neon effects.
+- Generic glowing orbs.
+- Random floating widgets.
+- Excessive rounded cards.
+- Unnecessary blur.
+- Decorative particle overload.
+- Generic AI stock illustrations.
+- Overcrowded layouts.
+- Excessive shadows.
+- Too many accent colors.
+
+The interface should look deliberately designed, not generated from a template.
+
+========================================================
+PART 8 — GLASSMORPHISM SYSTEM
+========================================================
+
+Glassmorphism must be restrained and purposeful.
+
+Create three surface categories.
+
+LEVEL 1 — SOLID SURFACES
+
+For:
+
+- Main page backgrounds.
+- Long text.
+- Content-heavy sections.
+- Dashboard content.
+- Message history.
+
+Use solid or nearly solid surfaces.
+
+LEVEL 2 — SUBTLE GLASS
+
+For:
+
+- Public navigation.
+- Floating navigation elements.
+- Selected preview panels.
+- Contextual panels.
+- Selected overlays.
+
+Use controlled transparency and subtle backdrop blur.
+
+LEVEL 3 — FLOATING GLASS
+
+For:
+
+- Dropdown menus.
+- Popovers.
+- Command palette.
+- Dialogs.
+- Floating toolbars.
+
+Use slightly stronger separation and shadows.
+
+Create reusable variables:
+
+--nx-glass-bg
+--nx-glass-border
+--nx-glass-blur
+--nx-glass-shadow
+
+Do not apply glass effects to every card.
+
+Avoid nested backdrop-filter effects.
+
+Ensure text remains readable in both themes.
+
+========================================================
+PART 9 — PUBLIC WEBSITE NAVIGATION
+========================================================
+
+Create a premium floating navigation bar.
+
+Desktop:
+
+LEFT:
+Nexora logo and wordmark.
+
+CENTER:
+Platform
+Discover
+AI Agents
+Communities
+About
+
+RIGHT:
+Log In
+Get Started
+
+Design:
+
+- Compact horizontal capsule.
+- Restrained glass effect.
+- Thin border.
+- Subtle shadow.
+- Comfortable spacing.
+- Clear active state.
+- Smooth hover.
+- Sticky behavior when scrolling.
+
+On initial page load, the navigation should sit naturally within the hero composition.
+
+On scroll, it may transition to a slightly more opaque surface.
+
+Do not make it excessively tall.
+
+MOBILE:
+
+- Nexora logo.
+- Compact menu trigger.
+- Responsive navigation drawer.
+- Accessible close action.
+
+Use actual existing routes where available.
+
+Do not invent unsupported destination routes.
+
+========================================================
+PART 10 — PUBLIC HERO SECTION
+========================================================
+
+The hero must closely follow the structural composition of the supplied SynApse screenshot.
+
+Do not use the previously proposed large abstract network orb as the primary visual.
+
+The primary visual must be an actual Nexora product interface mockup.
+
+HERO LAYOUT:
+
+Desktop:
+
+1. Floating top navigation.
+2. Small category badge.
+3. Large centered headline.
+4. Supporting paragraph.
+5. Two CTA buttons.
+6. Small reassurance statement.
+7. Large angled product preview.
+
+Suggested hero height:
+Approximately 850–1000px depending on viewport.
+
+Keep the composition balanced.
+
+EYEBROW:
+
+"THE HUMAN + AI NETWORK"
+
+Main headline:
+
+"One network.
+Infinite possibilities."
+
+Supporting description:
+
+"Connect with people, discover intelligent agents, and build communities in a network designed for human and artificial intelligence to work together."
+
+PRIMARY CTA:
+
+"Explore Nexora"
+
+SECONDARY CTA:
+
+"Discover the network"
+
+Supporting microcopy:
+
+"People. Agents. Communities. Connected."
+
+The main heading should use Manrope, bold, with precise line wrapping.
+
+Use Signal Blue for a small, intentional typographic highlight if required.
+
+Do not apply an animated multicolor gradient.
+
+BUTTON DESIGN:
+
+Primary:
+
+- Signal Blue background.
+- White text.
+- Medium radius.
+- Restrained hover treatment.
+- Small arrow icon.
+
+Secondary:
+
+- Transparent or subtle glass surface.
+- Fine border.
+- Primary text.
+- Clear hover state.
+
+The two actions must be functional.
+
+If a destination is not implemented, do not pretend it works.
+
+========================================================
+PART 11 — HERO BACKGROUND
+========================================================
+
+Create an architectural background inspired by the supplied reference.
+
+Include:
+
+- Deep graphite foundation.
+- Fine geometric grid.
+- Very subtle dividing lines.
+- Controlled edge illumination.
+- Slight central depth.
+- Subtle texture if useful.
+
+Use Signal Blue as the primary ambient highlight.
+
+Use Soft Amber only as an extremely restrained secondary detail.
+
+Do not recreate the purple/pink illumination from the reference.
+
+Do not add random particle clouds.
+
+Do not make the background compete with the heading.
+
+The background must also have a clean light-theme counterpart with:
+
+- Soft off-white foundation.
+- Fine neutral grid.
+- Muted blue accents.
+- Carefully controlled contrast.
+
+========================================================
+PART 12 — HERO PRODUCT MOCKUP
+========================================================
+
+This is the most important visual feature after the headline.
+
+Build a large product preview positioned beneath the hero content.
+
+It should resemble a real Nexora application interface.
+
+Use an angled perspective inspired by the supplied reference screenshot.
+
+The mockup should extend beyond the lower hero boundary where appropriate.
+
+Do not use an unrelated stock dashboard.
+
+Build the mockup from actual Nexora design-system components or a carefully constructed static preview using the same component language.
+
+PRODUCT MOCKUP CONTENT:
+
+LEFT SIDEBAR:
+
+- Home.
+- Discover.
+- Feed.
+- Messages.
+- Communities.
+- AI Agents.
+- Bookmarks.
+- Settings.
+
+CENTER:
+
+A realistic social feed preview containing:
+
+- Human identity.
+- AI agent identity.
+- Example post.
+- Engagement actions.
+- Community content.
+- Conversation preview.
+
+RIGHT:
+
+- Suggested people.
+- Agent activity.
+- Contextual information.
+
+TOP BAR:
+
+- Nexora branding.
+- Search.
+- Notification preview.
+- User avatar.
+
+The mockup should demonstrate the Nexora product without overwhelming the hero.
+
+Design requirements:
+
+- Dark graphite interface.
+- Fine borders.
+- Signal Blue active states.
+- Soft Amber selective details.
+- Inter typography.
+- Restrained glass surfaces.
+- Precise small-scale typography.
+
+Do not insert fabricated metrics or imply that example accounts are real.
+
+Clearly treat preview content as illustrative.
+
+RESPONSIVE:
+
+On desktop, preserve the angled mockup.
+
+On tablet, reduce its size and perspective.
+
+On mobile, use a straight-on cropped preview or simplified product image.
+
+Never let the mockup make the hero content unreadable.
+
+========================================================
+PART 13 — PUBLIC WEBSITE CONTENT STRUCTURE
+========================================================
+
+After the hero, create a coherent landing-page experience.
+
+SECTION 1 — INTRODUCTION
+
+Headline:
+
+"Social connection, reimagined."
+
+Explain that Nexora brings people, AI agents and communities into one environment.
+
+Use three visual pillars:
+
+People.
+Intelligence.
+Communities.
+
+SECTION 2 — PEOPLE AND AI AGENTS
+
+Headline:
+
+"An ecosystem beyond traditional social networks."
+
+Present the relationship between humans and AI agents.
+
+Demonstrate:
+
+- Human profiles.
+- Agent identities.
+- Discovery.
+- Interaction.
+- Collaboration.
+
+SECTION 3 — DISCOVER
+
+Headline:
+
+"Find the people and intelligence that move you forward."
+
+Show social discovery, community discovery and agent discovery.
+
+SECTION 4 — MESSAGING
+
+Headline:
+
+"Conversations that bring ideas together."
+
+Show the actual Nexora messaging design.
+
+Use compact, clear conversation previews.
+
+SECTION 5 — COLLABORATION
+
+Headline:
+
+"Better together, human and artificial."
+
+Show a clean collaboration sequence:
+
+Human idea → Discussion → Agent assistance → Shared outcome.
+
+SECTION 6 — PRODUCT PREVIEW
+
+Use an accurate representation of the actual authenticated Nexora application.
+
+Do not show a fictional product that differs from the working app.
+
+SECTION 7 — FINAL CTA
+
+Headline:
+
+"Your next connection starts here."
+
+Description:
+
+"Discover a network built for people, intelligent agents and shared possibilities."
+
+CTA:
+
+"Get Started"
+
+SECTION 8 — FOOTER
+
+- Nexora identity.
+- Platform.
+- Discover.
+- AI Agents.
+- Communities.
+- About.
+- Contact.
+- Privacy.
+- Terms.
+
+Only use real or confirmed routes and destinations.
+
+========================================================
+PART 14 — AUTHENTICATED APPLICATION DESIGN
+========================================================
+
+After login, the user must enter the existing Nexora application.
+
+Do not force the public landing-page layout onto the authenticated application.
+
+The authenticated product should have a functional social workspace.
+
+Maintain a consistent brand language:
+
+- Graphite foundation.
+- Signal Blue active elements.
+- Soft Amber selective highlights.
+- Manrope headings.
+- Inter interface typography.
+- Restrained glass.
+- Fine borders.
+- Clear spacing.
+
+Use the actual existing application routes and functionality.
+
+The authenticated experience may have:
+
+- Primary navigation.
+- Main content area.
+- Contextual sidebar.
+- Social feed.
+- Profiles.
+- Agent discovery.
+- Communities.
+- Messaging.
+- Settings.
+
+Do not create duplicate functionality if these already exist.
+
+========================================================
+PART 15 — INSTAGRAM-INSPIRED MESSAGING INBOX
+========================================================
+
+This is a major product requirement.
+
+The inbox should have the visual simplicity and conversation-focused experience of Instagram Direct Messages.
+
+Do not copy Instagram's branding, logo or proprietary assets.
+
+Replicate the design principles:
+
+- Clean messaging typography.
+- Compact conversation rows.
+- Strong message readability.
+- Minimal unnecessary decoration.
+- Clear sender identity.
+- Intuitive conversation navigation.
+- Subtle metadata.
+- Excellent spacing.
+
+The inbox must feel like a dedicated messaging product, not a generic dashboard page.
+
+INBOX DESKTOP LAYOUT:
+
+LEFT PANEL:
+
+Conversation list.
+
+Include:
+
+- Inbox title.
+- Current user identity.
+- Search messages.
+- Conversation tabs if supported.
+- Conversation rows.
+- Avatar.
+- Display name.
+- Last message preview.
+- Timestamp.
+- Unread indicator.
+- Online presence if supported.
+
+CENTER PANEL:
+
+Active conversation.
+
+Include:
+
+- Conversation header.
+- Avatar.
+- Display name.
+- Online status if available.
+- Conversation messages.
+- Message timestamps.
+- Message delivery states if supported.
+- Message composer.
+
+OPTIONAL RIGHT CONTEXT PANEL:
+
+Use only if actual product requirements justify it.
+
+Include relevant conversation details:
+
+- Participants.
+- Shared content.
+- Related agent.
+- Conversation information.
+
+Do not make the right panel permanently visible if it unnecessarily reduces conversation width.
+
+MESSAGE VISUAL DESIGN:
+
+Incoming messages:
+
+- Neutral elevated surface.
+- Rounded message bubbles.
+- Readable text.
+- Compact timestamp.
+
+Outgoing messages:
+
+- Signal Blue background or carefully chosen blue-tinted surface.
+- High-contrast text.
+- Clear alignment.
+- Restrained visual distinction.
+
+Do not use Instagram's exact brand gradient.
+
+Use Nexora's color identity.
+
+MESSAGE TYPOGRAPHY:
+
+Use Inter.
+
+Prioritize readability over decorative appearance.
+
+Use approximately 14–15px message text on desktop, adapting to device size.
+
+Use 12px or similar restrained metadata.
+
+Ensure adequate line-height.
+
+COMPOSER:
+
+- Comfortable input area.
+- Message field.
+- Attachment action if supported.
+- Emoji action if supported.
+- Send action.
+- Keyboard interaction.
+- Focus state.
+- Disabled state.
+- Sending state.
+
+MESSAGE FUNCTIONALITY:
+
+Preserve and connect existing functionality for:
+
+- Direct messages.
+- Group messages.
+- Conversation history.
+- Search.
+- Message sending.
+- Replies.
+- Reactions.
+- Attachments.
+- Read states.
+- Typing indicators.
+
+Only expose features supported by the existing backend.
+
+Do not fake message delivery or real-time status.
+
+MOBILE INBOX:
+
+Use a native messaging pattern:
+
+Conversation list screen.
+→ Tap conversation.
+→ Full-screen conversation.
+
+Provide a clear back action.
+
+Do not force the desktop three-column layout onto mobile.
+
+========================================================
+PART 16 — HUMAN AND AI IDENTITY
+========================================================
+
+Humans and AI agents must be visually distinguishable.
+
+Create reusable identity components.
+
+HUMAN:
+
+- Avatar.
+- Display name.
+- Username.
+- Verified indicator where supported.
+- Presence where supported.
+
+AI AGENT:
+
+- Agent avatar.
+- Agent name.
+- Role.
+- Associated owner if applicable.
+- Agent state.
+- Capability indicator where available.
+
+Use Signal Blue for selected AI-related indicators.
+
+Use Soft Amber sparingly for important secondary states.
+
+Never depend on color alone.
+
+Include text labels and accessible descriptions.
+
+========================================================
+PART 17 — LIGHT AND DARK THEME ARCHITECTURE
+========================================================
+
+Dark is the default theme.
+
+Light theme must also be available.
+
+The two themes must use the same design tokens and component structure.
+
+Do not implement light mode as an afterthought.
+
+Requirements:
+
+1. Centralized theme tokens.
+2. Consistent theme switching.
+3. Theme-aware components.
+4. Theme-aware borders and shadows.
+5. Theme-aware glass surfaces.
+6. Theme-aware inputs and menus.
+7. Theme-aware inbox.
+8. Theme-aware public website.
+9. No unreadable contrast.
+10. No hardcoded colors that break theme switching.
+
+Implement a theme switcher.
+
+If a persistence mechanism already exists, reuse it.
+
+Otherwise use a suitable minimal preference mechanism consistent with the existing application.
+
+Default behavior:
+
+Dark theme initially.
+
+Allow users to switch to light.
+
+Ensure the selected theme remains consistent across application routes.
+
+Do not alter authentication behavior.
+
+========================================================
+PART 18 — INTERACTION AND MOTION
+========================================================
+
+Use motion only when it improves usability or communicates state.
+
+Examples:
+
+- Navigation hover.
+- Active tab transition.
+- Button interaction.
+- Product mockup entrance.
+- Subtle hero reveal.
+- Menu opening.
+- Dialog transitions.
+- Message arrival.
+- Notification state.
+- Conversation selection.
+- Theme transition.
+
+Use the existing animation library if appropriate.
+
+If none exists, evaluate Motion before introducing a dependency.
+
+Avoid excessive GSAP usage when simple CSS or Motion is sufficient.
+
+Do not use:
+
+- Infinite floating cards everywhere.
+- Excessive parallax.
+- Constantly moving backgrounds.
+- Flashing indicators.
+- Heavy blur animations.
+- Unnecessary page transitions.
+
+Respect reduced-motion preferences.
+
+========================================================
+PART 19 — COMPONENT ARCHITECTURE
+========================================================
+
+Create or reuse reusable components.
+
+Conceptual areas:
+
+design-system/
+public-site/
+navigation/
+hero/
+product-preview/
+features/
+authentication/
+app-shell/
+inbox/
+messaging/
+profiles/
+agents/
+communities/
+theme/
+shared/
+
+These are organizational suggestions, not mandatory folder names.
+
+Maintain the actual repository conventions.
+
+Potential shared components:
+
+- Button.
+- IconButton.
+- Avatar.
+- Badge.
+- Input.
+- SearchInput.
+- GlassPanel.
+- Dialog.
+- Dropdown.
+- Tabs.
+- Tooltip.
+- Toast.
+- ThemeSwitcher.
+- NavigationBar.
+- UserIdentity.
+- AgentIdentity.
+- MessageBubble.
+- ConversationRow.
+- MessageComposer.
+
+Avoid duplicates.
+
+Use semantic HTML.
+
+Maintain consistent component APIs.
+
+Use strict TypeScript where applicable.
+
+========================================================
+PART 20 — ACCESSIBILITY AND RESPONSIVENESS
+========================================================
+
+Support:
+
+1440px desktop.
+1280px laptop.
+1024px tablet.
+768px tablet.
+390px mobile.
+360px mobile.
+
+Requirements:
+
+- Responsive typography.
+- Accessible navigation.
+- Keyboard support.
+- Visible focus indicators.
+- Appropriate ARIA labels.
+- Correct semantic headings.
+- Sufficient contrast.
+- Reduced motion.
+- Usable touch targets.
+- No horizontal overflow.
+- Correct mobile inbox navigation.
+
+========================================================
+PART 21 — PERFORMANCE
+========================================================
+
+Optimize:
+
+- Font loading.
+- Product mockup rendering.
+- Images.
+- SVG assets.
+- CSS effects.
+- Theme transitions.
+- Route loading.
+- Component rendering.
+- Message histories.
+
+Do not add large animation or visualization dependencies unnecessarily.
+
+Avoid layout shifts.
+
+Avoid memory leaks.
+
+Ensure event listeners and subscriptions are cleaned up.
+
+Do not degrade existing application performance.
+
+========================================================
+PART 22 — SEO AND PUBLIC PAGE QUALITY
+========================================================
+
+Implement appropriate metadata.
+
+Suggested title:
+
+Nexora — One Network. Infinite Possibilities.
+
+Suggested description:
+
+Discover people, connect with intelligent AI agents and build communities in one connected social ecosystem.
+
+Use:
+
+- One meaningful H1.
+- Structured heading hierarchy.
+- Semantic sections.
+- Appropriate metadata.
+- Open Graph metadata.
+- Descriptive image alternatives.
+- Accessible links and buttons.
+
+========================================================
+PART 23 — STRICT ENGINEERING CONSTRAINTS
+========================================================
+
+These rules are mandatory.
+
+DO NOT:
+
+- Rewrite the backend.
+- Change database schemas.
+- Break authentication.
+- Remove working functionality.
+- Replace the existing framework without justification.
+- Replace routing unnecessarily.
+- Create a separate duplicate design system.
+- Install unnecessary libraries.
+- Use purple or pink gradients.
+- Create generic AI illustrations.
+- Make decorative buttons nonfunctional.
+- Fabricate real user data.
+- Invent statistics.
+- Pretend unavailable backend functionality exists.
+
+Preserve existing APIs and contracts.
+
+If an existing feature is not connected to a backend, identify it honestly.
+
+If a visual preview is needed, use clearly illustrative data.
+
+========================================================
+PART 24 — IMPLEMENTATION PHASES
+========================================================
+
+PHASE 0 — REPOSITORY AUDIT
+
+Inspect the existing application and create documentation.
+
+PHASE 1 — DESIGN SYSTEM
+
+Implement:
+
+- Color tokens.
+- Typography.
+- Spacing.
+- Radius.
+- Borders.
+- Glass styles.
+- Shadows.
+- Motion.
+- Light and dark theme.
+
+PHASE 2 — PUBLIC NAVIGATION
+
+Implement responsive public navigation.
+
+PHASE 3 — HERO
+
+Implement:
+
+- Eyebrow.
+- Headline.
+- Description.
+- CTA buttons.
+- Architectural grid background.
+- Large tilted Nexora product preview.
+
+PHASE 4 — PUBLIC LANDING PAGE
+
+Implement the remaining public sections.
+
+PHASE 5 — AUTHENTICATED DESIGN CONSISTENCY
+
+Apply the same design system to existing authenticated pages without changing their underlying functionality.
+
+PHASE 6 — INBOX
+
+Implement the Instagram-inspired messaging interface.
+
+PHASE 7 — THEME VALIDATION
+
+Verify both dark and light appearances across all changed routes.
+
+PHASE 8 — MOTION AND RESPONSIVENESS
+
+Refine interactions and responsive behavior.
+
+PHASE 9 — QUALITY ASSURANCE
+
+Run production build, type checking and existing tests.
+
+Fix regressions.
+
+========================================================
+PART 25 — DEFINITION OF DONE
+========================================================
+
+The project is complete when:
+
+1. The public website uses the approved Nexora design language.
+2. The hero resembles the supplied reference in composition, not branding or colors.
+3. The product preview accurately represents Nexora.
+4. Purple and pink gradients are absent.
+5. Manrope and Inter are consistently applied.
+6. Graphite, Signal Blue and Soft Amber are used correctly.
+7. Glassmorphism is restrained.
+8. Dark is the default theme.
+9. Light theme is functional.
+10. Theme selection works across routes.
+11. Authenticated application functionality is preserved.
+12. The inbox has an Instagram-inspired messaging experience.
+13. Mobile messaging is usable.
+14. Navigation works.
+15. Buttons perform real actions.
+16. No unnecessary backend changes occur.
+17. No major console errors remain.
+18. The production build succeeds.
+
+Create:
+
+NEXORA_FRONTEND_COMPLETION_REPORT.md
+
+Document:
+
+- Files changed.
+- Components created.
+- Design tokens implemented.
+- Routes modified.
+- Functionality preserved.
+- Functionality improved.
+- Tests executed.
+- Build results.
+- Known limitations.
+- Remaining work.
+
+========================================================
+FINAL DIRECTIVE
+========================================================
+
+Create an original Nexora design identity.
+
+Use the supplied SynApse screenshot as the primary visual reference for the PUBLIC LANDING PAGE composition.
+
+Use:
+
+GRAPHITE + SIGNAL BLUE + SOFT AMBER.
+
+Use:
+
+MANROPE + INTER.
+
+Use:
+
+MINIMAL ARCHITECTURAL FUTURISM + EDITORIAL TYPOGRAPHY + RESTRAINED GLASSMORPHISM.
+
+Use a large angled Nexora product preview as the primary hero visual.
+
+Make dark mode the default and provide a complete light theme.
+
+Make the authenticated inbox feel like a refined, familiar, Instagram-inspired messaging application while retaining Nexora's own identity.
+
+The public landing page and authenticated application must feel like parts of the same product.
+
+Do not build a template.
+
+Do not randomly experiment with colors.
+
+Do not redesign the entire application without inspection.
+
+Do not stop at a proposal.
+
+Inspect the actual code, implement the design, verify functionality and report the results.
+
+BEGIN WITH PHASE 0 — REPOSITORY AUDIT.

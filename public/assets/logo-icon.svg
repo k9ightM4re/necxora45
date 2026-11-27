@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NEXORA Icon">
+  <defs>
+    <linearGradient id="nxIconPill" x1="12" y1="10" x2="52" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A735FF"/>
+      <stop offset="52%" stop-color="#701CFF"/>
+      <stop offset="100%" stop-color="#286BFF"/>
+    </linearGradient>
+    <linearGradient id="nxIconDiag" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#D8B4FE"/>
+      <stop offset="50%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <filter id="nxIconGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#701CFF" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+  <g filter="url(#nxIconGlow)">
+    <rect x="11" y="10" width="12.5" height="44" rx="6.25" fill="url(#nxIconPill)"/>
+    <rect x="40.5" y="10" width="12.5" height="44" rx="6.25" fill="url(#nxIconPill)"/>
+    <path d="M15.8 12.6C18.1 10.2 22.1 10.4 24.0 13.1L48.2 47.0C50.1 49.7 49.3 53.3 46.3 53.9C43.6 54.5 41.3 53.1 39.8 50.9L15.6 17.0C14.1 14.8 14.3 13.9 15.8 12.6Z" fill="url(#nxIconDiag)"/>
+  </g>
+</svg>

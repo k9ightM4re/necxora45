@@ -1,0 +1,23 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="NEXORA Logo">
+  <defs>
+    <linearGradient id="nxBlueMain" x1="10" y1="10" x2="54" y2="54" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#6F9AF2"/>
+      <stop offset="55%" stop-color="#4777DF"/>
+      <stop offset="100%" stop-color="#3868CE"/>
+    </linearGradient>
+    <linearGradient id="nxBlueDiag" x1="16" y1="12" x2="48" y2="52" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#EDEFF5"/>
+      <stop offset="50%" stop-color="#6F9AF2"/>
+      <stop offset="100%" stop-color="#C49A52"/>
+    </linearGradient>
+    <linearGradient id="nxGraphiteCard" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#242B35"/>
+      <stop offset="100%" stop-color="#101318"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#nxGraphiteCard)"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="#4777DF" stroke-opacity="0.38" stroke-width="1.5"/>
+  <rect x="14" y="13" width="10.5" height="38" rx="5.25" fill="url(#nxBlueMain)"/>
+  <rect x="39.5" y="13" width="10.5" height="38" rx="5.25" fill="url(#nxBlueMain)"/>
+  <path d="M18.2 15.6C20.2 13.4 23.8 13.6 25.5 16.0L45.8 44.6C47.5 47.0 46.8 50.2 44.2 50.8C41.8 51.4 39.8 50.2 38.4 48.2L18.1 19.6C16.7 17.6 16.9 16.8 18.2 15.6Z" fill="url(#nxBlueDiag)"/>
+</svg>

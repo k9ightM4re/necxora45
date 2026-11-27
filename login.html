@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign in — Nexora</title>
+    <meta name="description" content="Sign in to Nexora with Google, Email OTP verification, Passwordless Link, Password, or Phone SMS OTP." />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body data-page="login">
+    <header class="auth-topbar">
+      <a href="/index.html?landing=1" class="back-link">← Back to Nexora</a>
+      <div class="auth-topbar-right">
+        <button type="button" class="auth-theme-btn" data-theme-switch aria-label="Toggle Light or Dark theme" aria-pressed="true">
+          <span data-theme-label>Dark</span>
+        </button>
+        <a href="/index.html?landing=1" class="brand-lockup">
+          <img src="/assets/logo.svg" alt="" width="28" height="28" />
+          <span>Nexora</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="auth-session-gate" id="auth-session-gate" aria-live="polite">
+      <div style="display:grid;gap:12px;justify-items:center;">
+        <div class="nx-loading-mark"><span class="nx-loading-ring"></span><img src="/assets/logo.svg" alt="NEXORA" /></div>
+        <strong style="font-size:0.96rem;">Checking active NEXORA session...</strong>
+      </div>
+    </div>
+
+    <main class="auth-main" id="auth-page-content" hidden>
+      <section class="auth-card" aria-labelledby="login-heading">
+        <div class="auth-header">
+          <h1 id="login-heading">Welcome back to NEXORA</h1>
+          <p>Sign in securely via Google, Email &amp; Password, Sign-In Link, or Phone OTP.</p>
+        </div>
+
+        <button type="button" class="btn-google" id="google-auth-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z" />
+            <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z" />
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="method-tabs" role="tablist" aria-label="Authentication method">
+          <button type="button" class="method-tab" role="tab" aria-selected="true" data-auth-method="email">
+            Email address
+          </button>
+          <button type="button" class="method-tab" role="tab" aria-selected="false" data-auth-method="phone">
+            Phone number + OTP
+          </button>
+        </div>
+
+        <div class="form-alert" id="form-alert" role="alert" aria-live="polite"></div>
+
+        <!-- Inline Email Link Confirmation if opened from another browser -->
+        <div id="email-link-confirm-box" hidden style="margin-bottom:14px;">
+          <form class="auth-form" id="email-link-confirm-form">
+            <div class="field">
+              <label class="field-label" for="email-link-confirm-input">Confirm email to finish sign-in link</label>
+              <input id="email-link-confirm-input" type="email" class="text-input" placeholder="you@example.com" required />
+            </div>
+            <button type="submit" class="btn-submit">Complete Email Link Sign-In</button>
+          </form>
+        </div>
+
+        <!-- EMAIL SECTION CONTAINER -->
+        <div id="email-section-container">
+          <div class="submethod-tabs" role="tablist" aria-label="Email sign-in mode">
+            <button type="button" class="submethod-tab" role="tab" aria-selected="true" data-email-mode="password">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <span>Password</span>
+            </button>
+            <button type="button" class="submethod-tab" role="tab" aria-selected="false" data-email-mode="link">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+              </svg>
+              <span>Sign-In Link</span>
+            </button>
+          </div>
+
+          <!-- 1. Email + Password Form (Default) -->
+          <form class="auth-form" id="email-password-form" novalidate>
+            <div class="field">
+              <label class="field-label" for="auth-email">Email address</label>
+              <input
+                id="auth-email"
+                type="email"
+                class="text-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              />
+              <span class="field-error" id="err-email"></span>
+            </div>
+
+            <div class="field">
+              <div class="field-label">
+                <label for="auth-password">Password</label>
+                <a href="/forgot-password.html" class="label-link">Forgot password?</a>
+              </div>
+              <div class="input-wrap">
+                <input
+                  id="auth-password"
+                  type="password"
+                  class="text-input with-toggle"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  data-toggle-for="auth-password"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+              <span class="field-error" id="err-password"></span>
+            </div>
+
+            <button type="submit" class="btn-submit" id="email-password-submit-btn">
+              Sign In
+            </button>
+          </form>
+
+          <!-- 2. Passwordless Email Sign-In Link Form -->
+          <form class="auth-form" id="email-link-form" novalidate hidden>
+            <div class="field">
+              <label class="field-label" for="email-link-address">Email address for sign-in link</label>
+              <input
+                id="email-link-address"
+                type="email"
+                class="text-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              />
+              <span class="field-error" id="err-email-link"></span>
+            </div>
+
+            <button type="submit" class="btn-submit" id="send-email-link-btn">
+              Send Passwordless Sign-In Link
+            </button>
+          </form>
+        </div>
+
+        <!-- PHONE SECTION CONTAINER -->
+        <form class="auth-form" id="phone-auth-form" novalidate hidden>
+          <div class="field">
+            <label class="field-label" for="phone-number">Phone number</label>
+            <div class="phone-row">
+              <select id="phone-country" class="select-input" aria-label="Country code">
+                <option value="+1">+1 (US/CA)</option>
+                <option value="+91" selected>+91 (IN)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+61">+61 (AU)</option>
+                <option value="+65">+65 (SG)</option>
+                <option value="+49">+49 (DE)</option>
+                <option value="+81">+81 (JP)</option>
+              </select>
+              <input
+                id="phone-number"
+                type="tel"
+                class="text-input"
+                placeholder="98765 43210"
+                autocomplete="tel-national"
+                required
+              />
+            </div>
+            <span class="field-error" id="err-phone"></span>
+          </div>
+
+          <div class="recaptcha-slot">
+            <div id="recaptcha-container"></div>
+          </div>
+
+          <button type="button" class="btn-submit" id="send-otp-btn">Send SMS OTP</button>
+
+          <div id="otp-step" class="auth-form" hidden>
+            <div class="field">
+              <label class="field-label" for="otp-code">6-digit verification code</label>
+              <input
+                id="otp-code"
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                class="text-input mono"
+                placeholder="000000"
+                autocomplete="one-time-code"
+              />
+              <span class="field-error" id="err-otp"></span>
+            </div>
+
+            <div class="otp-meta-row">
+              <span>Code expires in 5 minutes</span>
+              <button type="button" class="link-btn" id="resend-otp-btn">Resend OTP</button>
+            </div>
+
+            <button type="submit" class="btn-submit" id="verify-otp-btn">Verify OTP &amp; Continue</button>
+          </div>
+        </form>
+
+        <p class="auth-footer-link">
+          New to NEXORA? <a href="/signup.html">Create an account</a>
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="/js/auth.js"></script>
+      <script type="module" src="/js/pwa.js"></script>
+  </body>
+</html>

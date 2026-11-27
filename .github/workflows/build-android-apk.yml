@@ -1,0 +1,237 @@
+name: Build NEXORA Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      versionName:
+        description: "Android version name"
+        required: false
+        default: "1.0.0"
+      versionCode:
+        description: "Android version code"
+        required: false
+        default: "1"
+  push:
+    branches:
+      - main
+    paths:
+      - android/twa-manifest.json
+      - .github/workflows/build-android-apk.yml
+
+permissions:
+  contents: write
+
+env:
+  VERSION_NAME: ${{ github.event.inputs.versionName || '1.0.0' }}
+  VERSION_CODE: ${{ github.event.inputs.versionCode || '1' }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      KS_PASS: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD || 'nexora-ci-store' }}
+      KEY_PASS: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD || 'nexora-ci-key' }}
+      BUBBLEWRAP_KEYSTORE_PASSWORD: ${{ secrets.BUBBLEWRAP_KEYSTORE_PASSWORD || 'nexora-ci-store' }}
+      BUBBLEWRAP_KEY_PASSWORD: ${{ secrets.BUBBLEWRAP_KEY_PASSWORD || 'nexora-ci-key' }}
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Start diagnostic log
+        run: |
+          mkdir -p android
+          {
+            echo "=== NEXORA APK build diagnostics ==="
+            echo "UTC: $(date -u +%FT%TZ)"
+            echo "Runner: $RUNNER_OS $RUNNER_ARCH"
+            echo "Node: $(node --version 2>&1 || true)"
+            echo "npm: $(npm --version 2>&1 || true)"
+            echo "Java: $(java -version 2>&1 | head -n 1 || true)"
+            echo "keytool: $(command -v keytool || true)"
+            echo "ANDROID_HOME: $ANDROID_HOME"
+            echo "JAVA_HOME: $JAVA_HOME"
+          } 2>&1 | tee android/build.log
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Checkpoint setup-node
+        run: echo "checkpoint: node setup ok" >> android/build.log
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Checkpoint setup-java
+        run: echo "checkpoint: jdk setup ok" >> android/build.log
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Checkpoint setup-android
+        run: echo "checkpoint: android sdk setup ok" >> android/build.log
+
+      - name: Install Android SDK packages and accept licenses
+        run: |
+          set -e
+          set -o pipefail
+          {
+          yes | sdkmanager --licenses > /dev/null 2>&1 || true
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
+          if [ ! -e "$ANDROID_HOME/bin" ]; then
+            ln -s "$ANDROID_HOME/cmdline-tools/latest/bin" "$ANDROID_HOME/bin"
+          fi
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          echo "JAVA_HOME=$JAVA_HOME"
+          } 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint sdk packages
+        run: echo "checkpoint: sdk packages ok" >> android/build.log
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli@1.27.0 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint install bubblewrap
+        run: echo "checkpoint: bubblewrap installed" >> android/build.log
+
+      - name: Configure Bubblewrap paths
+        run: |
+          set -e
+          set -o pipefail
+          {
+          mkdir -p "$HOME/.bubblewrap"
+          printf '{"jdkPath":"%s","androidSdkPath":"%s"}\n' "$JAVA_HOME" "$ANDROID_HOME" > "$HOME/.bubblewrap/config.json"
+          cat "$HOME/.bubblewrap/config.json"
+          } 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint bubblewrap config
+        run: echo "checkpoint: bubblewrap configured" >> android/build.log
+
+      - name: Prepare signing key
+        run: |
+          set -e
+          set -o pipefail
+          {
+          mkdir -p android
+          if [ -n "${{ secrets.NEXORA_KEYSTORE_BASE64 }}" ]; then
+            echo "${{ secrets.NEXORA_KEYSTORE_BASE64 }}" | base64 -d > android/android.keystore
+            echo "Using supplied keystore"
+          else
+            keytool -genkeypair -v -keystore android/android.keystore -alias android \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KS_PASS" -keypass "$KEY_PASS" \
+              -dname "CN=NEXORA, OU=Mobile, O=NEXORA, L=Internet, ST=Internet, C=IN"
+            echo "Generated temporary CI keystore (sideload testing only)"
+          fi
+          ls -l android/android.keystore
+          } 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint signing key
+        run: echo "checkpoint: keystore ready" >> android/build.log
+
+      - name: Apply requested app version
+        run: |
+          set -e
+          set -o pipefail
+          node -e 'const fs=require("fs");const p="android/twa-manifest.json";const m=JSON.parse(fs.readFileSync(p,"utf8"));m.appVersion=process.argv[1];m.appVersionCode=Number(process.argv[2]);fs.writeFileSync(p,JSON.stringify(m,null,2)+"\n");' "$VERSION_NAME" "$VERSION_CODE" 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint app version
+        run: echo "checkpoint: version applied" >> android/build.log
+
+      - name: Generate Android project from twa-manifest.json
+        run: |
+          set -o pipefail
+          mkdir -p android/dist
+          bubblewrap update --skipVersionUpgrade \
+            --manifest=android/twa-manifest.json \
+            --directory=android/dist 2>&1 | tee -a android/build.log
+
+      - name: Checkpoint generate project
+        run: echo "checkpoint: android project generated" >> android/build.log
+
+      - name: Build and sign APK
+        run: |
+          set -o pipefail
+          cd android/dist
+          bubblewrap build --skipPwaValidation \
+            --manifest=../twa-manifest.json \
+            --signingKeyPath="$GITHUB_WORKSPACE/android/android.keystore" \
+            --signingKeyAlias=android 2>&1 | tee -a ../../android/build.log
+
+      - name: Checkpoint build apk
+        run: echo "checkpoint: apk built" >> android/build.log
+
+      - name: Verify APK
+        if: always()
+        run: |
+          touch android/build.log
+          if [ -f android/dist/app-release-signed.apk ]; then
+            "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging android/dist/app-release-signed.apk 2>/dev/null | head -n 6 | tee -a android/build.log || true
+            "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs android/dist/app-release-signed.apk 2>/dev/null | head -n 12 | tee -a android/build.log || true
+          fi
+
+      - name: Generate Digital Asset Links file
+        if: always()
+        run: |
+          set -e
+          touch android/build.log
+          if [ ! -f android/android.keystore ]; then
+            echo "No keystore available; skipping assetlinks.json" | tee -a android/build.log
+            exit 0
+          fi
+          FP=$(keytool -list -v -keystore android/android.keystore -alias android -storepass "$KS_PASS" | grep -i 'SHA256:' | head -n 1 | sed 's/^[^:]*:[[:space:]]*//' | tr -d '[:space:]')
+          if [ -z "$FP" ]; then
+            echo "Could not read signing certificate fingerprint" | tee -a android/build.log
+            exit 0
+          fi
+          node -e 'const fs=require("fs");const fp=process.argv[1];const data=[{relation:["delegate_permission.common.handle_all_urls"],target:{namespace:"android_app",package_name:"com.nexora.app",sha256_cert_fingerprints:[fp]}}];fs.mkdirSync("public/.well-known",{recursive:true});fs.writeFileSync("public/.well-known/assetlinks.json",JSON.stringify(data,null,2)+"\n");' "$FP"
+          echo "Wrote Digital Asset Links fingerprint" | tee -a android/build.log
+
+      - name: Dump failure diagnostics
+        if: failure()
+        run: |
+          {
+            echo "=== FAILURE DIAGNOSTICS ==="
+            echo "workspace:"; ls -la || true
+            echo "android:"; ls -la android || true
+            echo "android/dist:"; ls -la android/dist || true
+            echo "bubblewrap: $(bubblewrap --version 2>&1 || true)"
+            echo "sdkmanager: $(sdkmanager --version 2>&1 || true)"
+            echo "bubblewrap config:"; cat "$HOME/.bubblewrap/config.json" 2>&1 || true
+            echo "keystore listing:"; keytool -list -keystore android/android.keystore -storepass "$KS_PASS" 2>&1 | head -n 20 || true
+          } 2>&1 | tee -a android/build.log || true
+
+      - name: Upload APK and App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: nexora-android
+          path: |
+            android/dist/app-release-signed.apk
+            android/dist/app-release-bundle.aab
+          if-no-files-found: warn
+
+      - name: Publish APK, asset links, and build log to main
+        if: always()
+        run: |
+          set -e
+          mkdir -p public/downloads
+          if [ -f android/dist/app-release-signed.apk ]; then
+            cp android/dist/app-release-signed.apk public/downloads/nexora.apk
+          fi
+          git config user.name "openbotgit[bot]"
+          git config user.email "335604065+openbotgit[bot]@users.noreply.github.com"
+          if [ -f public/downloads/nexora.apk ]; then git add -f public/downloads/nexora.apk; fi
+          if [ -f public/.well-known/assetlinks.json ]; then git add -f public/.well-known/assetlinks.json; fi
+          if [ -f android/build.log ]; then git add -f android/build.log; fi
+          if git diff --cached --quiet; then
+            echo "No APK or log changes to publish"
+          else
+            git commit -m "Publish NEXORA APK build [skip ci]"
+            git push origin HEAD:main
+          fi

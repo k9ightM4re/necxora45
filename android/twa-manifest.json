@@ -1,0 +1,31 @@
+{
+  "packageId": "com.nexora.app",
+  "host": "myzora.netlify.app",
+  "name": "NEXORA",
+  "launcherName": "NEXORA",
+  "display": "standalone",
+  "orientation": "default",
+  "themeColor": "#101124",
+  "themeColorDark": "#101124",
+  "navigationColor": "#101124",
+  "navigationColorDark": "#101124",
+  "navigationDividerColor": "#101124",
+  "navigationDividerColorDark": "#101124",
+  "backgroundColor": "#101124",
+  "startUrl": "/app.html",
+  "iconUrl": "https://myzora.netlify.app/assets/icon-512.png",
+  "maskableIconUrl": "https://myzora.netlify.app/assets/icon-512-maskable.png",
+  "webManifestUrl": "https://myzora.netlify.app/manifest.webmanifest",
+  "enableNotifications": true,
+  "enableSiteSettingsShortcut": true,
+  "fallbackType": "customtabs",
+  "features": {},
+  "fingerprints": [],
+  "appVersion": "1.0.0",
+  "appVersionCode": 1,
+  "splashScreenFadeOutDuration": 300,
+  "signingKey": {
+    "path": "android.keystore",
+    "alias": "android"
+  }
+}

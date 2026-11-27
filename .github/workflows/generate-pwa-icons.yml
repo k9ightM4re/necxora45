@@ -1,0 +1,47 @@
+name: Generate PWA icons
+
+on:
+  push:
+    branches:
+      - experience-polish-2026-11-23
+
+permissions:
+  contents: write
+
+jobs:
+  icons:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Install ImageMagick
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq imagemagick
+          command -v convert || command -v magick
+
+      - name: Generate PNG icons from logo
+        run: |
+          set -e
+          if command -v magick >/dev/null 2>&1; then IM="magick"; else IM="convert"; fi
+          "$IM" public/assets/logo.png -resize 192x192 -strip public/assets/icon-192.png
+          "$IM" public/assets/logo.png -resize 512x512 -strip public/assets/icon-512.png
+          "$IM" -size 512x512 xc:'#101124' \( public/assets/logo.png -resize 400x400 \) -gravity center -composite -strip public/assets/icon-512-maskable.png
+          ls -lh public/assets/icon-192.png public/assets/icon-512.png public/assets/icon-512-maskable.png
+
+      - name: Commit generated icons
+        run: |
+          set -e
+          git config user.name "openbotgit[bot]"
+          git config user.email "335604065+openbotgit[bot]@users.noreply.github.com"
+          git add -f public/assets/icon-192.png public/assets/icon-512.png public/assets/icon-512-maskable.png
+          if git diff --cached --quiet; then
+            echo "Icons already up to date"
+          else
+            git commit -m "Generate PWA PNG icons from NEXORA logo [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi

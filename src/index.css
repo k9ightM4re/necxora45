@@ -1,0 +1,54 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #111318;
+    --bg-secondary: #191C24;
+    --bg-sidebar: #15171E;
+    --accent: #7667F7;
+    --accent-hover: #6555f5;
+    --success: #35C98B;
+    --text-primary: #F4F5FA;
+    --text-secondary: #9B9EAC;
+    --border-dark: #262A36;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  }
+}
+
+/* Custom sleek scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #2b303d;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3c4355;
+}
+
+/* Custom animations */
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2.5s infinite ease-in-out;
+}
+
+@keyframes speaking-glow {
+  0%, 100% { box-shadow: 0 0 0 2px #35C98B, 0 0 16px rgba(53, 201, 139, 0.4); }
+  50% { box-shadow: 0 0 0 4px #35C98B, 0 0 24px rgba(53, 201, 139, 0.7); }
+}
+
+.speaking-active {
+  animation: speaking-glow 1.2s infinite ease-in-out;
+}

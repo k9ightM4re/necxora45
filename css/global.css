@@ -1,0 +1,550 @@
+/* ==========================================================================
+   NEXORA Official Design System Tokens (v1.0)
+   Identity: Graphite (#242B35) + Signal Blue (#4777DF) + Soft Amber (#C49A52)
+   Typography: Manrope (Headings) + Inter (Body & Interface)
+   ========================================================================== */
+
+:root,
+:root[data-theme="dark"],
+:root[data-theme="navy-dark"] {
+  /* Core Nexora Dark Palette */
+  --nx-bg: #101318;
+  --nx-bg-secondary: #171C23;
+  --nx-surface: #1D232C;
+  --nx-surface-elevated: #242B35;
+
+  --nx-primary: #4777DF;
+  --nx-primary-fill: #3868CE;
+  --nx-primary-hover: #2E5BC0;
+  --nx-primary-muted: rgba(71, 119, 223, 0.14);
+
+  --nx-accent: #C49A52;
+  --nx-accent-muted: rgba(196, 154, 82, 0.13);
+
+  --nx-text-primary: #F2F4F7;
+  --nx-text-secondary: #A8B0BB;
+  --nx-text-muted: #8C96A5;
+
+  --nx-border: rgba(255, 255, 255, 0.09);
+  --nx-border-strong: rgba(255, 255, 255, 0.15);
+
+  /* Three-Level Glassmorphism System */
+  --nx-glass-bg: rgba(23, 28, 35, 0.78);
+  --nx-glass-bg-scrolled: rgba(16, 19, 24, 0.90);
+  --nx-glass-border: rgba(255, 255, 255, 0.11);
+  --nx-glass-blur: blur(16px) saturate(130%);
+  --nx-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+
+  --nx-glass-float-bg: rgba(29, 35, 44, 0.92);
+  --nx-glass-float-border: rgba(255, 255, 255, 0.15);
+  --nx-glass-float-shadow: 0 20px 48px rgba(0, 0, 0, 0.52);
+
+  /* Semantic Status */
+  --success: #34D399;
+  --warning: #C49A52;
+  --danger: #F87171;
+
+  /* Compatibility Token Bridge across auth, welcome, workspace & social surfaces */
+  --bg: var(--nx-bg);
+  --surface: var(--nx-surface);
+  --elevated: var(--nx-surface-elevated);
+  --text: var(--nx-text-primary);
+  --muted: var(--nx-text-muted);
+  --primary: var(--nx-primary);
+  --secondary: var(--nx-accent);
+  --accent: var(--nx-accent);
+  --gradient: linear-gradient(135deg, #3868CE, #4777DF);
+  --glow: 0 20px 60px rgba(71, 119, 223, 0.16);
+  --border: var(--nx-border);
+  --border-strong: var(--nx-border-strong);
+  --glass-bg: var(--nx-glass-bg);
+  --glass-border: var(--nx-glass-border);
+  --cta-bg: var(--nx-primary-fill);
+  --cta-hover: var(--nx-primary-hover);
+  --cta-text: #FFFFFF;
+
+  --nx-purple: var(--nx-primary);
+  --nx-violet: var(--nx-primary);
+  --nx-blue: var(--nx-primary);
+  --nx-grad: var(--gradient);
+  --nx-grad-hover: linear-gradient(135deg, #2E5BC0, #3868CE);
+  --nx-dark-navy: var(--nx-bg);
+
+  --navy: #101318;
+  --navy-deep: #0B0E12;
+  --navy-surface: #1D232C;
+  --navy-hover: #242B35;
+  --orange: var(--nx-primary);
+  --orange-hover: var(--nx-primary-hover);
+  --orange-soft: var(--nx-primary-muted);
+  --orange-border: rgba(71, 119, 223, 0.38);
+  --light-bg: var(--nx-bg);
+  --white: var(--nx-surface);
+  --slate-border: var(--nx-border);
+  --slate-border-strong: var(--nx-border-strong);
+  --ink-primary: var(--nx-text-primary);
+  --ink-secondary: var(--nx-text-secondary);
+  --ink-muted: var(--nx-text-muted);
+
+  /* Official Nexora Typography */
+  --font-display: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --ease-expo: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition-fast: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+:root[data-theme="light"] {
+  /* Core Nexora Light Palette */
+  --nx-bg: #F5F6F8;
+  --nx-bg-secondary: #EBEEF2;
+  --nx-surface: #FFFFFF;
+  --nx-surface-elevated: #FFFFFF;
+
+  --nx-primary: #3868C8;
+  --nx-primary-fill: #3868C8;
+  --nx-primary-hover: #2D58AD;
+  --nx-primary-muted: rgba(56, 104, 200, 0.09);
+
+  --nx-accent: #A67B38;
+  --nx-accent-muted: rgba(166, 123, 56, 0.10);
+
+  --nx-text-primary: #202630;
+  --nx-text-secondary: #596473;
+  --nx-text-muted: #677280;
+
+  --nx-border: rgba(32, 38, 48, 0.09);
+  --nx-border-strong: rgba(32, 38, 48, 0.15);
+
+  /* Light Glassmorphism */
+  --nx-glass-bg: rgba(255, 255, 255, 0.80);
+  --nx-glass-bg-scrolled: rgba(255, 255, 255, 0.94);
+  --nx-glass-border: rgba(32, 38, 48, 0.10);
+  --nx-glass-blur: blur(16px) saturate(135%);
+  --nx-glass-shadow: 0 10px 28px rgba(32, 38, 48, 0.08);
+
+  --nx-glass-float-bg: rgba(255, 255, 255, 0.96);
+  --nx-glass-float-border: rgba(32, 38, 48, 0.14);
+  --nx-glass-float-shadow: 0 18px 40px rgba(32, 38, 48, 0.12);
+
+  --success: #047857;
+  --warning: #A67B38;
+  --danger: #DC2626;
+
+  --bg: var(--nx-bg);
+  --surface: var(--nx-surface);
+  --elevated: var(--nx-bg-secondary);
+  --text: var(--nx-text-primary);
+  --muted: var(--nx-text-muted);
+  --primary: var(--nx-primary);
+  --secondary: var(--nx-accent);
+  --accent: var(--nx-accent);
+  --gradient: linear-gradient(135deg, #3868C8, #2D58AD);
+  --glow: 0 18px 46px rgba(56, 104, 200, 0.12);
+  --border: var(--nx-border);
+  --border-strong: var(--nx-border-strong);
+  --glass-bg: var(--nx-glass-bg);
+  --glass-border: var(--nx-glass-border);
+  --cta-bg: var(--nx-primary-fill);
+  --cta-hover: var(--nx-primary-hover);
+  --cta-text: #FFFFFF;
+
+  --nx-grad-hover: linear-gradient(135deg, #2D58AD, #234994);
+  --navy: #202630;
+  --navy-deep: #141820;
+  --navy-surface: #242B35;
+  --navy-hover: #2E3744;
+  --orange-soft: var(--nx-primary-muted);
+  --orange-border: rgba(56, 104, 200, 0.30);
+  --ink-secondary: var(--nx-text-secondary);
+}
+
+/* View Transitions API smooth theme cross-fade */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 240ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+:focus-visible {
+  outline: 2px solid var(--nx-primary);
+  outline-offset: 2px;
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Reusable Level 2 & Level 3 Glass Utilities */
+.nx-glass-subtle {
+  background-color: var(--nx-glass-bg);
+  border: 1px solid var(--nx-glass-border);
+  backdrop-filter: var(--nx-glass-blur);
+  -webkit-backdrop-filter: var(--nx-glass-blur);
+  box-shadow: var(--nx-glass-shadow);
+}
+
+.nx-glass-floating {
+  background-color: var(--nx-glass-float-bg);
+  border: 1px solid var(--nx-glass-float-border);
+  backdrop-filter: var(--nx-glass-blur);
+  -webkit-backdrop-filter: var(--nx-glass-blur);
+  box-shadow: var(--nx-glass-float-shadow);
+}
+
+/* Reusable Human vs AI Agent Identity Badges (Never color-only) */
+.nx-identity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.nx-identity-badge--human {
+  background-color: var(--nx-surface-elevated);
+  border: 1px solid var(--nx-border-strong);
+  color: var(--nx-text-secondary);
+}
+
+.nx-identity-badge--agent {
+  background-color: var(--nx-primary-muted);
+  border: 1px solid rgba(71, 119, 223, 0.32);
+  color: var(--nx-primary);
+}
+
+.nx-identity-badge--amber {
+  background-color: var(--nx-accent-muted);
+  border: 1px solid rgba(196, 154, 82, 0.32);
+  color: var(--nx-accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Brand Loading Animation */
+@keyframes nxLogoPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
+}
+
+@keyframes nxRingSpin {
+  to { transform: rotate(360deg); }
+}
+
+.nx-loading-mark {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  display: grid;
+  place-items: center;
+}
+
+.nx-loading-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  border: 2.5px solid var(--nx-border);
+  border-top-color: var(--nx-primary);
+  border-right-color: var(--nx-accent);
+  animation: nxRingSpin 0.95s linear infinite;
+}
+
+.nx-loading-mark img {
+  width: 42px;
+  height: 42px;
+  animation: nxLogoPulse 1.8s ease-in-out infinite;
+}
+
+/* Toast Notification Shield */
+.nx-toast-region,
+.toast-stack.nx-toast-region {
+  position: fixed;
+  top: auto;
+  bottom: 18px;
+  right: 18px;
+  z-index: 9999;
+  display: grid;
+  align-content: end;
+  gap: 10px;
+  width: min(370px, calc(100vw - 24px));
+  height: auto;
+  pointer-events: none;
+}
+
+.nx-toast {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  align-items: start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: var(--nx-surface-elevated);
+  color: var(--nx-text-primary);
+  border: 1px solid var(--nx-border-strong);
+  box-shadow: var(--nx-glass-float-shadow);
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  line-height: 1.42;
+  pointer-events: auto;
+  animation: nx-toast-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.nx-toast.is-leaving {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+.nx-toast--error,
+.nx-toast--busy {
+  border-color: var(--danger);
+}
+
+.nx-toast--warning {
+  border-color: var(--nx-accent);
+}
+
+.nx-toast--success {
+  border-color: var(--success);
+}
+
+.nx-toast--info {
+  border-color: var(--nx-primary);
+}
+
+.nx-toast-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background-color: var(--nx-primary-muted);
+  color: var(--nx-primary);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.nx-toast--success .nx-toast-icon {
+  background-color: rgba(52, 211, 153, 0.16);
+  color: var(--success);
+}
+
+.nx-toast--warning .nx-toast-icon {
+  background-color: var(--nx-accent-muted);
+  color: var(--nx-accent);
+}
+
+.nx-toast-body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.nx-toast-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--nx-text-primary);
+}
+
+.nx-toast-message {
+  color: var(--nx-text-secondary);
+  word-break: break-word;
+}
+
+.nx-toast-close {
+  border: none;
+  background: transparent;
+  color: var(--nx-text-muted);
+  font-size: 1.05rem;
+  line-height: 1;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  transition: background-color 140ms ease, color 140ms ease;
+}
+
+.nx-toast-close:hover {
+  background-color: var(--nx-primary-muted);
+  color: var(--nx-text-primary);
+}
+
+@keyframes nx-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 520px) {
+  .nx-toast-region {
+    top: auto;
+    bottom: 14px;
+    right: 12px;
+    left: 12px;
+    width: auto;
+  }
+}
+
+/* Device baseline: iOS text sizing, fluid media, and touch-friendly controls */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+button,
+[role="button"],
+a.btn {
+  touch-action: manipulation;
+}
+
+@media (max-width: 640px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+/* Install / Update Toasts (Authenticated Workspace) */
+.nx-install-btn {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 80;
+  transform: translate(-50%, 16px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 18px;
+  border: 1px solid var(--nx-border-strong);
+  border-radius: 999px;
+  background: var(--nx-primary-fill);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: var(--nx-glass-float-shadow);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 240ms ease, transform 240ms ease, visibility 240ms ease;
+  touch-action: manipulation;
+}
+
+.nx-install-btn.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(-50%, 0);
+}
+
+.nx-ios-hint,
+.nx-update-toast {
+  position: fixed;
+  left: 50%;
+  bottom: max(18px, env(safe-area-inset-bottom));
+  z-index: 85;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(420px, calc(100% - 28px));
+  padding: 12px 14px;
+  border: 1px solid var(--nx-border-strong);
+  border-radius: 14px;
+  background: var(--nx-surface-elevated);
+  color: var(--nx-text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  box-shadow: var(--nx-glass-float-shadow);
+}
+
+.nx-ios-hint strong {
+  color: var(--nx-text-primary);
+}
+
+.nx-ios-hint button,
+.nx-update-toast button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--nx-text-muted);
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.nx-update-toast {
+  bottom: auto;
+  top: max(18px, env(safe-area-inset-top));
+}
+
+.nx-update-toast button {
+  color: var(--nx-primary);
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nx-install-btn { transition: none; }
+}

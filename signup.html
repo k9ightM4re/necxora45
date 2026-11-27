@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account — Nexora</title>
+    <meta name="description" content="Register on Nexora with Google, verified Email OTP, Password, or Phone SMS OTP." />
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/css/global.css" />
+    <link rel="stylesheet" href="/css/auth.css" />
+  </head>
+  <body data-page="signup">
+    <header class="auth-topbar">
+      <a href="/index.html?landing=1" class="back-link">← Back to Nexora</a>
+      <div class="auth-topbar-right">
+        <button type="button" class="auth-theme-btn" data-theme-switch aria-label="Toggle Light or Dark theme" aria-pressed="true">
+          <span data-theme-label>Dark</span>
+        </button>
+        <a href="/index.html?landing=1" class="brand-lockup">
+          <img src="/assets/logo.svg" alt="" width="28" height="28" />
+          <span>Nexora</span>
+        </a>
+      </div>
+    </header>
+
+    <div class="auth-session-gate" id="auth-session-gate" aria-live="polite">
+      <div style="display:grid;gap:12px;justify-items:center;">
+        <div class="nx-loading-mark"><span class="nx-loading-ring"></span><img src="/assets/logo.svg" alt="NEXORA" /></div>
+        <strong style="font-size:0.96rem;">Checking active NEXORA session...</strong>
+      </div>
+    </div>
+
+    <main class="auth-main" id="auth-page-content" hidden>
+      <section class="auth-card" aria-labelledby="signup-heading">
+        <div class="auth-header">
+          <h1 id="signup-heading">Create your account</h1>
+          <p>Register on NEXORA with Google, Email &amp; Password, or Phone OTP.</p>
+        </div>
+
+        <button type="button" class="btn-google" id="google-auth-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z" />
+            <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z" />
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z" />
+          </svg>
+          <span>Continue with Google</span>
+        </button>
+
+        <div class="divider">OR CONTINUE WITH</div>
+
+        <div class="method-tabs" role="tablist" aria-label="Registration method">
+          <button type="button" class="method-tab" role="tab" aria-selected="true" data-auth-method="email">
+            Email address
+          </button>
+          <button type="button" class="method-tab" role="tab" aria-selected="false" data-auth-method="phone">
+            Phone number + OTP
+          </button>
+        </div>
+
+        <div class="form-alert" id="form-alert" role="alert" aria-live="polite"></div>
+
+        <!-- EMAIL SECTION CONTAINER -->
+        <div id="email-section-container">
+          <!-- Email + Password Signup Form -->
+          <form class="auth-form" id="email-password-form" novalidate>
+            <div class="field">
+              <label class="field-label" for="signup-display">Display name</label>
+              <input
+                id="signup-display"
+                type="text"
+                class="text-input"
+                placeholder="Your display name"
+                autocomplete="name"
+                required
+              />
+              <span class="field-error" id="err-display"></span>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="auth-email">Email address</label>
+              <input
+                id="auth-email"
+                type="email"
+                class="text-input"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              />
+              <span class="field-error" id="err-email"></span>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="auth-password">Password</label>
+              <div class="input-wrap">
+                <input
+                  id="auth-password"
+                  type="password"
+                  class="text-input with-toggle"
+                  placeholder="At least 6 characters"
+                  autocomplete="new-password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  data-toggle-for="auth-password"
+                  aria-label="Show password"
+                  aria-pressed="false"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                </button>
+              </div>
+              <span class="field-error" id="err-password"></span>
+            </div>
+
+            <button type="submit" class="btn-submit" id="email-password-submit-btn">
+              Create Account
+            </button>
+          </form>
+        </div>
+
+        <!-- PHONE SECTION CONTAINER -->
+        <form class="auth-form" id="phone-auth-form" novalidate hidden>
+          <div class="field">
+            <label class="field-label" for="phone-signup-display">Display name</label>
+            <input
+              id="phone-signup-display"
+              type="text"
+              class="text-input"
+              placeholder="Your display name"
+              autocomplete="name"
+            />
+            <span class="field-error" id="err-phone-display"></span>
+          </div>
+
+          <div class="field">
+            <label class="field-label" for="phone-number">Phone number</label>
+            <div class="phone-row">
+              <select id="phone-country" class="select-input" aria-label="Country code">
+                <option value="+1">+1 (US/CA)</option>
+                <option value="+91" selected>+91 (IN)</option>
+                <option value="+44">+44 (UK)</option>
+                <option value="+61">+61 (AU)</option>
+                <option value="+65">+65 (SG)</option>
+                <option value="+49">+49 (DE)</option>
+                <option value="+81">+81 (JP)</option>
+              </select>
+              <input
+                id="phone-number"
+                type="tel"
+                class="text-input"
+                placeholder="98765 43210"
+                autocomplete="tel-national"
+                required
+              />
+            </div>
+            <span class="field-error" id="err-phone"></span>
+          </div>
+
+          <div class="recaptcha-slot">
+            <div id="recaptcha-container"></div>
+          </div>
+
+          <button type="button" class="btn-submit" id="send-otp-btn">Send SMS OTP</button>
+
+          <div id="otp-step" class="auth-form" hidden>
+            <div class="field">
+              <label class="field-label" for="otp-code">6-digit verification code</label>
+              <input
+                id="otp-code"
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                class="text-input mono"
+                placeholder="000000"
+                autocomplete="one-time-code"
+              />
+              <span class="field-error" id="err-otp"></span>
+            </div>
+
+            <div class="otp-meta-row">
+              <span>Code expires in 5 minutes</span>
+              <button type="button" class="link-btn" id="resend-otp-btn">Resend OTP</button>
+            </div>
+
+            <button type="submit" class="btn-submit" id="verify-otp-btn">Verify OTP &amp; Create Account</button>
+          </div>
+        </form>
+
+        <p class="auth-footer-link">
+          Already have an account? <a href="/login.html">Sign in</a>
+        </p>
+      </section>
+    </main>
+
+    <script type="module" src="/js/auth.js"></script>
+      <script type="module" src="/js/pwa.js"></script>
+  </body>
+</html>

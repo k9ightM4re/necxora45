@@ -1,0 +1,571 @@
+/* ==========================================================================
+   Nexora Authentication Pages — Graphite & Signal Blue Design System (v1.0)
+   Supports Dark (default) and Light themes via --nx-* CSS tokens
+   ========================================================================== */
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  background-color: var(--nx-bg);
+  background-image:
+    radial-gradient(62% 48% at 50% 0%, rgba(71, 119, 223, 0.14) 0%, transparent 65%),
+    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+  background-size: 100% 100%, 48px 48px, 48px 48px;
+  color: var(--nx-text-primary);
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root[data-theme="light"] body {
+  background-image:
+    radial-gradient(62% 48% at 50% 0%, rgba(56, 104, 200, 0.08) 0%, transparent 65%),
+    linear-gradient(to right, rgba(32, 38, 48, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(32, 38, 48, 0.03) 1px, transparent 1px);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select {
+  font-family: inherit;
+}
+
+.auth-topbar {
+  height: 64px;
+  padding-inline: clamp(14px, 4vw, 28px);
+  background-color: var(--nx-glass-bg);
+  backdrop-filter: var(--nx-glass-blur);
+  -webkit-backdrop-filter: var(--nx-glass-blur);
+  color: var(--nx-text-primary);
+  border-bottom: 1px solid var(--nx-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.auth-topbar-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.auth-theme-btn {
+  height: 32px;
+  padding: 0 11px;
+  border-radius: 999px;
+  border: 1px solid var(--nx-border-strong);
+  background-color: var(--nx-surface-elevated);
+  color: var(--nx-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.auth-theme-btn:hover {
+  color: var(--nx-text-primary);
+  border-color: var(--nx-primary);
+}
+
+.back-link {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--nx-text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--nx-text-primary);
+}
+
+.brand-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+  color: var(--nx-text-primary);
+}
+
+.brand-lockup img {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+}
+
+.auth-main {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 5vw, 42px) clamp(14px, 4vw, 22px);
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 444px;
+  background-color: var(--nx-surface);
+  border: 1px solid var(--nx-border-strong);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: var(--nx-glass-float-shadow);
+  color: var(--nx-text-primary);
+  animation: nx-auth-card-in 480ms var(--ease-expo) both;
+}
+
+.auth-header {
+  margin-bottom: 20px;
+}
+
+.auth-header h1 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-size: 1.48rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--nx-text-primary);
+}
+
+.auth-header p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--nx-text-secondary);
+}
+
+/* Google OAuth Button */
+.btn-google {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--nx-border-strong);
+  background-color: var(--nx-surface-elevated);
+  color: var(--nx-text-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 160ms ease;
+}
+
+.btn-google:hover {
+  background-color: var(--nx-bg-secondary);
+  border-color: var(--nx-primary);
+  transform: translateY(-1px);
+}
+
+.btn-google:active {
+  transform: translateY(0);
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--nx-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-block: 18px;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background-color: var(--nx-border);
+}
+
+/* Segmented Provider Switcher: Email | Phone OTP */
+.method-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  background-color: var(--nx-bg-secondary);
+  border: 1px solid var(--nx-border);
+  margin-bottom: 16px;
+}
+
+.method-tab {
+  height: 34px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--nx-text-secondary);
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.method-tab[aria-selected="true"] {
+  background-color: var(--nx-primary-fill);
+  color: #ffffff;
+}
+
+/* Secondary Mode Toggle inside Email: Email OTP vs Password */
+.submethod-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  background-color: var(--nx-bg-secondary);
+  border: 1px solid var(--nx-border);
+  margin-bottom: 12px;
+}
+
+.submethod-tabs.three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.submethod-tab {
+  height: 32px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--nx-text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.submethod-tab[aria-selected="true"] {
+  background-color: var(--nx-surface-elevated);
+  color: var(--nx-text-primary);
+  border: 1px solid var(--nx-border-strong);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+}
+
+.auth-session-gate {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--nx-text-secondary);
+}
+
+.auth-session-gate[hidden],
+.auth-main[hidden] {
+  display: none;
+}
+
+.nx-spinner {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: currentColor;
+  display: inline-block;
+  animation: nx-spin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes nx-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.text-input.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.28em;
+  font-size: 1.2rem;
+  text-align: center;
+  font-weight: 700;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--nx-text-secondary);
+}
+
+.label-link {
+  font-size: 0.78rem;
+  color: var(--nx-primary);
+  font-weight: 600;
+}
+
+.label-link:hover {
+  text-decoration: underline;
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.phone-row {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  gap: 8px;
+}
+
+.text-input,
+.select-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--nx-border-strong);
+  background-color: var(--nx-bg-secondary);
+  color: var(--nx-text-primary);
+  font-size: 0.9rem;
+  touch-action: manipulation;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.text-input::placeholder {
+  color: var(--nx-text-muted);
+}
+
+.text-input:focus,
+.select-input:focus {
+  outline: none;
+  border-color: var(--nx-primary);
+  box-shadow: 0 0 0 3px var(--nx-primary-muted);
+}
+
+.text-input.with-toggle {
+  padding-right: 42px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 6px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--nx-text-muted);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.toggle-password:hover {
+  color: var(--nx-text-primary);
+  background-color: var(--nx-primary-muted);
+}
+
+.field-error {
+  font-size: 0.78rem;
+  color: var(--danger);
+  min-height: 14px;
+}
+
+.form-alert {
+  display: none;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 0.84rem;
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  background-color: rgba(248, 113, 113, 0.1);
+  color: var(--danger);
+}
+
+.form-alert.visible {
+  display: block;
+}
+
+.form-alert.success {
+  border-color: rgba(52, 211, 153, 0.35);
+  background-color: rgba(52, 211, 153, 0.12);
+  color: var(--success);
+}
+
+.btn-submit {
+  width: 100%;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background-color: var(--nx-primary-fill);
+  color: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--transition-fast), transform 160ms ease;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: var(--nx-primary-hover);
+  transform: translateY(-1px);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--nx-border-strong);
+  background-color: var(--nx-surface-elevated);
+  color: var(--nx-text-primary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 160ms ease;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  border-color: var(--nx-primary);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-secondary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.otp-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--nx-text-muted);
+}
+
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--nx-primary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.link-btn:disabled {
+  color: var(--nx-text-muted);
+  cursor: not-allowed;
+}
+
+.auth-footer-link {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--nx-border);
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--nx-text-secondary);
+}
+
+.auth-footer-link a {
+  color: var(--nx-primary);
+  font-weight: 700;
+}
+
+.auth-footer-link a:hover {
+  text-decoration: underline;
+}
+
+.recaptcha-slot {
+  display: flex;
+  justify-content: center;
+}
+
+.recaptcha-slot:has(> :empty) {
+  display: none;
+}
+
+@keyframes nx-auth-card-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-topbar {
+    padding-inline: 14px;
+  }
+
+  .auth-card {
+    padding: 22px 18px;
+    border-radius: 16px;
+  }
+
+  .phone-row {
+    grid-template-columns: 96px 1fr;
+  }
+
+  .auth-header h1 {
+    font-size: 1.3rem;
+  }
+}
+
+@media (hover: none) {
+  .btn-submit:hover:not(:disabled),
+  .btn-secondary:hover:not(:disabled),
+  .btn-google:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .nx-spinner {
+    animation: none;
+  }
+}
