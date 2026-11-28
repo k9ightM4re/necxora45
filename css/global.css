@@ -1,83 +1,95 @@
 /* ==========================================================================
-   NEXORA Official Design System Tokens (v1.0)
-   Identity: Graphite (#242B35) + Signal Blue (#4777DF) + Soft Amber (#C49A52)
-   Typography: Manrope (Headings) + Inter (Body & Interface)
+   NEXORA Warm Editorial Design System Tokens
+   Identity: Ivory Cream (#FFF0DC) + Deep Crimson Burgundy (#790B13)
+   Typography: Playfair Display (Headings) + DM Sans (Body & UI)
    ========================================================================== */
 
 :root,
-:root[data-theme="dark"],
-:root[data-theme="navy-dark"] {
-  /* Core Nexora Dark Palette */
-  --nx-bg: #101318;
-  --nx-bg-secondary: #171C23;
-  --nx-surface: #1D232C;
-  --nx-surface-elevated: #242B35;
+:root[data-theme="light"] {
+  /* Core Nexora Warm Editorial Tokens */
+  --color-primary: #790B13;
+  --color-on-primary: #FFF0DC;
+  --color-primary-hover: #5C0810;
+  --color-primary-soft: #F7E1D3;
+  --color-background: #FFF0DC;
+  --color-on-background: #2A0A0D;
+  --color-surface: #FFF8EE;
+  --color-on-surface: #2A0A0D;
+  --color-surface-alt: #F7E5CE;
+  --color-muted: #6B4A4D;
+  --color-outline: #E8D3B8;
 
-  --nx-primary: #4777DF;
-  --nx-primary-fill: #3868CE;
-  --nx-primary-hover: #2E5BC0;
-  --nx-primary-muted: rgba(71, 119, 223, 0.14);
+  /* Semantic Theme Variables */
+  --nx-bg: #FFF0DC;
+  --nx-bg-secondary: #F7E5CE;
+  --nx-surface: #FFF8EE;
+  --nx-surface-elevated: #FFF8EE;
 
-  --nx-accent: #C49A52;
-  --nx-accent-muted: rgba(196, 154, 82, 0.13);
+  --nx-primary: #790B13;
+  --nx-primary-fill: #790B13;
+  --nx-primary-hover: #5C0810;
+  --nx-primary-muted: #F7E1D3;
 
-  --nx-text-primary: #F2F4F7;
-  --nx-text-secondary: #A8B0BB;
-  --nx-text-muted: #8C96A5;
+  --nx-accent: #790B13;
+  --nx-accent-muted: #F7E1D3;
 
-  --nx-border: rgba(255, 255, 255, 0.09);
-  --nx-border-strong: rgba(255, 255, 255, 0.15);
+  --nx-text-primary: #2A0A0D;
+  --nx-text-secondary: #4D2B2F;
+  --nx-text-muted: #6B4A4D;
 
-  /* Three-Level Glassmorphism System */
-  --nx-glass-bg: rgba(23, 28, 35, 0.78);
-  --nx-glass-bg-scrolled: rgba(16, 19, 24, 0.90);
-  --nx-glass-border: rgba(255, 255, 255, 0.11);
-  --nx-glass-blur: blur(16px) saturate(130%);
-  --nx-glass-shadow: 0 12px 32px rgba(0, 0, 0, 0.38);
+  --nx-border: #E8D3B8;
+  --nx-border-strong: #D9BE9C;
 
-  --nx-glass-float-bg: rgba(29, 35, 44, 0.92);
-  --nx-glass-float-border: rgba(255, 255, 255, 0.15);
-  --nx-glass-float-shadow: 0 20px 48px rgba(0, 0, 0, 0.52);
+  /* Warm Tonal Glassmorphism & Ambient Elevation */
+  --nx-glass-bg: rgba(255, 240, 220, 0.90);
+  --nx-glass-bg-scrolled: rgba(255, 248, 238, 0.96);
+  --nx-glass-border: #E8D3B8;
+  --nx-glass-blur: blur(14px) saturate(120%);
+  --nx-glass-shadow: 0 8px 24px rgba(42, 10, 13, 0.06);
 
-  /* Semantic Status */
-  --success: #34D399;
-  --warning: #C49A52;
-  --danger: #F87171;
+  --nx-glass-float-bg: #FFF8EE;
+  --nx-glass-float-border: #E8D3B8;
+  --nx-glass-float-shadow: 0 16px 38px rgba(42, 10, 13, 0.08);
+
+  /* Semantic Status (Warm-Tinted, WCAG AA+) */
+  --success: #166534;
+  --warning: #92400E;
+  --danger: #991B1B;
 
   /* Compatibility Token Bridge across auth, welcome, workspace & social surfaces */
   --bg: var(--nx-bg);
   --surface: var(--nx-surface);
-  --elevated: var(--nx-surface-elevated);
+  --elevated: var(--nx-bg-secondary);
   --text: var(--nx-text-primary);
   --muted: var(--nx-text-muted);
   --primary: var(--nx-primary);
-  --secondary: var(--nx-accent);
-  --accent: var(--nx-accent);
-  --gradient: linear-gradient(135deg, #3868CE, #4777DF);
-  --glow: 0 20px 60px rgba(71, 119, 223, 0.16);
+  --secondary: var(--nx-primary-hover);
+  --accent: var(--nx-primary);
+  --gradient: linear-gradient(135deg, #790B13, #5C0810);
+  --glow: 0 14px 36px rgba(42, 10, 13, 0.08);
   --border: var(--nx-border);
   --border-strong: var(--nx-border-strong);
   --glass-bg: var(--nx-glass-bg);
   --glass-border: var(--nx-glass-border);
   --cta-bg: var(--nx-primary-fill);
   --cta-hover: var(--nx-primary-hover);
-  --cta-text: #FFFFFF;
+  --cta-text: #FFF0DC;
 
   --nx-purple: var(--nx-primary);
   --nx-violet: var(--nx-primary);
   --nx-blue: var(--nx-primary);
   --nx-grad: var(--gradient);
-  --nx-grad-hover: linear-gradient(135deg, #2E5BC0, #3868CE);
+  --nx-grad-hover: linear-gradient(135deg, #5C0810, #46050B);
   --nx-dark-navy: var(--nx-bg);
 
-  --navy: #101318;
-  --navy-deep: #0B0E12;
-  --navy-surface: #1D232C;
-  --navy-hover: #242B35;
+  --navy: #2A0A0D;
+  --navy-deep: #1B0709;
+  --navy-surface: #FFF8EE;
+  --navy-hover: #F7E5CE;
   --orange: var(--nx-primary);
   --orange-hover: var(--nx-primary-hover);
   --orange-soft: var(--nx-primary-muted);
-  --orange-border: rgba(71, 119, 223, 0.38);
+  --orange-border: rgba(121, 11, 19, 0.28);
   --light-bg: var(--nx-bg);
   --white: var(--nx-surface);
   --slate-border: var(--nx-border);
@@ -86,89 +98,95 @@
   --ink-secondary: var(--nx-text-secondary);
   --ink-muted: var(--nx-text-muted);
 
-  /* Official Nexora Typography */
-  --font-display: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  /* Official Nexora Editorial Typography */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-sans: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 18px;
-  --radius-pill: 999px;
-  --ease-expo: cubic-bezier(0.22, 1, 0.36, 1);
-  --transition-fast: 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  /* Exact Shapes & Motion Curves */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 9999px;
+  --ease-expo: cubic-bezier(0.2, 0, 0, 1);
+  --transition-fast: 150ms ease-out;
+  --transition-card: 200ms cubic-bezier(0.2, 0, 0, 1);
+  --transition-reveal: 400ms cubic-bezier(0.2, 0, 0, 1);
 }
 
-:root[data-theme="light"] {
-  /* Core Nexora Light Palette */
-  --nx-bg: #F5F6F8;
-  --nx-bg-secondary: #EBEEF2;
-  --nx-surface: #FFFFFF;
-  --nx-surface-elevated: #FFFFFF;
+:root[data-theme="dark"],
+:root[data-theme="navy-dark"] {
+  /* Deep Burgundy Editorial Dark Palette (Workspace Toggle) */
+  --nx-bg: #1B0709;
+  --nx-bg-secondary: #250B0E;
+  --nx-surface: #2D0E12;
+  --nx-surface-elevated: #381217;
 
-  --nx-primary: #3868C8;
-  --nx-primary-fill: #3868C8;
-  --nx-primary-hover: #2D58AD;
-  --nx-primary-muted: rgba(56, 104, 200, 0.09);
+  --nx-primary: #F2B8B5;
+  --nx-primary-fill: #790B13;
+  --nx-primary-hover: #96141E;
+  --nx-primary-muted: rgba(242, 184, 181, 0.14);
 
-  --nx-accent: #A67B38;
-  --nx-accent-muted: rgba(166, 123, 56, 0.10);
+  --nx-accent: #F7E1D3;
+  --nx-accent-muted: rgba(247, 225, 211, 0.14);
 
-  --nx-text-primary: #202630;
-  --nx-text-secondary: #596473;
-  --nx-text-muted: #677280;
+  --nx-text-primary: #FFF0DC;
+  --nx-text-secondary: #EAD2C5;
+  --nx-text-muted: #B99792;
 
-  --nx-border: rgba(32, 38, 48, 0.09);
-  --nx-border-strong: rgba(32, 38, 48, 0.15);
+  --nx-border: rgba(232, 211, 184, 0.16);
+  --nx-border-strong: rgba(232, 211, 184, 0.28);
 
-  /* Light Glassmorphism */
-  --nx-glass-bg: rgba(255, 255, 255, 0.80);
-  --nx-glass-bg-scrolled: rgba(255, 255, 255, 0.94);
-  --nx-glass-border: rgba(32, 38, 48, 0.10);
-  --nx-glass-blur: blur(16px) saturate(135%);
-  --nx-glass-shadow: 0 10px 28px rgba(32, 38, 48, 0.08);
+  --nx-glass-bg: rgba(27, 7, 9, 0.86);
+  --nx-glass-bg-scrolled: rgba(37, 11, 14, 0.95);
+  --nx-glass-border: rgba(232, 211, 184, 0.18);
+  --nx-glass-blur: blur(14px) saturate(120%);
+  --nx-glass-shadow: 0 12px 32px rgba(15, 3, 5, 0.48);
 
-  --nx-glass-float-bg: rgba(255, 255, 255, 0.96);
-  --nx-glass-float-border: rgba(32, 38, 48, 0.14);
-  --nx-glass-float-shadow: 0 18px 40px rgba(32, 38, 48, 0.12);
+  --nx-glass-float-bg: #2D0E12;
+  --nx-glass-float-border: rgba(232, 211, 184, 0.24);
+  --nx-glass-float-shadow: 0 18px 42px rgba(12, 2, 4, 0.56);
 
-  --success: #047857;
-  --warning: #A67B38;
-  --danger: #DC2626;
+  --success: #6EE7B7;
+  --warning: #FCD34D;
+  --danger: #FCA5A5;
 
   --bg: var(--nx-bg);
   --surface: var(--nx-surface);
-  --elevated: var(--nx-bg-secondary);
+  --elevated: var(--nx-surface-elevated);
   --text: var(--nx-text-primary);
   --muted: var(--nx-text-muted);
   --primary: var(--nx-primary);
   --secondary: var(--nx-accent);
-  --accent: var(--nx-accent);
-  --gradient: linear-gradient(135deg, #3868C8, #2D58AD);
-  --glow: 0 18px 46px rgba(56, 104, 200, 0.12);
+  --accent: var(--nx-primary);
+  --gradient: linear-gradient(135deg, #790B13, #5C0810);
+  --glow: 0 18px 46px rgba(15, 3, 5, 0.45);
   --border: var(--nx-border);
   --border-strong: var(--nx-border-strong);
   --glass-bg: var(--nx-glass-bg);
   --glass-border: var(--nx-glass-border);
   --cta-bg: var(--nx-primary-fill);
   --cta-hover: var(--nx-primary-hover);
-  --cta-text: #FFFFFF;
+  --cta-text: #FFF0DC;
 
-  --nx-grad-hover: linear-gradient(135deg, #2D58AD, #234994);
-  --navy: #202630;
-  --navy-deep: #141820;
-  --navy-surface: #242B35;
-  --navy-hover: #2E3744;
+  --nx-grad-hover: linear-gradient(135deg, #96141E, #790B13);
+  --navy: #FFF0DC;
+  --navy-deep: #140507;
+  --navy-surface: #2D0E12;
+  --navy-hover: #381217;
   --orange-soft: var(--nx-primary-muted);
-  --orange-border: rgba(56, 104, 200, 0.30);
+  --orange-border: rgba(242, 184, 181, 0.34);
+  --ink-primary: var(--nx-text-primary);
   --ink-secondary: var(--nx-text-secondary);
+  --ink-muted: var(--nx-text-muted);
 }
 
 /* View Transitions API smooth theme cross-fade */
 ::view-transition-old(root),
 ::view-transition-new(root) {
-  animation-duration: 240ms;
-  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
 }
 
 *,
@@ -194,7 +212,13 @@
   font-family: var(--font-mono);
 }
 
-/* Reusable Level 2 & Level 3 Glass Utilities */
+.material-symbols-outlined {
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+/* Warm Tonal Surfaces & Hairline Cards */
 .nx-glass-subtle {
   background-color: var(--nx-glass-bg);
   border: 1px solid var(--nx-glass-border);
@@ -206,20 +230,18 @@
 .nx-glass-floating {
   background-color: var(--nx-glass-float-bg);
   border: 1px solid var(--nx-glass-float-border);
-  backdrop-filter: var(--nx-glass-blur);
-  -webkit-backdrop-filter: var(--nx-glass-blur);
   box-shadow: var(--nx-glass-float-shadow);
 }
 
-/* Reusable Human vs AI Agent Identity Badges (Never color-only) */
+/* Identity Badges (Warm Editorial Spectrum) */
 .nx-identity-badge {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 2px 8px;
+  border-radius: 9999px;
   font-family: var(--font-sans);
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: 0.01em;
@@ -227,21 +249,21 @@
 }
 
 .nx-identity-badge--human {
-  background-color: var(--nx-surface-elevated);
-  border: 1px solid var(--nx-border-strong);
+  background-color: var(--nx-bg-secondary);
+  border: 1px solid var(--nx-border);
   color: var(--nx-text-secondary);
 }
 
 .nx-identity-badge--agent {
   background-color: var(--nx-primary-muted);
-  border: 1px solid rgba(71, 119, 223, 0.32);
+  border: 1px solid var(--nx-border);
   color: var(--nx-primary);
 }
 
 .nx-identity-badge--amber {
-  background-color: var(--nx-accent-muted);
-  border: 1px solid rgba(196, 154, 82, 0.32);
-  color: var(--nx-accent);
+  background-color: var(--nx-primary-muted);
+  border: 1px solid var(--nx-border);
+  color: var(--nx-primary);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -275,16 +297,16 @@
 .nx-loading-ring {
   position: absolute;
   inset: 0;
-  border-radius: 999px;
+  border-radius: 9999px;
   border: 2.5px solid var(--nx-border);
   border-top-color: var(--nx-primary);
-  border-right-color: var(--nx-accent);
+  border-right-color: var(--nx-primary-hover);
   animation: nxRingSpin 0.95s linear infinite;
 }
 
 .nx-loading-mark img {
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   animation: nxLogoPulse 1.8s ease-in-out infinite;
 }
 
@@ -311,16 +333,16 @@
   gap: 10px;
   padding: 12px 14px;
   border-radius: 12px;
-  background-color: var(--nx-surface-elevated);
+  background-color: var(--nx-surface);
   color: var(--nx-text-primary);
-  border: 1px solid var(--nx-border-strong);
+  border: 1px solid var(--nx-border);
   box-shadow: var(--nx-glass-float-shadow);
   font-family: var(--font-sans);
   font-size: 0.84rem;
   line-height: 1.42;
   pointer-events: auto;
-  animation: nx-toast-in 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  transition: opacity 160ms ease, transform 160ms ease;
+  animation: nx-toast-in 180ms cubic-bezier(0.2, 0, 0, 1);
+  transition: opacity 150ms ease-out, transform 150ms ease-out;
 }
 
 .nx-toast.is-leaving {
@@ -334,7 +356,7 @@
 }
 
 .nx-toast--warning {
-  border-color: var(--nx-accent);
+  border-color: var(--warning);
 }
 
 .nx-toast--success {
@@ -360,13 +382,13 @@
 }
 
 .nx-toast--success .nx-toast-icon {
-  background-color: rgba(52, 211, 153, 0.16);
+  background-color: rgba(22, 101, 52, 0.12);
   color: var(--success);
 }
 
 .nx-toast--warning .nx-toast-icon {
-  background-color: var(--nx-accent-muted);
-  color: var(--nx-accent);
+  background-color: rgba(146, 64, 14, 0.12);
+  color: var(--warning);
 }
 
 .nx-toast-body {
@@ -394,12 +416,12 @@
   line-height: 1;
   width: 22px;
   height: 22px;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
   display: grid;
   place-items: center;
   padding: 0;
-  transition: background-color 140ms ease, color 140ms ease;
+  transition: background-color 150ms ease-out, color 150ms ease-out;
 }
 
 .nx-toast-close:hover {
@@ -459,12 +481,6 @@ a.btn {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-}
-
 /* Install / Update Toasts (Authenticated Workspace) */
 .nx-install-btn {
   position: fixed;
@@ -477,16 +493,16 @@ a.btn {
   gap: 8px;
   padding: 11px 18px;
   border: 1px solid var(--nx-border-strong);
-  border-radius: 999px;
+  border-radius: 9999px;
   background: var(--nx-primary-fill);
-  color: #ffffff;
+  color: #FFF0DC;
   font-family: var(--font-sans);
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   box-shadow: var(--nx-glass-float-shadow);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 240ms ease, transform 240ms ease, visibility 240ms ease;
+  transition: opacity 200ms ease, transform 200ms ease, visibility 200ms ease;
   touch-action: manipulation;
 }
 
@@ -508,9 +524,9 @@ a.btn {
   gap: 12px;
   width: min(420px, calc(100% - 28px));
   padding: 12px 14px;
-  border: 1px solid var(--nx-border-strong);
-  border-radius: 14px;
-  background: var(--nx-surface-elevated);
+  border: 1px solid var(--nx-border);
+  border-radius: 16px;
+  background: var(--nx-surface);
   color: var(--nx-text-primary);
   font-family: var(--font-sans);
   font-size: 0.84rem;
@@ -542,7 +558,7 @@ a.btn {
 .nx-update-toast button {
   color: var(--nx-primary);
   font-size: 0.84rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 @media (prefers-reduced-motion: reduce) {

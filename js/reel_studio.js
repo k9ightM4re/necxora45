@@ -12,7 +12,7 @@ export const REEL_FILTERS = [
   { id: 'valencia', label: 'Valencia', category: 'instagram', css: 'sepia(0.16) contrast(1.08) brightness(1.08) saturate(1.16)', swatch: 'linear-gradient(135deg, #FBBF24, #FB7185)' },
   { id: 'lofi-pop', label: 'Lo-Fi Pop', category: 'instagram', css: 'contrast(1.32) saturate(1.38)', swatch: 'linear-gradient(135deg, #EC4899, #8B5CF6)' },
   { id: 'noir', label: 'Noir B&W', category: 'instagram', css: 'grayscale(1) contrast(1.28) brightness(0.98)', swatch: 'linear-gradient(135deg, #1E293B, #64748B)' },
-  { id: 'snap-peach', label: 'Snap Peach', category: 'snapchat', css: 'brightness(1.08) saturate(1.18) sepia(0.14) hue-rotate(-6deg)', swatch: 'linear-gradient(135deg, #FDBA74, #C49A52)' },
+  { id: 'snap-peach', label: 'Snap Peach', category: 'snapchat', css: 'brightness(1.08) saturate(1.18) sepia(0.14) hue-rotate(-6deg)', swatch: 'linear-gradient(135deg, #FDBA74, #B45309)' },
   { id: 'snap-tokyo', label: 'Tokyo Neon', category: 'snapchat', css: 'contrast(1.16) saturate(1.45) hue-rotate(12deg)', swatch: 'linear-gradient(135deg, #06B6D4, #701CFF)' },
   { id: 'snap-mint', label: 'Fresh Mint', category: 'snapchat', css: 'brightness(1.06) saturate(1.15) hue-rotate(18deg)', swatch: 'linear-gradient(135deg, #34D399, #38BDF8)' },
   { id: 'retro-vhs', label: 'Retro VHS', category: 'snapchat', css: 'contrast(1.22) sepia(0.22) saturate(1.12) brightness(0.96)', swatch: 'linear-gradient(135deg, #7C3AED, #F59E0B)' },
@@ -75,7 +75,7 @@ export const REEL_VIDEO_TEMPLATES = [
     audioTrackId: 'nexora-midnight',
     musicVolume: 0.7,
     captionSeed: 'Save this for later! 3 quick creator tips 👇 #CreatorTips #Growth',
-    backdropColors: ['#1E1B4B', '#4338CA', '#286BFF'],
+    backdropColors: ['#2A0A0D', '#790B13', '#B45309'],
     overlays: [
       { id: 'tpl-ct-1', text: '3 TIPS YOU NEED 👇', x: 50, y: 22, color: '#FFFFFF', style: 'strong', bgMode: 'pill', fontSize: 22 },
       { id: 'tpl-ct-2', text: 'Save & Share with a friend', x: 50, y: 75, color: '#FFFFFF', style: 'modern', bgMode: 'dark', fontSize: 16 },
@@ -135,30 +135,30 @@ export const REEL_VIDEO_TEMPLATES = [
 ];
 
 export const PHOTO_TEMPLATES = [
-  { id: 'clean-filter', name: 'Filter Only', description: 'Clean edge-to-edge photo with IG/Snap filter & badge.' },
+  { id: 'clean-filter', name: 'Filter Only', description: 'Clean edge-to-edge photo with filter & badge.' },
   { id: 'polaroid-frame', name: 'Polaroid Card', description: 'Classic cream Polaroid frame with handwritten caption.' },
   { id: 'magazine-cover', name: 'Magazine Cover', description: 'Editorial masthead cover with bold headline.' },
-  { id: 'neon-poster', name: 'Signal Frame', description: 'Nexora Signal Blue spotlight border & banner.' },
-  { id: 'film-strip', name: '35mm Film Strip', description: 'Dark analog sprocket border & camera timestamp.' },
+  { id: 'neon-poster', name: 'Crimson Frame', description: 'Nexora Warm Crimson editorial border & banner.' },
+  { id: 'film-strip', name: '35mm Film Strip', description: 'Analog sprocket border & camera timestamp.' },
   { id: 'quote-card', name: 'Quote Card', description: 'Works with or without a photo — crisp centered quote.' },
 ];
 
 export const REEL_TEXT_STYLES = [
-  { id: 'classic', label: 'Classic', fontFamily: 'Inter, system-ui, sans-serif', fontWeight: 700, letterSpacing: '0em', uppercase: false },
-  { id: 'modern', label: 'Modern', fontFamily: 'Manrope, Inter, sans-serif', fontWeight: 800, letterSpacing: '0.02em', uppercase: false },
-  { id: 'neon', label: 'Signal', fontFamily: 'Manrope, system-ui, sans-serif', fontWeight: 800, letterSpacing: '0.05em', uppercase: false, neon: true },
+  { id: 'classic', label: 'Editorial', fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700, letterSpacing: '0em', uppercase: false },
+  { id: 'modern', label: 'Modern', fontFamily: '"DM Sans", system-ui, sans-serif', fontWeight: 700, letterSpacing: '0.01em', uppercase: false },
+  { id: 'neon', label: 'Crimson', fontFamily: '"DM Sans", system-ui, sans-serif', fontWeight: 700, letterSpacing: '0.04em', uppercase: false, neon: true },
   { id: 'typewriter', label: 'Typewriter', fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace', fontWeight: 700, letterSpacing: '0.01em', uppercase: false },
-  { id: 'strong', label: 'Strong', fontFamily: 'Impact, Manrope, sans-serif', fontWeight: 900, letterSpacing: '0.04em', uppercase: true },
+  { id: 'strong', label: 'Strong', fontFamily: 'Impact, "DM Sans", sans-serif', fontWeight: 900, letterSpacing: '0.04em', uppercase: true },
 ];
 
 export const REEL_TEXT_COLORS = [
-  '#FFFFFF',
-  '#101124',
-  '#701CFF',
-  '#286BFF',
-  '#EC4899',
-  '#FACC15',
-  '#34D399',
+  '#FFF0DC',
+  '#2A0A0D',
+  '#790B13',
+  '#5C0810',
+  '#9A3412',
+  '#D97706',
+  '#15803D',
 ];
 
 export const REEL_SOUNDTRACKS = [
@@ -487,7 +487,7 @@ export async function exportEditedReelForYouTube({
   audioTrackId = 'original',
   audioDataUrl = '',
   musicVolume = 0.75,
-  backdropColors = ['#101124', '#4C1D95', '#286BFF'],
+  backdropColors = ['#1B0709', '#5C0810', '#790B13'],
   durationSec = 5,
   onProgress = null,
 } = {}) {
@@ -508,7 +508,7 @@ export async function exportEditedReelForYouTube({
   const trackMeta = getSoundtrackMeta(audioTrackId);
   const [c0, c1, c2] = Array.isArray(backdropColors) && backdropColors.length >= 3
     ? backdropColors
-    : ['#101124', '#4C1D95', '#286BFF'];
+    : ['#1B0709', '#5C0810', '#790B13'];
 
   const canvasStream = canvas.captureStream(30);
   const exportAudio = new ReelAudioEngine();
@@ -761,9 +761,9 @@ export async function renderPhotoTemplateToDataUrl({
       drawCoverImage(ctx, loadedImg, x, y, w, h);
     } else {
       const g = ctx.createLinearGradient(x, y, x + w, y + h);
-      g.addColorStop(0, '#101124');
-      g.addColorStop(0.5, '#701CFF');
-      g.addColorStop(1, '#286BFF');
+      g.addColorStop(0, '#1B0709');
+      g.addColorStop(0.5, '#5C0810');
+      g.addColorStop(1, '#790B13');
       ctx.fillStyle = g;
       ctx.fillRect(x, y, w, h);
       ctx.fillStyle = 'rgba(255,255,255,0.12)';
@@ -824,9 +824,9 @@ export async function renderPhotoTemplateToDataUrl({
     }
   } else if (templateId === 'neon-poster') {
     const bg = ctx.createLinearGradient(0, 0, W, H);
-    bg.addColorStop(0, '#101124');
-    bg.addColorStop(0.5, '#701CFF');
-    bg.addColorStop(1, '#286BFF');
+    bg.addColorStop(0, '#2A0A0D');
+    bg.addColorStop(0.5, '#790B13');
+    bg.addColorStop(1, '#B45309');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
 

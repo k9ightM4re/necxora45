@@ -143,7 +143,7 @@ const PrivateStudioImage: React.FC<{ src: string; alt: string; className?: strin
   }, [src]);
 
   if (!resolvedUrl) {
-    return <div className={`${className || ''} flex items-center justify-center bg-black/20 text-[11px] text-[var(--nx-text-secondary)]`}>Private</div>;
+    return <div className={`${className || ''} flex items-center justify-center bg-[#2A0A0D]/20 text-[11px] text-[var(--nx-text-secondary)]`}>Private</div>;
   }
   return <img src={resolvedUrl} alt={alt} className={className} />;
 };
@@ -582,15 +582,15 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#C49A52]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-[#B45309] dark:text-amber-300">
             <Sparkles className="h-4 w-4" />
-            <span>AI Style Studio · Private Consented Workspace</span>
+            <span>AI Style Studio · Private consented workspace</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
-            Personal Stylist, Try-On, Body Measurements &amp; Runway
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+            Personal stylist, try-on, body measurements &amp; runway
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
-            Private studio photos and body profiles are stored owner-only with instant deletion. Outfit styling is grounded strictly in real Exchange listings.
+            Private studio photos and body profiles are stored owner-only with instant deletion. Outfit styling is grounded strictly in real partner store listings.
           </p>
         </div>
 
@@ -598,18 +598,18 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
           <button
             type="button"
             onClick={() => onNavigate('camera')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <Camera className="h-3.5 w-3.5 text-[#4777DF]" />
+            <Camera className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
             <span>Nexora Camera</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate('marketplace')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <ShoppingBag className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>Browse Exchange</span>
+            <ShoppingBag className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>Browse Shop</span>
           </button>
         </div>
       </div>
@@ -623,7 +623,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             onClick={() => setActiveTab(tab.id)}
             className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition ${
               activeTab === tab.id
-                ? 'bg-[#3868CE] text-white'
+                ? 'bg-[#790B13] text-[#FFF0DC]'
                 : 'text-[var(--nx-text-secondary)] hover:bg-[var(--nx-card-soft)] hover:text-[var(--nx-text)]'
             }`}
           >
@@ -637,10 +637,10 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
         <div
           className={`rounded-xl border px-4 py-2.5 text-sm ${
             notice.tone === 'error'
-              ? 'border-red-500/40 bg-red-500/10 text-red-400'
+              ? 'border-red-600/35 bg-red-600/10 text-red-700 dark:text-red-300'
               : notice.tone === 'warn'
-                ? 'border-[#C49A52]/40 bg-[#C49A52]/10 text-[#C49A52]'
-                : 'border-[#4777DF]/40 bg-[#4777DF]/10 text-[#4777DF]'
+                ? 'border-[#B45309]/40 bg-[#B45309]/10 text-[#B45309] dark:text-amber-300'
+                : 'border-[#790B13]/35 bg-[#F7E1D3]/70 text-[#790B13] dark:bg-[#790B13]/20 dark:text-[#FFF0DC]'
           }`}
         >
           {notice.text}
@@ -654,13 +654,13 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             <div className="rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-4 py-3 text-sm">
               <div className="flex items-center gap-2.5">
                 {status.virtualTryOn.configured ? (
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 ) : (
-                  <AlertTriangle className="h-4 w-4 shrink-0 text-[#C49A52]" />
+                  <AlertTriangle className="h-4 w-4 shrink-0 text-[#B45309] dark:text-amber-300" />
                 )}
                 <span className="font-semibold text-[var(--nx-text)]">
-                  Virtual Try-On Provider:{' '}
-                  {status.virtualTryOn.configured ? 'Configured' : 'Requires Configuration (HTTP 503 Adapter)'}
+                  Virtual Try-On provider:{' '}
+                  {status.virtualTryOn.configured ? 'Configured' : 'Requires configuration'}
                 </span>
               </div>
               <p className="mt-1 pl-6 text-xs text-[var(--nx-text-secondary)]">{status.virtualTryOn.reason}</p>
@@ -687,9 +687,9 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                     onChange={(e) => setPhotoMediaUrl(e.target.value)}
                     className="min-w-[200px] flex-1 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-sm text-[var(--nx-text)]"
                   />
-                  <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-medium text-[var(--nx-text)] hover:border-[#4777DF]">
+                  <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]">
                     <Upload className="h-3.5 w-3.5" />
-                    <span>Upload Private File</span>
+                    <span>Upload private file</span>
                     <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handlePhotoFile} className="hidden" />
                   </label>
                 </div>
@@ -707,10 +707,10 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                 <button
                   type="submit"
                   disabled={busy || !photoMediaUrl}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
                 >
                   <Plus className="h-3.5 w-3.5" />
-                  <span>Save Private Photo</span>
+                  <span>Save private photo</span>
                 </button>
               </form>
 
@@ -727,7 +727,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                         key={photo.id}
                         onClick={() => setSelectedPhotoId(photo.id)}
                         className={`cursor-pointer overflow-hidden rounded-lg border transition ${
-                          selected ? 'border-[#4777DF] ring-1 ring-[#4777DF]' : 'border-[var(--nx-border)]'
+                          selected ? 'border-[#790B13] ring-1 ring-[#790B13]' : 'border-[var(--nx-border)]'
                         } bg-[var(--nx-card-soft)]`}
                       >
                         <PrivateStudioImage src={photo.mediaUrl} alt={photo.label} className="h-28 w-full object-cover" />
@@ -801,7 +801,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                         key={prod.id}
                         className={`flex cursor-pointer items-center justify-between rounded-lg border px-3 py-2 text-xs ${
                           checked
-                            ? 'border-[#4777DF] bg-[#4777DF]/10 text-[var(--nx-text)]'
+                            ? 'border-[#790B13] bg-[#F7E1D3]/60 text-[var(--nx-text)] dark:bg-[#790B13]/20'
                             : 'border-[var(--nx-border)] bg-[var(--nx-card-soft)] text-[var(--nx-text-secondary)]'
                         }`}
                       >
@@ -810,7 +810,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                           <span className="font-medium text-[var(--nx-text)]">{prod.title}</span>
                           <span>({prod.merchantName})</span>
                         </span>
-                        <span className="font-mono">${(Number(prod.priceCents || 0) / 100).toFixed(2)}</span>
+                        <span className="font-mono tabular-nums">${(Number(prod.priceCents || 0) / 100).toFixed(2)}</span>
                       </label>
                     );
                   })}
@@ -832,26 +832,26 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                   type="button"
                   disabled={busy}
                   onClick={handleSaveOutfitDraft}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3.5 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3.5 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13] disabled:opacity-50"
                 >
                   <Layers className="h-3.5 w-3.5" />
-                  <span>Save Outfit Draft</span>
+                  <span>Save outfit draft</span>
                 </button>
                 <button
                   type="button"
                   disabled={busy}
                   onClick={handleSubmitTryOn}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
                 >
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Submit Virtual Try-On</span>
+                  <span>Submit virtual try-on</span>
                 </button>
               </div>
             </section>
           </div>
 
           <section className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-5">
-            <h2 className="text-base font-semibold text-[var(--nx-text)]">Saved Outfits &amp; Try-On History</h2>
+            <h2 className="text-base font-semibold text-[var(--nx-text)]">Saved outfits &amp; try-on history</h2>
             {outfits.length === 0 ? (
               <p className="text-xs text-[var(--nx-text-secondary)]">No saved outfits yet.</p>
             ) : (
@@ -867,10 +867,10 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                         <span
                           className={`rounded px-2 py-0.5 text-[11px] font-medium ${
                             outfit.jobStatus === 'queued'
-                              ? 'bg-emerald-500/15 text-emerald-400'
+                              ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
                               : outfit.jobStatus === 'unconfigured'
-                                ? 'bg-[#C49A52]/15 text-[#C49A52]'
-                                : 'bg-[#4777DF]/15 text-[#4777DF]'
+                                ? 'bg-[#B45309]/15 text-[#B45309] dark:text-amber-300'
+                                : 'bg-[#790B13]/12 text-[#790B13] dark:bg-[#790B13]/25 dark:text-[#FFF0DC]'
                           }`}
                         >
                           {outfit.jobStatus}
@@ -956,15 +956,15 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             <button
               type="submit"
               disabled={busy}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
             >
               <Wand2 className="h-3.5 w-3.5" />
-              <span>{busy ? 'Styling...' : 'Generate Outfit Recommendations'}</span>
+              <span>{busy ? 'Styling...' : 'Generate outfit recommendations'}</span>
             </button>
           </form>
 
           {stylistSummary && (
-            <div className="rounded-xl border border-[#4777DF]/40 bg-[#4777DF]/10 px-4 py-3 text-sm text-[var(--nx-text)]">
+            <div className="rounded-xl border border-[#790B13]/35 bg-[#F7E1D3]/60 px-4 py-3 text-sm text-[var(--nx-text)] dark:bg-[#790B13]/20">
               {stylistSummary}
             </div>
           )}
@@ -976,7 +976,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <strong className="text-sm text-[var(--nx-text)]">{bundle.title}</strong>
-                      <span className="font-mono text-xs font-bold text-[#4777DF]">
+                      <span className="font-mono text-xs font-bold tabular-nums text-[#790B13] dark:text-[#F2B8B5]">
                         ${(bundle.totalCents / 100).toFixed(2)}
                       </span>
                     </div>
@@ -986,10 +986,10 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                           key={item.id}
                           type="button"
                           onClick={() => onNavigate('marketplace', { productId: item.id })}
-                          className="flex w-full items-center justify-between rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-2.5 py-2 text-left text-xs hover:border-[#4777DF]"
+                          className="flex w-full items-center justify-between rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-2.5 py-2 text-left text-xs hover:border-[#790B13]"
                         >
                           <span className="truncate font-medium text-[var(--nx-text)]">{item.title}</span>
-                          <span className="ml-2 shrink-0 text-[var(--nx-text-secondary)]">
+                          <span className="ml-2 shrink-0 tabular-nums text-[var(--nx-text-secondary)]">
                             ${(Number(item.priceCents || 0) / 100).toFixed(2)}
                           </span>
                         </button>
@@ -1004,9 +1004,9 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                       setSelectedProductIds(bundle.items.map((i) => i.id));
                       setActiveTab('tryon');
                     }}
-                    className="mt-4 rounded-lg border border-[var(--nx-border)] px-3 py-1.5 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF]"
+                    className="mt-4 rounded-xl border border-[var(--nx-border)] px-3 py-1.5 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
                   >
-                    Load Into Outfit Builder
+                    Load into outfit builder
                   </button>
                 </div>
               ))}
@@ -1095,8 +1095,8 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             </div>
           </div>
           <div className="flex flex-wrap gap-2">
-            <button type="submit" disabled={busy} className="rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]">
-              Save Style Profile
+            <button type="submit" disabled={busy} className="rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]">
+              Save style profile
             </button>
             <button
               type="button"
@@ -1105,9 +1105,9 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                   setNotice({ tone: 'info', text: 'Style Profile cleared.' })
                 )
               }
-              className="rounded-lg border border-[var(--nx-border)] px-3.5 py-2 text-xs text-red-400"
+              className="rounded-xl border border-[var(--nx-border)] px-3.5 py-2 text-xs text-red-700 dark:text-red-300"
             >
-              Delete Style Profile
+              Delete style profile
             </button>
           </div>
         </form>
@@ -1116,8 +1116,8 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
       {/* TAB 4: 6.2 PRIVATE BODY PROFILE */}
       {activeTab === 'body-profile' && (
         <div className="space-y-4">
-          <div className="flex items-center gap-2.5 rounded-xl border border-[#4777DF]/40 bg-[#4777DF]/10 px-4 py-3 text-xs text-[var(--nx-text)]">
-            <ShieldCheck className="h-4 w-4 shrink-0 text-[#4777DF]" />
+          <div className="flex items-center gap-2.5 rounded-xl border border-[#790B13]/35 bg-[#F7E1D3]/60 px-4 py-3 text-xs text-[var(--nx-text)] dark:bg-[#790B13]/20">
+            <ShieldCheck className="h-4 w-4 shrink-0 text-[#790B13] dark:text-[#F2B8B5]" />
             <span>
               Strictly private &amp; owner-only. We never fabricate precision cm accuracy from uncalibrated photos.
               {bpDisclaimer ? ` Active disclaimer: ${bpDisclaimer}` : ''}
@@ -1156,24 +1156,24 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             </label>
 
             <div className="flex flex-wrap gap-2">
-              <button type="submit" disabled={busy} className="rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]">
-                Save Private Measurements
+              <button type="submit" disabled={busy} className="rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]">
+                Save private measurements
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={handleEstimateBody}
-                className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3.5 py-2 text-xs font-semibold text-[var(--nx-text)]"
+                className="rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3.5 py-2 text-xs font-semibold text-[var(--nx-text)]"
               >
-                Run Calibrated Estimator Adapter
+                Run calibrated estimator
               </button>
               <button
                 type="button"
                 disabled={busy}
                 onClick={handleDeleteBodyProfile}
-                className="rounded-lg border border-red-500/40 px-3.5 py-2 text-xs font-semibold text-red-400"
+                className="rounded-xl border border-red-600/35 px-3.5 py-2 text-xs font-semibold text-red-700 dark:text-red-300"
               >
-                Delete Body Data &amp; Media
+                Delete body data &amp; media
               </button>
             </div>
           </form>
@@ -1186,8 +1186,8 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
           {status?.videoRunway && (
             <div className="rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-4 py-3 text-xs">
               <strong className="text-[var(--nx-text)]">
-                AI Video Runway Adapter:{' '}
-                {status.videoRunway.configured ? 'Connected' : 'Requires Configuration (HTTP 503 Adapter)'}
+                AI Video Runway adapter:{' '}
+                {status.videoRunway.configured ? 'Connected' : 'Requires configuration'}
               </strong>
               <p className="mt-1 text-[var(--nx-text-secondary)]">{status.videoRunway.reason}</p>
             </div>
@@ -1197,9 +1197,9 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
             onSubmit={handleCreateRunway}
             className="space-y-4 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-5"
           >
-            <h2 className="text-base font-semibold text-[var(--nx-text)]">Create AI Runway Scene</h2>
+            <h2 className="text-base font-semibold text-[var(--nx-text)]">Create AI Runway scene</h2>
             <p className="text-xs text-[var(--nx-text-secondary)]">
-              Uses your selected lookbook photo ({selectedPhotoId || 'none selected'}) and selected Exchange products ({selectedProductIds.length}).
+              Uses your selected lookbook photo ({selectedPhotoId || 'none selected'}) and selected Shop items ({selectedProductIds.length}).
             </p>
             <div className="grid gap-3 md:grid-cols-3">
               <input
@@ -1228,9 +1228,9 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                 ))}
               </select>
             </div>
-            <button type="submit" disabled={busy} className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white">
+            <button type="submit" disabled={busy} className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]">
               <Film className="h-3.5 w-3.5" />
-              <span>Submit Runway Job</span>
+              <span>Submit runway job</span>
             </button>
           </form>
 
@@ -1240,7 +1240,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                 <div>
                   <div className="flex items-center gap-2">
                     <strong className="text-sm text-[var(--nx-text)]">{rj.name}</strong>
-                    <span className="rounded bg-[#C49A52]/15 px-2 py-0.5 font-semibold text-[#C49A52]">{rj.jobStatus}</span>
+                    <span className="rounded bg-[#B45309]/15 px-2 py-0.5 font-semibold text-[#B45309] dark:text-amber-300">{rj.jobStatus}</span>
                   </div>
                   <div className="mt-1 text-[var(--nx-text-secondary)]">
                     {rj.runwayStyle} · {rj.environment} · {rj.productIds.length} product(s)
@@ -1254,7 +1254,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                       setRunwayJobs((p) => p.filter((x) => x.id !== rj.id))
                     )
                   }
-                  className="text-[var(--nx-text-secondary)] hover:text-red-400"
+                  className="text-[var(--nx-text-secondary)] hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -1267,7 +1267,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
       {/* TAB 6: WORKFLOW AUDIT LOG */}
       {activeTab === 'workflows' && (
         <section className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-5">
-          <h2 className="text-base font-semibold text-[var(--nx-text)]">Internal Workflow Engine Audit Log</h2>
+          <h2 className="text-base font-semibold text-[var(--nx-text)]">Internal workflow audit log</h2>
           {workflowJobs.length === 0 ? (
             <p className="text-xs text-[var(--nx-text-secondary)]">No workflow jobs recorded yet.</p>
           ) : (
@@ -1277,16 +1277,16 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
                       <span className="font-mono font-semibold text-[var(--nx-text)]">{job.jobType}</span>
-                      <span className="rounded bg-[#4777DF]/15 px-2 py-0.5 text-[11px] font-semibold text-[#4777DF]">
+                      <span className="rounded bg-[#790B13]/12 px-2 py-0.5 text-[11px] font-semibold text-[#790B13] dark:bg-[#790B13]/25 dark:text-[#FFF0DC]">
                         {job.status}
                       </span>
                       {job.errorCode && (
-                        <span className="rounded bg-[#C49A52]/15 px-2 py-0.5 text-[11px] text-[#C49A52]">
+                        <span className="rounded bg-[#B45309]/15 px-2 py-0.5 text-[11px] text-[#B45309] dark:text-amber-300">
                           {job.errorCode}
                         </span>
                       )}
                     </div>
-                    <span className="text-[11px] text-[var(--nx-text-secondary)]">
+                    <span className="text-[11px] tabular-nums text-[var(--nx-text-secondary)]">
                       {new Date(job.createdAtMs).toLocaleString()}
                     </span>
                   </div>

@@ -239,7 +239,7 @@ function drawBackgroundEffect(
             octx.setTransform(1, 0, 0, 1, 0, 0);
             octx.filter = 'none';
           } else {
-            octx.fillStyle = preset === 'studio_graphite' ? '#171C23' : '#EBEEF2';
+            octx.fillStyle = preset === 'studio_graphite' ? '#2A0A0D' : '#FFF0DC';
             octx.fillRect(0, 0, width, height);
           }
 

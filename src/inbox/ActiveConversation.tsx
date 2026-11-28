@@ -281,30 +281,30 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
         aria-label="Connection request gate"
         className={`${
           snapshot.dmThreadActiveMobile ? 'flex' : 'hidden md:flex'
-        } h-full min-w-0 flex-1 flex-col bg-[#F5F6F8] dark:bg-[#101318]`}
+        } h-full min-w-0 flex-1 flex-col bg-[#FFF0DC] dark:bg-[#1B0709]`}
       >
-        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-black/[0.09] bg-white px-4 dark:border-white/[0.09] dark:bg-[#171C23]">
+        <div className="flex h-16 shrink-0 items-center gap-3 border-b border-[#E8D3B8] bg-[#FFF8EE] px-4 dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]">
           <button
             type="button"
             onClick={() => bridge?.setMobileThreadOpen(false)}
             aria-label="Back to messages"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] hover:bg-black/[0.05] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] md:hidden"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 md:hidden"
           >
             <ArrowLeft size={18} />
           </button>
           <AvatarBadge name={displayName} initials={peer?.initials} avatar={peer?.avatar} size={36} />
           <div className="min-w-0">
-            <div className="truncate text-[0.95rem] font-semibold text-[#202630] dark:text-[#F2F4F7]">
+            <div className="truncate text-[0.95rem] font-semibold text-[#2A0A0D] dark:text-[#FFF0DC]">
               {displayName}
             </div>
-            <div className="truncate text-[0.76rem] text-[#677280] dark:text-[#77818F]">
+            <div className="truncate text-[0.76rem] text-[#6B4A4D] dark:text-[#C89D8B]">
               @{username} · Connection approval required
             </div>
           </div>
         </div>
 
         <div className="flex flex-1 items-center justify-center p-6">
-          <div className="w-full max-w-md rounded-2xl border border-black/[0.09] bg-white p-6 text-center dark:border-white/[0.09] dark:bg-[#171C23]">
+          <div className="w-full max-w-md rounded-2xl border border-[#E8D3B8] bg-[#FFF8EE] p-6 text-center dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
             <div className="mx-auto mb-4 flex justify-center">
               <AvatarBadge
                 name={displayName}
@@ -314,19 +314,19 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 isOnline={Boolean(peer?.isOnline)}
               />
             </div>
-            <h3 className="text-lg font-semibold text-[#202630] dark:text-[#F2F4F7]">{displayName}</h3>
-            <p className="mt-0.5 text-[0.84rem] text-[#677280] dark:text-[#77818F]">@{username}</p>
+            <h3 className="font-['Playfair_Display',serif] text-xl font-bold text-[#2A0A0D] dark:text-[#FFF0DC]">{displayName}</h3>
+            <p className="mt-0.5 text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">@{username}</p>
 
             {incomingReq ? (
               <div className="mt-5 space-y-3">
-                <p className="text-[0.86rem] text-[#596473] dark:text-[#A8B0BB]">
+                <p className="text-[0.86rem] text-[#6B4A4D] dark:text-[#E4C7B2]">
                   {displayName} wants to open a direct conversation and live calls with you.
                 </p>
                 <div className="flex justify-center gap-2.5">
                   <button
                     type="button"
                     onClick={() => void bridge?.acceptRequest(incomingReq.id, incomingReq.fromUid)}
-                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3868CE] px-5 text-[0.86rem] font-medium text-white hover:bg-[#2D58B8]"
+                    className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#790B13] px-5 text-[0.86rem] font-medium text-[#FFF0DC] hover:bg-[#5C0810]"
                   >
                     <Check size={16} />
                     <span>Accept &amp; Open Chat</span>
@@ -334,7 +334,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   <button
                     type="button"
                     onClick={() => void bridge?.declineRequest(incomingReq.id)}
-                    className="inline-flex h-10 items-center rounded-xl border border-black/[0.1] px-4 text-[0.86rem] font-medium text-[#596473] hover:bg-black/[0.04] dark:border-white/[0.1] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06]"
+                    className="inline-flex h-10 items-center rounded-xl border border-[#E8D3B8] px-4 text-[0.86rem] font-medium text-[#6B4A4D] hover:bg-[#790B13]/10 dark:border-[#FFF0DC]/15 dark:text-[#E4C7B2] dark:hover:bg-[#FFF0DC]/10"
                   >
                     Decline
                   </button>
@@ -342,14 +342,14 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               </div>
             ) : outgoingReq ? (
               <div className="mt-5 space-y-2">
-                <p className="text-[0.86rem] font-medium text-[#C49A52]">Awaiting approval</p>
-                <p className="text-[0.82rem] text-[#596473] dark:text-[#A8B0BB]">
+                <p className="text-[0.86rem] font-medium text-[#B45309] dark:text-[#FBBF24]">Awaiting approval</p>
+                <p className="text-[0.82rem] text-[#6B4A4D] dark:text-[#E4C7B2]">
                   Your chat request was sent. Messaging and calls unlock as soon as {displayName} accepts.
                 </p>
               </div>
             ) : (
               <div className="mt-5 space-y-3 text-left">
-                <p className="text-center text-[0.85rem] text-[#596473] dark:text-[#A8B0BB]">
+                <p className="text-center text-[0.85rem] text-[#6B4A4D] dark:text-[#E4C7B2]">
                   Send a connection request before messaging or calling {displayName}.
                 </p>
                 <input
@@ -358,7 +358,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onChange={(e) => setRequestNote(e.target.value)}
                   maxLength={240}
                   placeholder="Optional intro note..."
-                  className="h-10 w-full rounded-xl border border-black/[0.09] bg-[#F5F6F8] px-3 text-[0.85rem] text-[#202630] placeholder:text-[#677280] focus:border-[#4777DF] focus:outline-none dark:border-white/[0.09] dark:bg-[#1D232C] dark:text-[#F2F4F7] dark:placeholder:text-[#77818F]"
+                  className="h-10 w-full rounded-xl border border-[#E8D3B8] bg-[#F7E5CE] px-3 text-[0.85rem] text-[#2A0A0D] placeholder:text-[#6B4A4D] focus:border-[#790B13] focus:outline-none dark:border-[#FFF0DC]/15 dark:bg-[#260A0D] dark:text-[#FFF0DC] dark:placeholder:text-[#C89D8B]"
                 />
                 <button
                   type="button"
@@ -366,7 +366,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     await bridge?.sendConnectionRequest(snapshot.pendingPeerId, requestNote);
                     setRequestNote('');
                   }}
-                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#3868CE] px-4 text-[0.86rem] font-medium text-white hover:bg-[#2D58B8]"
+                  className="inline-flex h-10 w-full items-center justify-center rounded-xl bg-[#790B13] px-4 text-[0.86rem] font-medium text-[#FFF0DC] hover:bg-[#5C0810]"
                 >
                   Send Chat Request
                 </button>
@@ -385,30 +385,30 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
         aria-label="Conversation workspace"
         className={`${
           snapshot.dmThreadActiveMobile ? 'flex' : 'hidden md:flex'
-        } h-full min-w-0 flex-1 flex-col items-center justify-center bg-[#F5F6F8] p-6 text-center dark:bg-[#101318]`}
+        } h-full min-w-0 flex-1 flex-col items-center justify-center bg-[#FFF0DC] p-6 text-center dark:bg-[#1B0709]`}
       >
         <div className="max-w-sm space-y-3">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4777DF]/12 text-[#4777DF]">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#790B13]/12 text-[#790B13] dark:bg-[#790B13]/30 dark:text-[#FFF0DC]">
             <Users size={26} />
           </div>
-          <h3 className="text-lg font-semibold text-[#202630] dark:text-[#F2F4F7]">
+          <h3 className="font-['Playfair_Display',serif] text-xl font-bold text-[#2A0A0D] dark:text-[#FFF0DC]">
             Your Messages
           </h3>
-          <p className="text-[0.88rem] leading-relaxed text-[#596473] dark:text-[#A8B0BB]">
+          <p className="text-[0.88rem] leading-relaxed text-[#6B4A4D] dark:text-[#E4C7B2]">
             Select a conversation from the left panel or start a new group chat to message and call.
           </p>
           <div className="flex flex-wrap justify-center gap-2 pt-2">
             <button
               type="button"
               onClick={() => bridge?.openNewGroupModal()}
-              className="inline-flex h-9 items-center rounded-xl bg-[#3868CE] px-4 text-[0.84rem] font-medium text-white hover:bg-[#2D58B8]"
+              className="inline-flex h-9 items-center rounded-xl bg-[#790B13] px-4 text-[0.84rem] font-medium text-[#FFF0DC] hover:bg-[#5C0810]"
             >
               New Group Chat
             </button>
             <button
               type="button"
               onClick={() => bridge?.openJoinCommunityModal()}
-              className="inline-flex h-9 items-center rounded-xl border border-black/[0.1] px-4 text-[0.84rem] font-medium text-[#202630] hover:bg-black/[0.04] dark:border-white/[0.1] dark:text-[#F2F4F7] dark:hover:bg-white/[0.05]"
+              className="inline-flex h-9 items-center rounded-xl border border-[#E8D3B8] px-4 text-[0.84rem] font-medium text-[#2A0A0D] hover:bg-[#790B13]/10 dark:border-[#FFF0DC]/15 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
             >
               Join Community
             </button>
@@ -438,11 +438,11 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
     if (row.kind === 'date') {
       return (
         <div role="separator" className="my-4 flex items-center justify-center gap-3 px-4">
-          <span className="h-px flex-1 bg-black/[0.07] dark:bg-white/[0.07]" />
-          <span className="text-[0.72rem] font-medium text-[#677280] dark:text-[#77818F]">
+          <span className="h-px flex-1 bg-[#E8D3B8] dark:bg-[#FFF0DC]/15" />
+          <span className="text-[0.72rem] font-medium text-[#6B4A4D] dark:text-[#C89D8B]">
             {row.label}
           </span>
-          <span className="h-px flex-1 bg-black/[0.07] dark:bg-white/[0.07]" />
+          <span className="h-px flex-1 bg-[#E8D3B8] dark:bg-[#FFF0DC]/15" />
         </div>
       );
     }
@@ -469,7 +469,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 type="button"
                 onClick={() => bridge?.viewProfile(msg.authorId)}
                 aria-label={`View profile of ${msg.senderName}`}
-                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+                className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
               >
                 <AvatarBadge
                   name={msg.senderName}
@@ -488,13 +488,13 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               <button
                 type="button"
                 onClick={() => bridge?.viewProfile(msg.authorId)}
-                className="font-semibold text-[#202630] hover:underline dark:text-[#F2F4F7]"
+                className="font-semibold text-[#2A0A0D] hover:underline dark:text-[#FFF0DC]"
               >
                 {msg.senderName}
               </button>
-              <span className="tabular-nums text-[#677280] dark:text-[#77818F]">{msg.time}</span>
+              <span className="tabular-nums text-[#6B4A4D] dark:text-[#C89D8B]">{msg.time}</span>
               {msg.pinned && (
-                <span className="inline-flex items-center gap-1 text-[#C49A52]">
+                <span className="inline-flex items-center gap-1 text-[#B45309] dark:text-[#FBBF24]">
                   <Pin size={11} />
                   <span>Pinned</span>
                 </span>
@@ -505,13 +505,13 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
           <div className="relative flex items-end gap-2">
             {/* Hover actions (left of self bubbles) */}
             {isSelf && editingMsgId !== msg.id && (
-              <div className="hidden items-center gap-0.5 rounded-lg border border-black/[0.08] bg-white p-0.5 shadow-sm group-hover:flex group-focus-within:flex dark:border-white/[0.08] dark:bg-[#1D232C]">
+              <div className="hidden items-center gap-0.5 rounded-lg border border-[#E8D3B8] bg-[#FFF8EE] p-0.5 shadow-sm group-hover:flex group-focus-within:flex dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
                 {QUICK_REACTIONS.slice(0, 3).map((em) => (
                   <button
                     key={em}
                     type="button"
                     onClick={() => void bridge?.toggleReaction(activeThreadId, msg.id, em)}
-                    className="h-6 w-6 rounded text-xs hover:bg-black/[0.06] dark:hover:bg-white/[0.08]"
+                    className="h-6 w-6 rounded text-xs hover:bg-[#790B13]/10 dark:hover:bg-[#FFF0DC]/10"
                     title={`React ${em}`}
                   >
                     {em}
@@ -522,7 +522,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => bridge?.setReplyTo(msg.id)}
                   title="Reply"
                   aria-label="Reply"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-black/[0.06] dark:text-[#A8B0BB] dark:hover:bg-white/[0.08]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <Reply size={12} />
                 </button>
@@ -534,7 +534,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   }}
                   title="Edit"
                   aria-label="Edit message"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-black/[0.06] dark:text-[#A8B0BB] dark:hover:bg-white/[0.08]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <Pencil size={12} />
                 </button>
@@ -543,7 +543,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => void bridge?.togglePinDmMessage(activeThreadId, msg.id)}
                   title={msg.pinned ? 'Unpin' : 'Pin'}
                   aria-label="Pin message"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-black/[0.06] dark:text-[#A8B0BB] dark:hover:bg-white/[0.08]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <Pin size={12} />
                 </button>
@@ -552,7 +552,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => void bridge?.deleteDmMessage(activeThreadId, msg.id)}
                   title="Delete"
                   aria-label="Delete message"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-red-500 hover:bg-red-500/12"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-red-600 hover:bg-red-500/12"
                 >
                   <Trash2 size={12} />
                 </button>
@@ -562,16 +562,16 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             <div
               className={`rounded-2xl px-3.5 py-2.5 text-[0.9rem] leading-relaxed ${
                 isSelf
-                  ? 'rounded-br-sm bg-[#3868CE] text-white'
-                  : 'rounded-bl-sm border border-black/[0.07] bg-white text-[#202630] dark:border-white/[0.07] dark:bg-[#242B35] dark:text-[#F2F4F7]'
+                  ? 'rounded-br-sm bg-[#790B13] text-[#FFF0DC]'
+                  : 'rounded-bl-sm border border-[#E8D3B8] bg-[#FFF8EE] text-[#2A0A0D] dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12] dark:text-[#FFF0DC]'
               }`}
             >
               {replyTargetMsg && (
                 <div
                   className={`mb-2 rounded-lg px-2.5 py-1.5 text-[0.76rem] ${
                     isSelf
-                      ? 'bg-black/15 text-white/90'
-                      : 'bg-black/[0.04] text-[#596473] dark:bg-black/25 dark:text-[#A8B0BB]'
+                      ? 'bg-[#2A0A0D]/25 text-[#FFF0DC]/90'
+                      : 'bg-[#F7E5CE] text-[#6B4A4D] dark:bg-[#260A0D] dark:text-[#E4C7B2]'
                   }`}
                 >
                   <div className="font-semibold">{replyTargetMsg.senderName}</div>
@@ -593,7 +593,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                         setEditingMsgId(null);
                       }
                     }}
-                    className="h-8 flex-1 rounded-lg bg-black/20 px-2.5 text-[0.86rem] text-white placeholder:text-white/60 focus:outline-none"
+                    className="h-8 flex-1 rounded-lg bg-[#2A0A0D]/30 px-2.5 text-[0.86rem] text-[#FFF0DC] placeholder:text-[#FFF0DC]/60 focus:outline-none"
                     autoFocus
                   />
                   <button
@@ -602,14 +602,14 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                       void bridge?.editDmMessage(activeThreadId, msg.id, editingText);
                       setEditingMsgId(null);
                     }}
-                    className="rounded-lg bg-white/20 px-2.5 py-1 text-[0.76rem] font-medium text-white hover:bg-white/30"
+                    className="rounded-lg bg-[#FFF0DC]/20 px-2.5 py-1 text-[0.76rem] font-medium text-[#FFF0DC] hover:bg-[#FFF0DC]/30"
                   >
                     Save
                   </button>
                   <button
                     type="button"
                     onClick={() => setEditingMsgId(null)}
-                    className="rounded-lg px-2 py-1 text-[0.76rem] text-white/80 hover:bg-white/10"
+                    className="rounded-lg px-2 py-1 text-[0.76rem] text-[#FFF0DC]/80 hover:bg-[#FFF0DC]/10"
                   >
                     Cancel
                   </button>
@@ -620,7 +620,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   {msg.edited && (
                     <span
                       className={`ml-1.5 text-[0.72rem] ${
-                        isSelf ? 'text-white/75' : 'text-[#677280] dark:text-[#77818F]'
+                        isSelf ? 'text-[#FFF0DC]/75' : 'text-[#6B4A4D] dark:text-[#C89D8B]'
                       }`}
                     >
                       (edited)
@@ -633,8 +633,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 <div
                   className={`mt-2.5 flex items-center justify-between gap-3 rounded-xl px-3 py-2 ${
                     isSelf
-                      ? 'bg-black/20 text-white'
-                      : 'border border-black/[0.08] bg-[#F5F6F8] dark:border-white/[0.09] dark:bg-[#1D232C]'
+                      ? 'bg-[#2A0A0D]/25 text-[#FFF0DC]'
+                      : 'border border-[#E8D3B8] bg-[#FFF0DC] dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]'
                   }`}
                 >
                   <div className="min-w-0">
@@ -648,8 +648,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     onClick={() => void bridge?.joinCommunityInvite(inviteCode)}
                     className={`shrink-0 rounded-lg px-2.5 py-1.5 text-[0.76rem] font-medium ${
                       isSelf
-                        ? 'bg-white text-[#202630] hover:bg-white/90'
-                        : 'bg-[#3868CE] text-white hover:bg-[#2D58B8]'
+                        ? 'bg-[#FFF0DC] text-[#790B13] hover:bg-[#F7E5CE]'
+                        : 'bg-[#790B13] text-[#FFF0DC] hover:bg-[#5C0810]'
                     }`}
                   >
                     Join
@@ -673,7 +673,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     <video
                       src={attUrl}
                       controls
-                      className="max-h-64 max-w-full rounded-xl bg-black"
+                      className="max-h-64 max-w-full rounded-xl bg-[#2A0A0D]"
                     />
                   ) : attType.startsWith('audio/') ? (
                     <audio src={attUrl} controls className="max-w-full" />
@@ -683,8 +683,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                       download={msg.attachment.name || 'attachment'}
                       className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-[0.8rem] underline ${
                         isSelf
-                          ? 'bg-black/20 text-white'
-                          : 'bg-black/[0.05] text-[#202630] dark:bg-white/[0.07] dark:text-[#F2F4F7]'
+                          ? 'bg-[#2A0A0D]/25 text-[#FFF0DC]'
+                          : 'bg-[#F7E5CE] text-[#2A0A0D] dark:bg-[#260A0D] dark:text-[#FFF0DC]'
                       }`}
                     >
                       <Paperclip size={13} />
@@ -700,13 +700,13 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
 
             {/* Hover actions (right of peer bubbles) */}
             {!isSelf && (
-              <div className="hidden items-center gap-0.5 rounded-lg border border-black/[0.08] bg-white p-0.5 shadow-sm group-hover:flex group-focus-within:flex dark:border-white/[0.08] dark:bg-[#1D232C]">
+              <div className="hidden items-center gap-0.5 rounded-lg border border-[#E8D3B8] bg-[#FFF8EE] p-0.5 shadow-sm group-hover:flex group-focus-within:flex dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
                 {QUICK_REACTIONS.slice(0, 3).map((em) => (
                   <button
                     key={em}
                     type="button"
                     onClick={() => void bridge?.toggleReaction(activeThreadId, msg.id, em)}
-                    className="h-6 w-6 rounded text-xs hover:bg-black/[0.06] dark:hover:bg-white/[0.08]"
+                    className="h-6 w-6 rounded text-xs hover:bg-[#790B13]/10 dark:hover:bg-[#FFF0DC]/10"
                     title={`React ${em}`}
                   >
                     {em}
@@ -717,7 +717,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => bridge?.setReplyTo(msg.id)}
                   title="Reply"
                   aria-label="Reply"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-black/[0.06] dark:text-[#A8B0BB] dark:hover:bg-white/[0.08]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <Reply size={12} />
                 </button>
@@ -726,7 +726,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => void bridge?.togglePinDmMessage(activeThreadId, msg.id)}
                   title={msg.pinned ? 'Unpin' : 'Pin'}
                   aria-label="Pin message"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-black/[0.06] dark:text-[#A8B0BB] dark:hover:bg-white/[0.08]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <Pin size={12} />
                 </button>
@@ -735,7 +735,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   onClick={() => bridge?.openReportModal('message', msg.id)}
                   title="Report message"
                   aria-label="Report message"
-                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#596473] hover:bg-red-500/12 hover:text-red-500 dark:text-[#A8B0BB]"
+                  className="inline-flex h-6 w-6 items-center justify-center rounded text-[#6B4A4D] hover:bg-red-500/12 hover:text-red-600 dark:text-[#C89D8B]"
                 >
                   <Flag size={12} />
                 </button>
@@ -755,8 +755,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     onClick={() => void bridge?.toggleReaction(activeThreadId, msg.id, r.emoji)}
                     className={`inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[0.74rem] tabular-nums transition-colors ${
                       reacted
-                        ? 'border-[#4777DF]/40 bg-[#4777DF]/15 text-[#4777DF]'
-                        : 'border-black/[0.08] bg-white text-[#596473] dark:border-white/[0.09] dark:bg-[#1D232C] dark:text-[#A8B0BB]'
+                        ? 'border-[#790B13]/40 bg-[#790B13]/12 text-[#790B13] dark:border-[#F7E1D3]/40 dark:bg-[#790B13]/35 dark:text-[#FFF0DC]'
+                        : 'border-[#E8D3B8] bg-[#FFF8EE] text-[#6B4A4D] dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12] dark:text-[#C89D8B]'
                     }`}
                   >
                     <span>{r.emoji}</span>
@@ -769,10 +769,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
 
           {/* Read Receipt / Timestamp */}
           {isSelf && (
-            <div className="mt-1 flex items-center gap-1.5 px-1 text-[0.71rem] tabular-nums text-[#677280] dark:text-[#77818F]">
+            <div className="mt-1 flex items-center gap-1.5 px-1 text-[0.71rem] tabular-nums text-[#6B4A4D] dark:text-[#C89D8B]">
               {otherSeen ? (
                 <>
-                  <CheckCheck size={12} className="text-[#4777DF]" />
+                  <CheckCheck size={12} className="text-[#790B13] dark:text-[#F7E1D3]" />
                   <span>Read</span>
                 </>
               ) : (
@@ -795,16 +795,16 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
       aria-label={`Conversation with ${activeDm.name}`}
       className={`${
         snapshot.dmThreadActiveMobile ? 'flex' : 'hidden md:flex'
-      } h-full min-w-0 flex-1 flex-col bg-[#F5F6F8] dark:bg-[#101318]`}
+      } h-full min-w-0 flex-1 flex-col bg-[#FFF0DC] dark:bg-[#1B0709]`}
     >
       {/* Header */}
-      <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-black/[0.09] bg-white px-4 md:px-6 dark:border-white/[0.09] dark:bg-[#171C23]">
+      <header className="flex h-16 shrink-0 items-center justify-between gap-3 border-b border-[#E8D3B8] bg-[#FFF8EE] px-4 md:px-6 dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={() => bridge?.setMobileThreadOpen(false)}
             aria-label="Back to conversation list"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#596473] hover:bg-black/[0.05] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] md:hidden"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 md:hidden"
           >
             <ArrowLeft size={18} />
           </button>
@@ -815,7 +815,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             onClick={() => {
               if (activeDm.userId) bridge?.viewProfile(activeDm.userId);
             }}
-            className="flex min-w-0 items-center gap-3 text-left disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF] rounded-xl"
+            className="flex min-w-0 items-center gap-3 text-left disabled:cursor-default focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13] rounded-xl"
           >
             <AvatarBadge
               name={activeDm.name}
@@ -827,18 +827,18 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             />
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <h2 className="truncate text-[0.96rem] font-semibold text-[#202630] dark:text-[#F2F4F7]">
+                <h2 className="truncate text-[0.96rem] font-semibold text-[#2A0A0D] dark:text-[#FFF0DC]">
                   {activeDm.name}
                 </h2>
                 {activeDm.type === 'dm' && activeDm.userId && (
-                  <ChevronRight size={14} className="shrink-0 text-[#77818F]" />
+                  <ChevronRight size={14} className="shrink-0 text-[#6B4A4D] dark:text-[#C89D8B]" />
                 )}
               </div>
               <p
                 className={`truncate text-[0.76rem] ${
                   isTyping
-                    ? 'font-medium text-[#4777DF]'
-                    : 'text-[#596473] dark:text-[#A8B0BB]'
+                    ? 'font-medium text-[#790B13] dark:text-[#F7E1D3]'
+                    : 'text-[#6B4A4D] dark:text-[#C89D8B]'
                 }`}
               >
                 {statusLine}
@@ -856,8 +856,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             aria-expanded={threadSearchOpen}
             className={`inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors ${
               threadSearchOpen
-                ? 'bg-[#4777DF]/15 text-[#4777DF]'
-                : 'text-[#596473] hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7]'
+                ? 'bg-[#790B13]/15 text-[#790B13] dark:bg-[#790B13]/35 dark:text-[#FFF0DC]'
+                : 'text-[#6B4A4D] hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]'
             }`}
           >
             <Search size={17} />
@@ -870,7 +870,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 onClick={() => void bridge?.startCall(activeDm.userId!, 'audio')}
                 title="Voice call"
                 aria-label="Start voice call"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] transition-colors hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] transition-colors hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]"
               >
                 <Phone size={17} />
               </button>
@@ -879,7 +879,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 onClick={() => void bridge?.startCall(activeDm.userId!, 'video')}
                 title="Video call"
                 aria-label="Start video call"
-                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] transition-colors hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7]"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] transition-colors hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]"
               >
                 <Video size={18} />
               </button>
@@ -892,7 +892,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             title="More options"
             aria-label="Conversation options"
             aria-expanded={moreOpen}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] transition-colors hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] transition-colors hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]"
           >
             <MoreVertical size={17} />
           </button>
@@ -900,7 +900,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
           {moreOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-11 z-40 w-52 rounded-xl border border-black/[0.1] bg-white p-1.5 shadow-xl dark:border-white/[0.1] dark:bg-[#1D232C]"
+              className="absolute right-0 top-11 z-40 w-52 rounded-xl border border-[#E8D3B8] bg-[#FFF8EE] p-1.5 shadow-xl dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]"
             >
               {activeDm.type === 'dm' && activeDm.userId && (
                 <button
@@ -910,10 +910,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     setMoreOpen(false);
                     bridge?.viewProfile(activeDm.userId!);
                   }}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <span>View Profile</span>
-                  <User size={14} className="text-[#77818F]" />
+                  <User size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
                 </button>
               )}
               <button
@@ -923,10 +923,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   setMoreOpen(false);
                   void bridge?.toggleArchiveDm(activeThreadId);
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>{isArchived ? 'Restore Chat' : 'Archive Chat'}</span>
-                <Archive size={14} className="text-[#77818F]" />
+                <Archive size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
               <button
                 type="button"
@@ -935,10 +935,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   setMoreOpen(false);
                   void bridge?.toggleMuteDm(activeThreadId);
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>{isMuted ? 'Unmute Alerts' : 'Mute Alerts'}</span>
-                {isMuted ? <Bell size={14} className="text-[#77818F]" /> : <BellOff size={14} className="text-[#77818F]" />}
+                {isMuted ? <Bell size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" /> : <BellOff size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />}
               </button>
               {activeDm.type === 'group' && isGroupAdmin && (
                 <button
@@ -949,10 +949,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     setGroupTitleDraft(activeDm.groupName || activeDm.name || '');
                     setRenamingGroup(true);
                   }}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <span>Rename Group</span>
-                  <Pencil size={14} className="text-[#77818F]" />
+                  <Pencil size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
                 </button>
               )}
               {activeDm.type === 'group' && (
@@ -963,10 +963,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                     setMoreOpen(false);
                     void bridge?.manageGroupMembers(activeThreadId, { action: 'leave' });
                   }}
-                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
                 >
                   <span>Leave Group</span>
-                  <LogOut size={14} className="text-[#77818F]" />
+                  <LogOut size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
                 </button>
               )}
               <button
@@ -976,10 +976,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                   setMoreOpen(false);
                   void bridge?.deleteThreadForMe(activeThreadId);
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#596473] hover:bg-black/[0.05] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#6B4A4D] hover:bg-[#790B13]/10 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>Remove Chat (Me)</span>
-                <Trash2 size={14} className="text-[#77818F]" />
+                <Trash2 size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
               {activeDm.type === 'dm' && activeDm.userId && (
                 <>
@@ -990,10 +990,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                       setMoreOpen(false);
                       bridge?.openReportModal('user', activeDm.userId!);
                     }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
                   >
                     <span>Report User</span>
-                    <Flag size={14} className="text-[#77818F]" />
+                    <Flag size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
                   </button>
                   <button
                     type="button"
@@ -1002,7 +1002,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                       setMoreOpen(false);
                       void bridge?.blockUser(activeDm.userId!);
                     }}
-                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-red-600 hover:bg-red-500/10 dark:text-red-400"
+                    className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-red-700 hover:bg-red-500/10 dark:text-red-300"
                   >
                     <span>Block User</span>
                     <Ban size={14} />
@@ -1023,7 +1023,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             const ok = await bridge?.manageGroupMembers(activeThreadId, { action: 'rename', groupName: trimmed });
             if (ok) setRenamingGroup(false);
           }}
-          className="flex shrink-0 items-center gap-2 border-b border-black/[0.08] bg-white px-4 py-2 dark:border-white/[0.08] dark:bg-[#171C23]"
+          className="flex shrink-0 items-center gap-2 border-b border-[#E8D3B8] bg-[#FFF8EE] px-4 py-2 dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]"
         >
           <input
             type="text"
@@ -1031,30 +1031,30 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             onChange={(e) => setGroupTitleDraft(e.target.value)}
             maxLength={60}
             placeholder="Group name..."
-            className="h-8 flex-1 rounded-lg border border-black/[0.1] bg-[#F5F6F8] px-3 text-[0.84rem] text-[#202630] focus:border-[#4777DF] focus:outline-none dark:border-white/[0.1] dark:bg-[#1D232C] dark:text-[#F2F4F7]"
+            className="h-8 flex-1 rounded-lg border border-[#E8D3B8] bg-[#F7E5CE] px-3 text-[0.84rem] text-[#2A0A0D] focus:border-[#790B13] focus:outline-none dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12] dark:text-[#FFF0DC]"
           />
-          <button type="submit" className="h-8 rounded-lg bg-[#3868CE] px-3 text-[0.78rem] font-medium text-white">Save</button>
-          <button type="button" onClick={() => setRenamingGroup(false)} className="h-8 rounded-lg border border-black/[0.1] px-3 text-[0.78rem] dark:border-white/[0.1]">Cancel</button>
+          <button type="submit" className="h-8 rounded-lg bg-[#790B13] px-3 text-[0.78rem] font-medium text-[#FFF0DC] hover:bg-[#5C0810]">Save</button>
+          <button type="button" onClick={() => setRenamingGroup(false)} className="h-8 rounded-lg border border-[#E8D3B8] px-3 text-[0.78rem] text-[#2A0A0D] dark:border-[#FFF0DC]/15 dark:text-[#FFF0DC]">Cancel</button>
         </form>
       )}
 
       {/* Collapsible In-Thread Search */}
       {threadSearchOpen && (
-        <div className="flex shrink-0 items-center gap-2 border-b border-black/[0.08] bg-white px-4 py-2 dark:border-white/[0.08] dark:bg-[#171C23]">
-          <Search size={14} className="text-[#677280] dark:text-[#77818F]" />
+        <div className="flex shrink-0 items-center gap-2 border-b border-[#E8D3B8] bg-[#FFF8EE] px-4 py-2 dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]">
+          <Search size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
           <input
             type="search"
             value={threadQuery}
             onChange={(e) => setThreadQuery(e.target.value)}
             placeholder="Search messages in this conversation..."
             autoFocus
-            className="h-8 flex-1 bg-transparent text-[0.85rem] text-[#202630] placeholder:text-[#677280] focus:outline-none dark:text-[#F2F4F7] dark:placeholder:text-[#77818F]"
+            className="h-8 flex-1 bg-transparent text-[0.85rem] text-[#2A0A0D] placeholder:text-[#6B4A4D] focus:outline-none dark:text-[#FFF0DC] dark:placeholder:text-[#C89D8B]"
           />
           {threadQuery && (
             <button
               type="button"
               onClick={() => setThreadQuery('')}
-              className="text-[0.76rem] font-medium text-[#4777DF] hover:underline"
+              className="text-[0.76rem] font-semibold text-[#790B13] hover:underline dark:text-[#F7E1D3]"
             >
               Clear
             </button>
@@ -1066,9 +1066,9 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
       <div className="relative min-h-0 flex-1">
         {snapshot.dmMessagesLoadingThreadId === activeThreadId && rawMessages.length === 0 ? (
           <div className="space-y-4 p-6" aria-label="Loading messages">
-            <div className="h-10 w-56 rounded-2xl bg-black/[0.06] dark:bg-white/[0.06]" />
-            <div className="ml-auto h-10 w-44 rounded-2xl bg-[#4777DF]/20" />
-            <div className="h-12 w-64 rounded-2xl bg-black/[0.06] dark:bg-white/[0.06]" />
+            <div className="h-10 w-56 rounded-2xl bg-[#790B13]/10 dark:bg-[#FFF0DC]/10" />
+            <div className="ml-auto h-10 w-44 rounded-2xl bg-[#790B13]/20 dark:bg-[#790B13]/40" />
+            <div className="h-12 w-64 rounded-2xl bg-[#790B13]/10 dark:bg-[#FFF0DC]/10" />
           </div>
         ) : timelineRows.length === 0 ? (
           <div className="flex h-full flex-col items-center justify-center p-6 text-center">
@@ -1080,10 +1080,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               isGroup={activeDm.type === 'group'}
               isOnline={activeDm.isOnline}
             />
-            <h3 className="mt-3 text-base font-semibold text-[#202630] dark:text-[#F2F4F7]">
+            <h3 className="mt-3 font-['Playfair_Display',serif] text-lg font-bold text-[#2A0A0D] dark:text-[#FFF0DC]">
               {activeDm.name}
             </h3>
-            <p className="mt-1 max-w-xs text-[0.84rem] text-[#596473] dark:text-[#A8B0BB]">
+            <p className="mt-1 max-w-xs text-[0.84rem] text-[#6B4A4D] dark:text-[#E4C7B2]">
               {threadQuery.trim()
                 ? 'No messages match your search query.'
                 : `Beginning of your conversation with ${activeDm.name}. Say hello below.`}
@@ -1092,7 +1092,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               <button
                 type="button"
                 onClick={() => setThreadQuery('')}
-                className="mt-3 rounded-lg border border-black/[0.1] px-3 py-1.5 text-[0.78rem] font-medium dark:border-white/[0.1]"
+                className="mt-3 rounded-lg border border-[#E8D3B8] px-3 py-1.5 text-[0.78rem] font-medium text-[#2A0A0D] dark:border-[#FFF0DC]/15 dark:text-[#FFF0DC]"
               >
                 Clear Search
               </button>
@@ -1116,7 +1116,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
 
       {/* Typing Indicator Strip */}
       {isTyping && (
-        <div className="shrink-0 px-6 py-1.5 text-[0.78rem] font-medium text-[#4777DF]">
+        <div className="shrink-0 px-6 py-1.5 text-[0.78rem] font-medium text-[#790B13] dark:text-[#F7E1D3]">
           {activeDm.typingNames.length === 1
             ? `${activeDm.typingNames[0]} is typing...`
             : `${activeDm.typingNames.slice(0, 2).join(', ')} are typing...`}
@@ -1124,14 +1124,14 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
       )}
 
       {/* Pinned Bottom Composer */}
-      <div className="shrink-0 border-t border-black/[0.09] bg-white px-4 py-3 md:px-6 dark:border-white/[0.09] dark:bg-[#171C23]">
+      <div className="shrink-0 border-t border-[#E8D3B8] bg-[#FFF8EE] px-4 py-3 md:px-6 dark:border-[#FFF0DC]/15 dark:bg-[#260A0D]">
         {replyTarget && (
-          <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-black/[0.08] bg-[#F5F6F8] px-3 py-2 text-[0.8rem] dark:border-white/[0.08] dark:bg-[#1D232C]">
+          <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-[#E8D3B8] bg-[#F7E5CE] px-3 py-2 text-[0.8rem] dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
             <div className="min-w-0">
-              <span className="font-semibold text-[#4777DF]">
+              <span className="font-semibold text-[#790B13] dark:text-[#F7E1D3]">
                 Replying to {replyTarget.senderName}
               </span>
-              <div className="truncate text-[#596473] dark:text-[#A8B0BB]">
+              <div className="truncate text-[#6B4A4D] dark:text-[#E4C7B2]">
                 {replyTarget.content}
               </div>
             </div>
@@ -1139,7 +1139,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               type="button"
               onClick={() => bridge?.setReplyTo(null)}
               aria-label="Cancel reply"
-              className="rounded-lg p-1 text-[#677280] hover:text-[#202630] dark:text-[#77818F] dark:hover:text-[#F2F4F7]"
+              className="rounded-lg p-1 text-[#6B4A4D] hover:text-[#2A0A0D] dark:text-[#C89D8B] dark:hover:text-[#FFF0DC]"
             >
               <X size={14} />
             </button>
@@ -1147,11 +1147,11 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
         )}
 
         {pendingAttachment && (
-          <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-[#4777DF]/30 bg-[#4777DF]/10 px-3 py-2 text-[0.8rem]">
-            <div className="flex min-w-0 items-center gap-2 text-[#202630] dark:text-[#F2F4F7]">
-              <Paperclip size={14} className="shrink-0 text-[#4777DF]" />
+          <div className="mb-2 flex items-center justify-between gap-3 rounded-xl border border-[#790B13]/30 bg-[#790B13]/10 px-3 py-2 text-[0.8rem] dark:border-[#FFF0DC]/20 dark:bg-[#790B13]/30">
+            <div className="flex min-w-0 items-center gap-2 text-[#2A0A0D] dark:text-[#FFF0DC]">
+              <Paperclip size={14} className="shrink-0 text-[#790B13] dark:text-[#F7E1D3]" />
               <span className="truncate font-medium">{pendingAttachment.name}</span>
-              <span className="shrink-0 tabular-nums text-[#596473] dark:text-[#A8B0BB]">
+              <span className="shrink-0 tabular-nums text-[#6B4A4D] dark:text-[#E4C7B2]">
                 {formatFileSize(pendingAttachment.size)}
               </span>
             </div>
@@ -1159,14 +1159,14 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               type="button"
               onClick={() => setPendingAttachment(null)}
               aria-label="Remove attachment"
-              className="rounded-lg p-1 text-[#596473] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:text-[#F2F4F7]"
+              className="rounded-lg p-1 text-[#6B4A4D] hover:text-[#2A0A0D] dark:text-[#E4C7B2] dark:hover:text-[#FFF0DC]"
             >
               <X size={14} />
             </button>
           </div>
         )}
 
-        <div className="relative flex items-end gap-2 rounded-2xl border border-black/[0.1] bg-[#F5F6F8] p-2 focus-within:border-[#4777DF] dark:border-white/[0.1] dark:bg-[#1D232C]">
+        <div className="relative flex items-end gap-2 rounded-2xl border border-[#E8D3B8] bg-[#F7E5CE] p-2 focus-within:border-[#790B13] dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
           <input
             ref={fileInputRef}
             type="file"
@@ -1181,7 +1181,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             onClick={() => fileInputRef.current?.click()}
             title="Attach image, video, audio, or file"
             aria-label="Attach file"
-            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#596473] hover:bg-black/[0.06] hover:text-[#202630] disabled:opacity-45 dark:text-[#A8B0BB] dark:hover:bg-white/[0.07] dark:hover:text-[#F2F4F7]"
+            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#6B4A4D] hover:bg-[#790B13]/10 hover:text-[#790B13] disabled:opacity-45 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]"
           >
             <Paperclip size={17} />
           </button>
@@ -1194,13 +1194,13 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
               title="Insert emoji"
               aria-label="Insert emoji"
               aria-expanded={emojiOpen}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#596473] hover:bg-black/[0.06] hover:text-[#202630] disabled:opacity-45 dark:text-[#A8B0BB] dark:hover:bg-white/[0.07] dark:hover:text-[#F2F4F7]"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-[#6B4A4D] hover:bg-[#790B13]/10 hover:text-[#790B13] disabled:opacity-45 dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]"
             >
               <Smile size={17} />
             </button>
 
             {emojiOpen && (
-              <div className="absolute bottom-12 left-0 z-40 grid w-56 grid-cols-6 gap-1 rounded-xl border border-black/[0.1] bg-white p-2 shadow-xl dark:border-white/[0.1] dark:bg-[#242B35]">
+              <div className="absolute bottom-12 left-0 z-40 grid w-56 grid-cols-6 gap-1 rounded-xl border border-[#E8D3B8] bg-[#FFF8EE] p-2 shadow-xl dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]">
                 {COMPOSER_EMOJIS.map((em) => (
                   <button
                     key={em}
@@ -1210,7 +1210,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                       setEmojiOpen(false);
                       textareaRef.current?.focus();
                     }}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-black/[0.06] dark:hover:bg-white/[0.08]"
+                    className="flex h-8 w-8 items-center justify-center rounded-lg text-base hover:bg-[#790B13]/10 dark:hover:bg-[#FFF0DC]/10"
                   >
                     {em}
                   </button>
@@ -1244,7 +1244,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 : `Message ${activeDm.name}...`
             }
             aria-label={`Message ${activeDm.name}`}
-            className="max-h-36 min-h-[36px] flex-1 resize-none bg-transparent py-1.5 text-[0.9rem] text-[#202630] placeholder:text-[#677280] focus:outline-none disabled:opacity-50 dark:text-[#F2F4F7] dark:placeholder:text-[#77818F]"
+            className="max-h-36 min-h-[36px] flex-1 resize-none bg-transparent py-1.5 text-[0.9rem] text-[#2A0A0D] placeholder:text-[#6B4A4D] focus:outline-none disabled:opacity-50 dark:text-[#FFF0DC] dark:placeholder:text-[#C89D8B]"
           />
 
           <button
@@ -1254,8 +1254,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             aria-label={isRecording ? 'Stop recording voice note' : 'Record voice note'}
             className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-colors ${
               isRecording
-                ? 'bg-red-500 text-white'
-                : 'text-[#596473] hover:bg-black/[0.06] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.07] dark:hover:text-[#F2F4F7]'
+                ? 'bg-[#790B13] text-[#FFF0DC]'
+                : 'text-[#6B4A4D] hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC]'
             }`}
           >
             {isRecording ? <Square size={15} /> : <Mic size={17} />}
@@ -1270,7 +1270,7 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
             }
             onClick={() => void handleSend()}
             aria-label="Send message"
-            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#3868CE] px-3.5 text-[0.84rem] font-medium text-white transition-colors hover:bg-[#2D58B8] disabled:cursor-not-allowed disabled:opacity-45"
+            className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-xl bg-[#790B13] px-3.5 text-[0.84rem] font-medium text-[#FFF0DC] transition-colors hover:bg-[#5C0810] disabled:cursor-not-allowed disabled:opacity-45"
           >
             <Send size={15} />
             <span className="hidden sm:inline">

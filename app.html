@@ -1,8 +1,9 @@
 <!doctype html>
-<html lang="en" data-theme="dark" data-density="cozy">
+<html lang="en" data-theme="light" data-density="cozy">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#FFF0DC" />
     <title>Nexora — Connect. Create. Share.</title>
     <meta
       name="description"
@@ -16,7 +17,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/global.css" />
@@ -27,13 +32,13 @@
   <body>
     <div
       id="auth-loading-gate"
-      style="position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#101318;color:#F2F4F7;"
+      style="position:fixed;inset:0;z-index:120;display:grid;place-items:center;background:#FFF0DC;color:#2A0A0D;"
       aria-live="polite"
     >
       <div style="display:grid;gap:14px;justify-items:center;text-align:center;padding:24px;">
         <div class="nx-loading-mark"><span class="nx-loading-ring"></span><img src="/assets/logo.svg" alt="Nexora" /></div>
-        <div style="font-family:var(--font-display);font-size:1.08rem;font-weight:700;letter-spacing:-0.01em;">Nexora</div>
-        <div style="font-size:0.84rem;color:#8C96A5;">Verifying your session...</div>
+        <div style="font-family:var(--font-display);font-size:1.18rem;font-weight:700;letter-spacing:-0.01em;color:#790B13;">Nexora</div>
+        <div style="font-size:0.9rem;color:#6B4A4D;">Verifying your session...</div>
       </div>
     </div>
 
@@ -217,8 +222,8 @@
 
           <div class="nx-top-right">
             <select class="select nx-top-theme-select" data-theme-select aria-label="Choose color theme">
-              <option value="dark">Dark (Graphite)</option>
-              <option value="light">Light (Daylight)</option>
+              <option value="light">Warm Ivory (Editorial)</option>
+              <option value="dark">Deep Burgundy</option>
             </select>
 
             <button type="button" class="nx-theme-pill" id="nx-theme-pill" aria-label="Switch Light or Dark theme" title="Toggle Light / Dark Mode">
@@ -1113,10 +1118,10 @@
             <label>
               <span class="member-sub">Card Background Theme</span>
               <select class="select" id="story-bg-select">
-                <option value="linear-gradient(135deg, #101318 0%, #1D232C 55%, #3868CE 100%)">Signal Graphite</option>
-                <option value="linear-gradient(135deg, #171C23 0%, #242B35 62%, #4777DF 100%)">Deep Cobalt</option>
-                <option value="linear-gradient(135deg, #171C23 0%, #242B35 60%, #C49A52 100%)">Amber Slate</option>
-                <option value="linear-gradient(135deg, #101318 0%, #242B35 100%)">Carbon Graphite</option>
+                <option value="linear-gradient(135deg, #790B13 0%, #5C0810 60%, #2A0A0D 100%)">Warm Crimson</option>
+                <option value="linear-gradient(135deg, #5C0810 0%, #790B13 65%, #9A3412 100%)">Terracotta Ink</option>
+                <option value="linear-gradient(135deg, #2A0A0D 0%, #5C0810 60%, #790B13 100%)">Deep Burgundy</option>
+                <option value="linear-gradient(135deg, #F7E1D3 0%, #FFF8EE 55%, #E8D3B8 100%)">Warm Ivory</option>
               </select>
             </label>
           </div>

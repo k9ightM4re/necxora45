@@ -156,15 +156,15 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
                 <span>{product.category}</span>
               </div>
             )}
-            <span className="absolute right-2 top-2 rounded bg-[#101318]/85 px-2 py-0.5 font-mono text-[11px] font-semibold text-[#4777DF]">
+            <span className="absolute right-2 top-2 rounded bg-[#2A0A0D]/90 px-2 py-0.5 font-mono text-[11px] font-semibold tabular-nums text-[#FFF0DC]">
               Score {similarityScore}
             </span>
           </div>
           <div className="p-4">
             <div className="flex items-center justify-between gap-2 text-xs">
-              <span className="font-medium text-[#4777DF]">{product.merchantName}</span>
+              <span className="font-medium text-[#790B13] dark:text-[#F2B8B5]">{product.merchantName}</span>
               {matchedSlot && (
-                <span className="rounded bg-[#C49A52]/15 px-1.5 py-0.5 text-[10px] font-semibold text-[#C49A52]">
+                <span className="rounded bg-[#B45309]/12 px-1.5 py-0.5 text-[10px] font-semibold text-[#B45309] dark:text-amber-300">
                   {matchedSlot}
                 </span>
               )}
@@ -189,14 +189,14 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
           </div>
         </div>
         <div className="flex items-center justify-between gap-2 border-t border-[var(--nx-border)] px-4 py-2.5">
-          <span className="text-sm font-bold text-[var(--nx-text)]">
+          <span className="text-sm font-bold tabular-nums text-[var(--nx-text)]">
             ${(Number(product.priceCents || 0) / 100).toFixed(2)}
           </span>
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={() => onNavigate('marketplace', { productId: product.id })}
-              className="rounded-lg border border-[var(--nx-border)] px-2.5 py-1 text-xs font-medium text-[var(--nx-text)] hover:border-[#4777DF]"
+              className="rounded-lg border border-[var(--nx-border)] px-2.5 py-1 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]"
             >
               Details
             </button>
@@ -204,7 +204,7 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 rounded-lg bg-[#3868CE] px-2.5 py-1 text-xs font-semibold text-white hover:bg-[#4777DF]"
+              className="inline-flex items-center gap-1 rounded-lg bg-[#790B13] px-2.5 py-1 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
             >
               <span>Shop</span>
               <ExternalLink className="h-3 w-3" />
@@ -219,12 +219,12 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4777DF]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-[#790B13] dark:text-[#F2B8B5]">
             <Camera className="h-4 w-4" />
-            <span>Visual Fashion Search</span>
+            <span>Visual fashion search</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
-            Multi-Garment Detection &amp; Exchange Catalog Matching
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+            Multi-garment detection &amp; catalog matching
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
             Upload an outfit photo or capture via Nexora Camera to extract Upperwear, Lowerwear, Footwear, Outerwear, and Accessories slots.
@@ -234,18 +234,18 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
           <button
             type="button"
             onClick={() => onNavigate('camera')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <Camera className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>Capture Look</span>
+            <Camera className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>Capture look</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate('marketplace')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <ShoppingBag className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>Browse Exchange</span>
+            <ShoppingBag className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>Browse Shop</span>
           </button>
         </div>
       </div>
@@ -254,9 +254,9 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
         <div className="rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-4 py-3 text-sm">
           <div className="flex items-center gap-2.5">
             {status.externalVisualSearch.configured ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertTriangle className="h-4 w-4 shrink-0 text-[#C49A52]" />
+              <AlertTriangle className="h-4 w-4 shrink-0 text-[#B45309] dark:text-amber-300" />
             )}
             <span className="font-semibold text-[var(--nx-text)]">
               External Visual Index:{' '}
@@ -282,12 +282,12 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
           <label className="block text-xs font-semibold uppercase tracking-wide text-[var(--nx-text-secondary)]">
             Reference Outfit or Garment Photo
           </label>
-          <label className="flex h-56 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-3 text-center hover:border-[#4777DF]">
+          <label className="flex h-56 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border border-dashed border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-3 text-center hover:border-[#790B13]">
             {imageDataUrl ? (
               <img src={imageDataUrl} alt="Visual search preview" className="h-full w-full rounded-lg object-contain" />
             ) : (
               <>
-                <Upload className="h-7 w-7 text-[#4777DF]" />
+                <Upload className="h-7 w-7 text-[#790B13] dark:text-[#F2B8B5]" />
                 <span className="mt-2 text-sm font-medium text-[var(--nx-text)]">Select an image to analyze</span>
                 <span className="mt-1 text-xs text-[var(--nx-text-secondary)]">PNG, JPG, or WEBP up to 3.5 MB</span>
               </>
@@ -349,15 +349,15 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
             </div>
           </div>
 
-          {error && <div className="rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-400">{error}</div>}
+          {error && <div className="rounded-lg border border-red-600/35 bg-red-600/10 px-3 py-2 text-xs text-red-700 dark:text-red-300">{error}</div>}
 
           <button
             type="submit"
             disabled={searching}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#3868CE] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#790B13] px-4 py-2.5 text-sm font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
           >
             <Search className="h-4 w-4" />
-            <span>{searching ? 'Analyzing Outfit & Matching...' : 'Analyze & Find Matching Products'}</span>
+            <span>{searching ? 'Analyzing outfit & matching...' : 'Analyze & find matching products'}</span>
           </button>
         </div>
       </form>
@@ -376,8 +376,8 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
           {detectedItems.length > 0 && (
             <section className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
               <div className="flex items-center gap-2 text-sm font-semibold text-[var(--nx-text)]">
-                <Sparkles className="h-4 w-4 text-[#C49A52]" />
-                <span>Detected Garment Slots ({detectedItems.length})</span>
+                <Sparkles className="h-4 w-4 text-[#B45309] dark:text-amber-300" />
+                <span>Detected garment slots ({detectedItems.length})</span>
               </div>
               <div className="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-4">
                 {detectedItems.map((item, idx) => (
@@ -386,9 +386,9 @@ export const VisualSearchView: React.FC<VisualSearchViewProps> = ({ onNavigate }
                     className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-3 text-xs"
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold uppercase tracking-wide text-[#4777DF]">{item.slot}</span>
+                      <span className="font-semibold tracking-wide text-[#790B13] dark:text-[#F2B8B5]">{item.slot}</span>
                       {typeof item.confidence === 'number' && (
-                        <span className="font-mono text-[11px] text-[var(--nx-text-secondary)]">
+                        <span className="font-mono text-[11px] tabular-nums text-[var(--nx-text-secondary)]">
                           {Math.round(item.confidence * 100)}%
                         </span>
                       )}

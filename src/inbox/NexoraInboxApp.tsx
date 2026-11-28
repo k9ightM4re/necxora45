@@ -22,17 +22,17 @@ class InboxErrorBoundary extends React.Component<
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex h-full w-full flex-1 flex-col items-center justify-center bg-[#F5F6F8] p-6 text-center dark:bg-[#101318]">
-          <h3 className="text-base font-semibold text-[#202630] dark:text-[#F2F4F7]">
+        <div className="flex h-full w-full flex-1 flex-col items-center justify-center bg-[#FFF0DC] p-6 text-center dark:bg-[#1B0709]">
+          <h3 className="text-base font-semibold text-[#2A0A0D] dark:text-[#FFF0DC]">
             Messages temporarily unavailable
           </h3>
-          <p className="mt-1 text-[0.84rem] text-[#596473] dark:text-[#A8B0BB]">
+          <p className="mt-1 text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
             {this.state.errorMsg}
           </p>
           <button
             type="button"
             onClick={() => this.setState({ hasError: false, errorMsg: '' })}
-            className="mt-4 rounded-xl bg-[#3868CE] px-4 py-2 text-[0.84rem] font-medium text-white hover:bg-[#2D58B8]"
+            className="mt-4 rounded-xl bg-[#790B13] px-4 py-2 text-[0.84rem] font-medium text-[#FFF0DC] hover:bg-[#5C0810]"
           >
             Reload Messages
           </button>
@@ -48,7 +48,7 @@ export const NexoraInboxApp: React.FC = () => {
 
   return (
     <InboxErrorBoundary>
-      <div className="flex h-full w-full min-w-0 flex-1 overflow-hidden bg-[#F5F6F8] text-[#202630] dark:bg-[#101318] dark:text-[#F2F4F7]">
+      <div className="flex h-full w-full min-w-0 flex-1 overflow-hidden bg-[#FFF0DC] text-[#2A0A0D] dark:bg-[#1B0709] dark:text-[#FFF0DC]">
         <ConversationPanel snapshot={snapshot} bridge={bridge} />
         <ActiveConversation snapshot={snapshot} bridge={bridge} />
       </div>

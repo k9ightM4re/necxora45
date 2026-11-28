@@ -42,7 +42,7 @@ const DISCOVERY_CATEGORIES: Array<'All' | DiscoveryCategory> = [
 ];
 
 function renderFeatureIcon(iconKey: string) {
-  const cls = 'h-4 w-4 text-[#4777DF]';
+  const cls = 'h-4 w-4 text-[#790B13] dark:text-[#F7E1D3]';
   switch (iconKey) {
     case 'home':
       return <Home className={cls} />;
@@ -73,7 +73,7 @@ function renderFeatureIcon(iconKey: string) {
     case 'shoppingBag':
       return <ShoppingBag className={cls} />;
     case 'sparkles':
-      return <Sparkles className="h-4 w-4 text-[#C49A52]" />;
+      return <Sparkles className="h-4 w-4 text-[#B45309] dark:text-[#FBBF24]" />;
     case 'shield':
       return <Shield className={cls} />;
     case 'lock':
@@ -94,17 +94,17 @@ function getAvailabilityBadge(availability: FeatureAvailability): { label: strin
     case 'ENABLED':
       return {
         label: 'Enabled',
-        className: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400',
+        className: 'border-emerald-600/30 bg-emerald-600/15 text-emerald-700 dark:text-emerald-400',
       };
     case 'REQUIRES_CONFIGURATION':
       return {
         label: 'Requires Config',
-        className: 'border-[#C49A52]/40 bg-[#C49A52]/15 text-[#C49A52]',
+        className: 'border-[#B45309]/40 bg-[#B45309]/15 text-[#B45309] dark:text-[#FBBF24]',
       };
     case 'RESTRICTED_BY_PERMISSIONS':
       return {
         label: 'Restricted',
-        className: 'border-[#4777DF]/40 bg-[#4777DF]/15 text-[#4777DF]',
+        className: 'border-[#790B13]/40 bg-[#790B13]/15 text-[#790B13] dark:text-[#F7E1D3]',
       };
     case 'COMING_SOON':
       return {
@@ -173,11 +173,11 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4777DF]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#790B13] dark:text-[#F7E1D3]">
             <Compass className="h-4 w-4" />
             <span>Nexora Feature Directory</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+          <h1 className="mt-1 font-['Playfair_Display',serif] text-2xl font-bold tracking-tight text-[var(--nx-text)]">
             All Approved Platform Capabilities
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
@@ -189,7 +189,7 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
           <button
             type="button"
             onClick={() => onNavigate('admin-feature-health')}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
           >
             <Activity className="h-3.5 w-3.5" />
             <span>Open Admin Feature Health</span>
@@ -217,7 +217,7 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
               onClick={() => setSelectedCategory(cat)}
               className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
                 selectedCategory === cat
-                  ? 'bg-[#3868CE] text-white'
+                  ? 'bg-[#790B13] text-[#FFF0DC]'
                   : 'border border-[var(--nx-border)] bg-[var(--nx-card-soft)] text-[var(--nx-text-secondary)] hover:text-[var(--nx-text)]'
               }`}
             >
@@ -280,7 +280,7 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
                         </p>
                         {feature.effectiveAvailability === 'REQUIRES_CONFIGURATION' &&
                           feature.providerConfig.missingEnvVars.length > 0 && (
-                            <div className="mt-3 rounded-lg border border-[#C49A52]/30 bg-[#C49A52]/10 px-2.5 py-1.5 text-[11px] text-[#C49A52]">
+                            <div className="mt-3 rounded-lg border border-[#B45309]/30 bg-[#B45309]/10 px-2.5 py-1.5 text-[11px] text-[#B45309] dark:text-[#FBBF24]">
                               Missing env: {feature.providerConfig.missingEnvVars.join(', ')}
                             </div>
                           )}
@@ -292,7 +292,7 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
                           <button
                             type="button"
                             onClick={() => onNavigate(feature.navSection, feature.navMeta)}
-                            className="inline-flex items-center gap-1 rounded-lg bg-[#3868CE] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                            className="inline-flex items-center gap-1 rounded-lg bg-[#790B13] px-3 py-1.5 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
                           >
                             <span>Open</span>
                             <ArrowUpRight className="h-3.5 w-3.5" />

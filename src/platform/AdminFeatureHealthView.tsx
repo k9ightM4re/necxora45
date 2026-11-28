@@ -47,13 +47,13 @@ type HealthFilter = 'all' | 'complete' | 'incomplete' | 'blocked' | 'unverified'
 function renderLayerCell(status: LayerStatus) {
   switch (status) {
     case 'OK':
-      return <span className="rounded bg-emerald-500/15 px-1.5 py-0.5 font-mono text-[11px] text-emerald-400">OK</span>;
+      return <span className="rounded bg-emerald-600/15 px-1.5 py-0.5 font-mono text-[11px] text-emerald-700 dark:text-emerald-400">OK</span>;
     case 'PARTIAL':
-      return <span className="rounded bg-[#C49A52]/15 px-1.5 py-0.5 font-mono text-[11px] text-[#C49A52]">PARTIAL</span>;
+      return <span className="rounded bg-[#B45309]/15 px-1.5 py-0.5 font-mono text-[11px] text-[#B45309] dark:text-[#FBBF24]">PARTIAL</span>;
     case 'BLOCKED':
-      return <span className="rounded bg-[#C49A52]/20 px-1.5 py-0.5 font-mono text-[11px] text-[#C49A52]">BLOCKED</span>;
+      return <span className="rounded bg-[#B45309]/20 px-1.5 py-0.5 font-mono text-[11px] text-[#B45309] dark:text-[#FBBF24]">BLOCKED</span>;
     case 'MISSING':
-      return <span className="rounded bg-red-500/15 px-1.5 py-0.5 font-mono text-[11px] text-red-400">MISSING</span>;
+      return <span className="rounded bg-red-500/15 px-1.5 py-0.5 font-mono text-[11px] text-red-700 dark:text-red-400">MISSING</span>;
     case 'N/A':
     default:
       return <span className="font-mono text-[11px] text-[var(--nx-text-secondary)]">N/A</span>;
@@ -122,15 +122,15 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
   if (forbidden) {
     return (
       <div className="mx-auto max-w-xl rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-8 text-center">
-        <Lock className="mx-auto h-9 w-9 text-[#C49A52]" />
-        <h1 className="mt-3 text-lg font-bold text-[var(--nx-text)]">Access Restricted</h1>
+        <Lock className="mx-auto h-9 w-9 text-[#B45309] dark:text-[#FBBF24]" />
+        <h1 className="mt-3 font-['Playfair_Display',serif] text-xl font-bold text-[var(--nx-text)]">Access Restricted</h1>
         <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
           Admin Feature Health diagnostics require verified administrator privileges enforced by the backend.
         </p>
         <button
           type="button"
           onClick={() => onNavigate('features')}
-          className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+          className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Back to Features</span>
@@ -145,11 +145,11 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
     <div className="mx-auto max-w-7xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4777DF]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#790B13] dark:text-[#F7E1D3]">
             <Shield className="h-4 w-4" />
             <span>Admin Engineering Diagnostics</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+          <h1 className="mt-1 font-['Playfair_Display',serif] text-2xl font-bold tracking-tight text-[var(--nx-text)]">
             Feature Health &amp; Verification Matrix
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
@@ -163,7 +163,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
         <button
           type="button"
           onClick={() => onNavigate('features')}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF]"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           <span>Feature Directory</span>
@@ -171,7 +171,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400">{error}</div>
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-400">{error}</div>
       )}
 
       {loading ? (
@@ -182,13 +182,13 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-8">
               {[
                 { label: 'Total', value: summary.totalRegistered, tone: 'text-[var(--nx-text)]' },
-                { label: 'Verified', value: summary.verifiedCount, tone: 'text-emerald-400' },
-                { label: 'Incomplete', value: summary.incompleteCount, tone: 'text-[#C49A52]' },
-                { label: 'Frontend-Only', value: summary.frontendOnlyCount, tone: 'text-[#C49A52]' },
-                { label: 'Backend-Only', value: summary.backendOnlyCount, tone: 'text-[#C49A52]' },
-                { label: 'Blocked', value: summary.blockedExternalCount, tone: 'text-[#C49A52]' },
-                { label: 'Unverified', value: summary.unverifiedCount, tone: 'text-[#4777DF]' },
-                { label: 'Failed Checks', value: summary.failedTestsCount, tone: summary.failedTestsCount > 0 ? 'text-red-400' : 'text-emerald-400' },
+                { label: 'Verified', value: summary.verifiedCount, tone: 'text-emerald-700 dark:text-emerald-400' },
+                { label: 'Incomplete', value: summary.incompleteCount, tone: 'text-[#B45309] dark:text-[#FBBF24]' },
+                { label: 'Frontend-Only', value: summary.frontendOnlyCount, tone: 'text-[#B45309] dark:text-[#FBBF24]' },
+                { label: 'Backend-Only', value: summary.backendOnlyCount, tone: 'text-[#B45309] dark:text-[#FBBF24]' },
+                { label: 'Blocked', value: summary.blockedExternalCount, tone: 'text-[#B45309] dark:text-[#FBBF24]' },
+                { label: 'Unverified', value: summary.unverifiedCount, tone: 'text-[#790B13] dark:text-[#F7E1D3]' },
+                { label: 'Failed Checks', value: summary.failedTestsCount, tone: summary.failedTestsCount > 0 ? 'text-red-700 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400' },
               ].map((kpi) => (
                 <div
                   key={kpi.label}
@@ -229,7 +229,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                   onClick={() => setFilter(key)}
                   className={`rounded-lg px-2.5 py-1.5 text-xs font-medium ${
                     filter === key
-                      ? 'bg-[#3868CE] text-white'
+                      ? 'bg-[#790B13] text-[#FFF0DC]'
                       : 'border border-[var(--nx-border)] bg-[var(--nx-card-soft)] text-[var(--nx-text-secondary)]'
                   }`}
                 >
@@ -263,7 +263,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                         key={feat.id}
                         onClick={() => setSelected(feat)}
                         className={`cursor-pointer transition hover:bg-[var(--nx-card-soft)] ${
-                          isSelected ? 'bg-[#4777DF]/10' : ''
+                          isSelected ? 'bg-[#790B13]/10' : ''
                         }`}
                       >
                         <td className="px-3 py-2.5">
@@ -280,10 +280,10 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                           <span
                             className={`inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[11px] ${
                               feat.effectiveStatus === 'IMPLEMENTED_AND_VERIFIED'
-                                ? 'bg-emerald-500/15 text-emerald-400'
+                                ? 'bg-emerald-600/15 text-emerald-700 dark:text-emerald-400'
                                 : feat.effectiveStatus === 'BLOCKED_EXTERNAL_DEPENDENCY'
-                                ? 'bg-[#C49A52]/15 text-[#C49A52]'
-                                : 'bg-[#4777DF]/15 text-[#4777DF]'
+                                ? 'bg-[#B45309]/15 text-[#B45309] dark:text-[#FBBF24]'
+                                : 'bg-[#790B13]/12 text-[#790B13] dark:bg-[#790B13]/30 dark:text-[#F7E1D3]'
                             }`}
                           >
                             {feat.effectiveStatus === 'IMPLEMENTED_AND_VERIFIED' ? (
@@ -306,7 +306,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
               <aside className="space-y-4 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="font-mono text-xs text-[#4777DF]">{selected.id}</div>
+                    <div className="font-mono text-xs text-[#790B13] dark:text-[#F7E1D3]">{selected.id}</div>
                     <h2 className="text-base font-bold text-[var(--nx-text)]">{selected.name}</h2>
                     <div className="text-xs text-[var(--nx-text-secondary)]">{selected.moduleGroup}</div>
                   </div>
@@ -323,7 +323,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                 <div className="space-y-2.5 text-xs">
                   <div className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5">
                     <div className="flex items-center gap-1.5 font-semibold text-[var(--nx-text)]">
-                      <FileCode className="h-3.5 w-3.5 text-[#4777DF]" />
+                      <FileCode className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F7E1D3]" />
                       <span>Frontend &amp; GUI</span>
                     </div>
                     <div className="mt-1 text-[var(--nx-text-secondary)]">{selected.frontendComponent}</div>
@@ -332,7 +332,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
 
                   <div className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5">
                     <div className="flex items-center gap-1.5 font-semibold text-[var(--nx-text)]">
-                      <Server className="h-3.5 w-3.5 text-[#4777DF]" />
+                      <Server className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F7E1D3]" />
                       <span>Backend &amp; API</span>
                     </div>
                     <div className="mt-1 text-[var(--nx-text-secondary)]">{selected.backendService}</div>
@@ -341,7 +341,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
 
                   <div className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5">
                     <div className="flex items-center gap-1.5 font-semibold text-[var(--nx-text)]">
-                      <Database className="h-3.5 w-3.5 text-[#4777DF]" />
+                      <Database className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F7E1D3]" />
                       <span>Database &amp; Auth</span>
                     </div>
                     <div className="mt-1 font-mono text-[11px] text-[var(--nx-text-secondary)]">{selected.databaseCollection}</div>
@@ -350,7 +350,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
 
                   <div className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5">
                     <div className="flex items-center gap-1.5 font-semibold text-[var(--nx-text)]">
-                      <Terminal className="h-3.5 w-3.5 text-[#4777DF]" />
+                      <Terminal className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F7E1D3]" />
                       <span>Files &amp; Verification</span>
                     </div>
                     <div className="mt-1 text-[11px] text-[var(--nx-text-secondary)]">
@@ -360,14 +360,14 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                       Tests: {selected.testFiles.join(', ') || 'None'}
                     </div>
                     {selected.testResult && (
-                      <div className="mt-1 text-[11px] text-emerald-400">
+                      <div className="mt-1 text-[11px] text-emerald-700 dark:text-emerald-400">
                         {selected.testResult.passed ? 'Passing' : 'Failing'} ({selected.testResult.detail})
                       </div>
                     )}
                   </div>
 
                   {(selected.missingLayers.length > 0 || selected.providerConfig.missingEnvVars.length > 0) && (
-                    <div className="rounded-lg border border-[#C49A52]/40 bg-[#C49A52]/10 p-2.5 text-[#C49A52]">
+                    <div className="rounded-lg border border-[#B45309]/40 bg-[#B45309]/10 p-2.5 text-[#B45309] dark:text-[#FBBF24]">
                       <div className="flex items-center gap-1.5 font-semibold">
                         <Activity className="h-3.5 w-3.5" />
                         <span>Blockers / External Configuration</span>
@@ -392,7 +392,7 @@ export const AdminFeatureHealthView: React.FC<AdminFeatureHealthViewProps> = ({ 
                   <button
                     type="button"
                     onClick={() => onNavigate(selected.navSection, selected.navMeta)}
-                    className="w-full rounded-lg bg-[#3868CE] px-3 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                    className="w-full rounded-lg bg-[#790B13] px-3 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
                   >
                     Open Feature Surface
                   </button>

@@ -1,24 +1,43 @@
 @import "tailwindcss";
+@config "../tailwind.config.js";
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
 
 @layer base {
   :root {
-    --bg-primary: #101318;
-    --bg-secondary: #171C23;
-    --bg-panel: #1D232C;
-    --bg-elevated: #242B35;
-    --accent: #4777DF;
-    --accent-hover: #3868CE;
-    --amber-accent: #C49A52;
-    --success: #34D399;
-    --text-primary: #F2F4F7;
-    --text-secondary: #A8B0BB;
-    --text-muted: #77818F;
-    --border-dark: rgba(255, 255, 255, 0.09);
+    --color-primary: #790B13;
+    --color-on-primary: #FFF0DC;
+    --color-primary-hover: #5C0810;
+    --color-primary-soft: #F7E1D3;
+    --color-background: #FFF0DC;
+    --color-on-background: #2A0A0D;
+    --color-surface: #FFF8EE;
+    --color-on-surface: #2A0A0D;
+    --color-surface-alt: #F7E5CE;
+    --color-muted: #6B4A4D;
+    --color-outline: #E8D3B8;
+
+    --bg-primary: #FFF0DC;
+    --bg-secondary: #F7E5CE;
+    --bg-panel: #FFF8EE;
+    --bg-elevated: #FFF8EE;
+    --accent: #790B13;
+    --accent-hover: #5C0810;
+    --amber-accent: #790B13;
+    --success: #166534;
+    --text-primary: #2A0A0D;
+    --text-secondary: #4D2B2F;
+    --text-muted: #6B4A4D;
+    --border-dark: #E8D3B8;
+  }
+
+  body {
+    font-family: "DM Sans", -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: #FFF0DC;
+    color: #2A0A0D;
   }
 }
 
-/* Custom sleek scrollbar */
+/* Custom warm editorial scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -27,14 +46,13 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2b303d;
+  background: #D9BE9C;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3c4355;
+  background: #6B4A4D;
 }
 
-/* Custom animations */
 @keyframes pulse-subtle {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.85; transform: scale(1.03); }
@@ -45,8 +63,8 @@
 }
 
 @keyframes speaking-glow {
-  0%, 100% { box-shadow: 0 0 0 2px #35C98B, 0 0 16px rgba(53, 201, 139, 0.4); }
-  50% { box-shadow: 0 0 0 4px #35C98B, 0 0 24px rgba(53, 201, 139, 0.7); }
+  0%, 100% { box-shadow: 0 0 0 2px #790B13, 0 0 14px rgba(121, 11, 19, 0.25); }
+  50% { box-shadow: 0 0 0 4px #790B13, 0 0 22px rgba(121, 11, 19, 0.4); }
 }
 
 .speaking-active {

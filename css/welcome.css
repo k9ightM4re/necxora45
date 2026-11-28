@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Nexora Welcome & Invite Hub — Graphite & Signal Blue Design System (v1.0)
+   Nexora Welcome & Invite Hub — Warm Editorial Design System
    ========================================================================== */
 
 body {
@@ -12,7 +12,7 @@ body {
 }
 
 .welcome-topbar {
-  height: 64px;
+  height: 68px;
   padding-inline: clamp(16px, 4vw, 40px);
   background-color: var(--nx-glass-bg);
   backdrop-filter: var(--nx-glass-blur);
@@ -30,15 +30,15 @@ body {
   align-items: center;
   gap: 10px;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.04rem;
+  font-weight: 700;
+  font-size: 1.15rem;
   letter-spacing: -0.02em;
-  color: var(--nx-text-primary);
+  color: var(--nx-primary);
   text-decoration: none;
 }
 
 .welcome-brand img {
-  border-radius: 7px;
+  border-radius: 8px;
 }
 
 .welcome-top-actions {
@@ -51,68 +51,69 @@ body {
 .welcome-shell {
   max-width: 1120px;
   margin: 0 auto;
-  padding: clamp(20px, 4vw, 40px) clamp(16px, 4vw, 32px) 60px;
+  padding: clamp(24px, 4vw, 44px) clamp(16px, 4vw, 32px) 64px;
   display: grid;
   gap: 24px;
 }
 
 .welcome-hero {
-  background:
-    radial-gradient(64% 90% at 88% 10%, rgba(71, 119, 223, 0.22) 0%, transparent 65%),
-    linear-gradient(135deg, #171C23 0%, #242B35 100%);
-  color: #F2F4F7;
-  border: 1px solid var(--nx-border-strong);
-  border-radius: var(--radius-lg);
-  padding: clamp(22px, 4vw, 34px);
+  background: linear-gradient(135deg, #790B13 0%, #5C0810 100%);
+  color: #FFF0DC;
+  border: 1px solid #5C0810;
+  border-radius: 16px;
+  padding: clamp(24px, 4vw, 36px);
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
   flex-wrap: wrap;
+  box-shadow: 0 12px 28px rgba(42, 10, 13, 0.12);
   animation: nxFadeSlide 220ms var(--ease-expo) both;
 }
 
 .welcome-hero h1 {
   margin: 0 0 8px;
   font-family: var(--font-display);
-  font-size: clamp(1.35rem, 2.5vw, 1.9rem);
-  font-weight: 800;
-  letter-spacing: -0.025em;
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: #FFF0DC;
 }
 
 .welcome-hero p {
   margin: 0;
   max-width: 58ch;
-  color: #A8B0BB;
-  font-size: 0.94rem;
+  color: #F7E1D3;
+  font-size: 0.96rem;
   line-height: 1.55;
 }
 
 .welcome-grid {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  gap: 22px;
+  gap: 24px;
   align-items: start;
 }
 
 .welcome-card {
   background-color: var(--nx-surface);
   border: 1px solid var(--nx-border);
-  border-radius: var(--radius-lg);
-  padding: 22px;
+  border-radius: 16px;
+  padding: 24px;
   display: grid;
   gap: 16px;
+  box-shadow: var(--nx-glass-shadow);
 }
 
 .welcome-card h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.08rem;
+  font-size: 1.2rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--nx-text-primary);
+  color: var(--nx-primary);
 }
 
 .invite-lookup-form {
@@ -125,13 +126,13 @@ body {
 .w-select,
 .w-textarea {
   width: 100%;
-  padding: 10px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--nx-border-strong);
-  background-color: var(--nx-bg-secondary);
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--nx-border);
+  background-color: var(--nx-bg);
   color: var(--nx-text-primary);
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: 0.94rem;
 }
 
 .w-input:focus,
@@ -147,12 +148,12 @@ body {
   align-items: center;
   justify-content: center;
   gap: 7px;
-  height: 38px;
-  padding-inline: 15px;
-  border-radius: var(--radius-sm);
+  height: 40px;
+  padding-inline: 16px;
+  border-radius: 12px;
   border: 1px solid transparent;
   font-family: inherit;
-  font-size: 0.86rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
   text-decoration: none;
@@ -171,7 +172,7 @@ body {
 
 .w-btn-primary {
   background-color: var(--nx-primary-fill);
-  color: #ffffff;
+  color: #FFF0DC;
 }
 
 .w-btn-primary:hover:not(:disabled) {
@@ -179,8 +180,8 @@ body {
 }
 
 .w-btn-navy {
-  background-color: var(--nx-surface-elevated);
-  border-color: var(--nx-border-strong);
+  background-color: var(--nx-surface);
+  border-color: var(--nx-border);
   color: var(--nx-text-primary);
 }
 
@@ -229,7 +230,7 @@ body {
   height: 48px;
   border-radius: 12px;
   background-color: var(--nx-primary-fill);
-  color: #ffffff;
+  color: #FFF0DC;
   font-family: var(--font-display);
   font-weight: 800;
   font-size: 1rem;
@@ -295,21 +296,21 @@ body {
   padding: 11px 14px;
   border-radius: var(--radius-sm);
   background-color: var(--nx-primary-muted);
-  border: 1px solid rgba(71, 119, 223, 0.35);
+  border: 1px solid var(--nx-primary-border);
   color: var(--nx-text-primary);
   font-size: 0.86rem;
   font-weight: 600;
 }
 
 .w-status-banner.error {
-  background-color: rgba(248, 113, 113, 0.12);
-  border-color: rgba(248, 113, 113, 0.35);
+  background-color: rgba(159, 18, 57, 0.1);
+  border-color: rgba(159, 18, 57, 0.35);
   color: var(--danger);
 }
 
 .w-status-banner.success {
-  background-color: rgba(52, 211, 153, 0.12);
-  border-color: rgba(52, 211, 153, 0.35);
+  background-color: rgba(21, 128, 61, 0.1);
+  border-color: rgba(21, 128, 61, 0.35);
   color: var(--success);
 }
 
@@ -317,8 +318,8 @@ body {
   width: 15px;
   height: 15px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.35);
-  border-top-color: #ffffff;
+  border: 2px solid rgba(255, 240, 220, 0.35);
+  border-top-color: #FFF0DC;
   animation: nxSpin 650ms linear infinite;
 }
 

@@ -476,15 +476,15 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4777DF]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-[#790B13] dark:text-[#F2B8B5]">
             <ShoppingBag className="h-4 w-4" />
-            <span>Nexora Exchange · Integrated Social Commerce</span>
+            <span>Shop · Integrated partner stores</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
-            Discover Fashion &amp; Creator Storefronts
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+            Discover fashion &amp; partner stores
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
-            Browse curated Exchange items, filter by size &amp; style, contact merchants directly in Inbox, or test looks in AI Style Studio. Checkout completes on merchant websites.
+            Browse curated items, filter by size &amp; style, message partner stores directly in Inbox, or test looks in AI Style Studio. Checkout completes on partner store websites.
           </p>
         </div>
 
@@ -492,50 +492,50 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
           <button
             type="button"
             onClick={() => onNavigate('visual-search')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <Camera className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>Visual Search</span>
+            <Camera className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>Visual search</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate('studio')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#C49A52]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#B45309]"
           >
-            <Sparkles className="h-3.5 w-3.5 text-[#C49A52]" />
+            <Sparkles className="h-3.5 w-3.5 text-[#B45309] dark:text-amber-300" />
             <span>Style Studio</span>
           </button>
           <button
             type="button"
             onClick={() => setShowConnectors((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold tabular-nums text-[var(--nx-text)]"
           >
-            <PlugZap className="h-3.5 w-3.5 text-[#C49A52]" />
+            <PlugZap className="h-3.5 w-3.5 text-[#B45309] dark:text-amber-300" />
             <span>Connectors ({connectors.length})</span>
           </button>
           <button
             type="button"
             onClick={() => setShowCollections((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold tabular-nums text-[var(--nx-text)]"
           >
-            <Bookmark className="h-3.5 w-3.5 text-[#4777DF]" />
+            <Bookmark className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
             <span>Collections ({collections.length})</span>
           </button>
           <button
             type="button"
             onClick={() => setShowCreateMerchant((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
           >
             <Store className="h-3.5 w-3.5" />
-            <span>Add Merchant</span>
+            <span>Add partner store</span>
           </button>
           <button
             type="button"
             onClick={() => setShowCreateProduct((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
           >
             <Plus className="h-3.5 w-3.5" />
-            <span>Publish Listing</span>
+            <span>Publish listing</span>
           </button>
         </div>
       </div>
@@ -545,29 +545,29 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-4 py-3">
           <div className="flex items-center gap-3 text-sm">
             {status.merchantFeedSync.configured ? (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
             ) : (
-              <AlertTriangle className="h-4 w-4 shrink-0 text-[#C49A52]" />
+              <AlertTriangle className="h-4 w-4 shrink-0 text-[#B45309] dark:text-amber-300" />
             )}
             <div>
               <span className="font-semibold text-[var(--nx-text)]">
-                Merchant Feed Sync:{' '}
-                {status.merchantFeedSync.configured ? 'Connected' : 'Requires Configuration'}
+                Partner store feed sync:{' '}
+                {status.merchantFeedSync.configured ? 'Connected' : 'Requires configuration'}
               </span>
               <span className="ml-2 text-xs text-[var(--nx-text-secondary)]">
                 {status.merchantFeedSync.configured
                   ? 'Automated catalog sync enabled.'
-                  : `${status.merchantFeedSync.reason} Verified merchants and manual catalog publishing are active.`}
+                  : `${status.merchantFeedSync.reason} Verified partner stores and manual catalog publishing are active.`}
               </span>
             </div>
           </div>
           <button
             type="button"
             onClick={() => handleTestSync()}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#4777DF]"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>Sync Feed</span>
+            <span>Sync feed</span>
           </button>
         </div>
       )}
@@ -576,10 +576,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         <div
           className={`flex items-center justify-between rounded-xl border px-4 py-2.5 text-sm ${
             banner.tone === 'error'
-              ? 'border-red-500/40 bg-red-500/10 text-red-400'
+              ? 'border-red-600/35 bg-red-600/10 text-red-700 dark:text-red-300'
               : banner.tone === 'warn'
-                ? 'border-[#C49A52]/40 bg-[#C49A52]/10 text-[#C49A52]'
-                : 'border-[#4777DF]/40 bg-[#4777DF]/10 text-[#4777DF]'
+                ? 'border-[#B45309]/40 bg-[#B45309]/10 text-[#B45309] dark:text-amber-300'
+                : 'border-[#790B13]/35 bg-[#F7E1D3]/70 text-[#790B13] dark:bg-[#790B13]/20 dark:text-[#FFF0DC]'
           }`}
         >
           <span>{banner.text}</span>
@@ -594,7 +594,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         <div className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-[var(--nx-text)]">
-              Marketplace Feed Connectors (Official APIs Only — Zero Scraping)
+              Partner store feed connectors (official APIs only)
             </h2>
             <button type="button" onClick={() => setShowConnectors(false)} className="text-xs text-[var(--nx-text-secondary)]">
               Close
@@ -612,11 +612,11 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
                         c.configured
-                          ? 'bg-emerald-500/15 text-emerald-400'
-                          : 'bg-[#C49A52]/15 text-[#C49A52]'
+                          ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                          : 'bg-[#B45309]/15 text-[#B45309] dark:text-amber-300'
                       }`}
                     >
-                      {c.configured ? 'CONNECTED' : 'REQUIRES_CONFIGURATION'}
+                      {c.configured ? 'Connected' : 'Setup required'}
                     </span>
                   </div>
                   <p className="mt-1.5 text-[11px] text-[var(--nx-text-secondary)]">{c.notes}</p>
@@ -624,10 +624,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                 <button
                   type="button"
                   onClick={() => handleTestSync(c.id)}
-                  className="mt-3 inline-flex w-fit items-center gap-1 rounded border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-2.5 py-1 text-[11px] font-medium text-[var(--nx-text)] hover:border-[#4777DF]"
+                  className="mt-3 inline-flex w-fit items-center gap-1 rounded border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-2.5 py-1 text-[11px] font-medium text-[var(--nx-text)] hover:border-[#790B13]"
                 >
                   <RefreshCw className="h-3 w-3" />
-                  <span>Test Sync</span>
+                  <span>Test sync</span>
                 </button>
               </div>
             ))}
@@ -644,7 +644,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
           <input
             type="text"
             required
-            placeholder="Merchant name (e.g. Atelier Studio)"
+            placeholder="Partner store name (e.g. Atelier Studio)"
             value={merchantName}
             onChange={(e) => setMerchantName(e.target.value)}
             className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-sm text-[var(--nx-text)]"
@@ -661,14 +661,14 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+              className="rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
             >
-              Create Merchant
+              Create store
             </button>
             <button
               type="button"
               onClick={() => setShowCreateMerchant(false)}
-              className="rounded-lg border border-[var(--nx-border)] px-3 py-2 text-xs text-[var(--nx-text-secondary)]"
+              className="rounded-xl border border-[var(--nx-border)] px-3 py-2 text-xs text-[var(--nx-text-secondary)]"
             >
               Cancel
             </button>
@@ -683,9 +683,9 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
           className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4"
         >
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[var(--nx-text)]">Publish Fashion or Commerce Listing</h2>
+            <h2 className="text-sm font-semibold text-[var(--nx-text)]">Publish shop listing</h2>
             {merchants.length === 0 && (
-              <span className="text-xs text-[#C49A52]">Create a merchant first before publishing.</span>
+              <span className="text-xs text-[#B45309] dark:text-amber-300">Add a partner store first before publishing.</span>
             )}
           </div>
           <div className="grid gap-3 md:grid-cols-3">
@@ -802,16 +802,16 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
             <button
               type="button"
               onClick={() => setShowCreateProduct(false)}
-              className="rounded-lg border border-[var(--nx-border)] px-3 py-2 text-xs text-[var(--nx-text-secondary)]"
+              className="rounded-xl border border-[var(--nx-border)] px-3 py-2 text-xs text-[var(--nx-text-secondary)]"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={submitting || !pMerchantId}
-              className="rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+              className="rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
             >
-              Publish Product
+              Publish product
             </button>
           </div>
         </form>
@@ -821,7 +821,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
       {showCollections && (
         <div className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold text-[var(--nx-text)]">Saved Exchange Collections</h2>
+            <h2 className="text-sm font-semibold text-[var(--nx-text)]">Saved collections</h2>
             <button type="button" onClick={() => setShowCollections(false)} className="text-xs text-[var(--nx-text-secondary)]">
               Close
             </button>
@@ -845,9 +845,9 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
             <button
               type="submit"
               disabled={submitting}
-              className="rounded-lg bg-[#3868CE] px-3.5 py-1.5 text-xs font-semibold text-white"
+              className="rounded-xl bg-[#790B13] px-3.5 py-1.5 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
             >
-              Create Collection
+              Create collection
             </button>
           </form>
           {collections.length === 0 ? (
@@ -938,7 +938,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
               onClick={() => setCategory(cat)}
               className={`rounded-lg px-2.5 py-1.5 text-xs font-medium transition ${
                 category === cat
-                  ? 'bg-[#3868CE] text-white'
+                  ? 'bg-[#790B13] text-[#FFF0DC]'
                   : 'border border-[var(--nx-border)] bg-[var(--nx-card-soft)] text-[var(--nx-text-secondary)] hover:text-[var(--nx-text)]'
               }`}
             >
@@ -958,9 +958,9 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
       ) : products.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-8 text-center">
           <ShoppingBag className="mx-auto h-8 w-8 text-[var(--nx-text-secondary)]" />
-          <h2 className="mt-3 text-base font-semibold text-[var(--nx-text)]">No Exchange listings match your filter</h2>
+          <h2 className="mt-3 text-base font-semibold text-[var(--nx-text)]">No listings match your filter</h2>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
-            Adjust your filters or publish a merchant and fashion listing above.
+            Adjust your filters or publish a partner store and listing above.
           </p>
         </div>
       ) : (
@@ -988,7 +988,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                       </div>
                     )}
                     {product.priceStale && (
-                      <span className="absolute right-2 top-2 rounded-md border border-[#C49A52]/50 bg-[#101318]/85 px-2 py-0.5 text-[11px] font-medium text-[#C49A52]">
+                      <span className="absolute right-2 top-2 rounded-md border border-[#B45309]/50 bg-[#2A0A0D]/90 px-2 py-0.5 text-[11px] font-medium text-[#FFF0DC]">
                         Price &gt;24h old
                       </span>
                     )}
@@ -996,13 +996,13 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-2">
                       <div>
-                        <div className="text-xs font-medium text-[#4777DF]">
+                        <div className="text-xs font-medium text-[#790B13] dark:text-[#F2B8B5]">
                           {product.brand ? `${product.brand} · ` : ''}
                           {product.merchantName}
                         </div>
                         <h3 className="mt-0.5 text-sm font-semibold text-[var(--nx-text)]">{product.title}</h3>
                       </div>
-                      <div className="text-sm font-bold text-[var(--nx-text)]">
+                      <div className="text-sm font-bold tabular-nums text-[var(--nx-text)]">
                         {formatPrice(product.priceCents, product.currency)}
                       </div>
                     </div>
@@ -1023,7 +1023,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                     onClick={() => handleToggleProductInDefaultCollection(product.id)}
                     className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
                       isSaved
-                        ? 'bg-[#4777DF]/15 text-[#4777DF]'
+                        ? 'bg-[#790B13]/12 text-[#790B13] dark:bg-[#790B13]/25 dark:text-[#FFF0DC]'
                         : 'border border-[var(--nx-border)] text-[var(--nx-text-secondary)] hover:text-[var(--nx-text)]'
                     }`}
                   >
@@ -1034,14 +1034,14 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                     <button
                       type="button"
                       onClick={() => void openProductDetail(product.id)}
-                      className="rounded-lg border border-[var(--nx-border)] px-2.5 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#4777DF]"
+                      className="rounded-lg border border-[var(--nx-border)] px-2.5 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]"
                     >
                       Inspect
                     </button>
                     <button
                       type="button"
                       onClick={() => void handleVisitMerchant(product)}
-                      className="inline-flex items-center gap-1 rounded-lg bg-[#3868CE] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                      className="inline-flex items-center gap-1 rounded-lg bg-[#790B13] px-3 py-1.5 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
                     >
                       <span>Shop</span>
                       <ExternalLink className="h-3.5 w-3.5" />
@@ -1054,10 +1054,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         </div>
       )}
 
-      {/* Rich Product Detail & Merchant Inquiry Modal */}
+      {/* Rich Product Detail & Partner Store Inquiry Modal */}
       {(detailProduct || detailLoading) && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#2A0A0D]/75 p-4"
           role="dialog"
           aria-modal="true"
           aria-label="Product details"
@@ -1065,10 +1065,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
           <div className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-6 shadow-2xl">
             <div className="flex items-start justify-between gap-4 border-b border-[var(--nx-border)] pb-4">
               <div>
-                <div className="text-xs font-semibold uppercase tracking-wide text-[#4777DF]">
-                  {detailProduct?.merchantName || 'Merchant'} · {detailProduct?.category || ''}
+                <div className="text-xs font-semibold tracking-wide text-[#790B13] dark:text-[#F2B8B5]">
+                  {detailProduct?.merchantName || 'Partner store'} · {detailProduct?.category || ''}
                 </div>
-                <h2 className="mt-1 text-xl font-bold text-[var(--nx-text)]">
+                <h2 className="mt-1 font-display text-xl font-bold text-[var(--nx-text)]">
                   {detailLoading ? 'Loading item...' : detailProduct?.title}
                 </h2>
               </div>
@@ -1136,19 +1136,19 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                       <button
                         type="button"
                         onClick={() => void handleVisitMerchant(detailProduct)}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
                       >
-                        <span>Visit Merchant Site</span>
+                        <span>Visit partner store</span>
                         <ExternalLink className="h-3.5 w-3.5" />
                       </button>
                       <button
                         type="button"
                         disabled={submitting}
                         onClick={() => void handleShareProductToFeed(detailProduct)}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
                       >
-                        <Share2 className="h-3.5 w-3.5 text-[#4777DF]" />
-                        <span>Share to Feed</span>
+                        <Share2 className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+                        <span>Share to feed</span>
                       </button>
                       <button
                         type="button"
@@ -1156,23 +1156,23 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                           setDetailProduct(null);
                           onNavigate('studio');
                         }}
-                        className="inline-flex items-center gap-1.5 rounded-lg border border-[#C49A52]/40 bg-[#C49A52]/10 px-3 py-2 text-xs font-semibold text-[#C49A52]"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-[#B45309]/40 bg-[#B45309]/10 px-3 py-2 text-xs font-semibold text-[#B45309] dark:text-amber-300"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
                         <span>Style in Studio</span>
                       </button>
                     </div>
                     <p className="text-[11px] text-[var(--nx-text-secondary)]">
-                      Nexora does not process payments. Purchases complete strictly on the external merchant storefront.
+                      Nexora does not process payments. Purchases complete strictly on the external partner store website.
                     </p>
                   </div>
                 </div>
 
-                {/* Contact Merchant / Make Price Offer in Human Inbox */}
+                {/* Contact Partner Store / Make Price Offer in Human Inbox */}
                 <div className="space-y-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-4">
                   <div className="flex items-center gap-2 text-xs font-semibold text-[var(--nx-text)]">
-                    <MessageSquare className="h-4 w-4 text-[#4777DF]" />
-                    <span>Message Merchant Directly in Nexora Inbox</span>
+                    <MessageSquare className="h-4 w-4 text-[#790B13] dark:text-[#F2B8B5]" />
+                    <span>Message partner store directly in Nexora Inbox</span>
                   </div>
                   <div className="grid gap-2 sm:grid-cols-3">
                     <input
@@ -1196,17 +1196,17 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                     type="button"
                     disabled={submitting}
                     onClick={handleContactMerchant}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF] disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810] disabled:opacity-50"
                   >
                     <MessageSquare className="h-3.5 w-3.5" />
-                    <span>{offerDollars ? 'Send Offer to Merchant' : 'Contact Merchant'}</span>
+                    <span>{offerDollars ? 'Send offer to partner store' : 'Contact partner store'}</span>
                   </button>
                 </div>
 
                 {relatedProducts.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-xs font-semibold uppercase tracking-wide text-[var(--nx-text-secondary)]">
-                      Related Exchange Pieces
+                    <h3 className="text-xs font-semibold tracking-wide text-[var(--nx-text-secondary)]">
+                      Related pieces
                     </h3>
                     <div className="grid gap-2 sm:grid-cols-3">
                       {relatedProducts.slice(0, 3).map((rp) => (
@@ -1214,10 +1214,10 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                           key={rp.id}
                           type="button"
                           onClick={() => void openProductDetail(rp.id)}
-                          className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5 text-left text-xs hover:border-[#4777DF]"
+                          className="rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-2.5 text-left text-xs hover:border-[#790B13]"
                         >
                           <div className="truncate font-semibold text-[var(--nx-text)]">{rp.title}</div>
-                          <div className="text-[11px] text-[var(--nx-text-secondary)]">
+                          <div className="text-[11px] tabular-nums text-[var(--nx-text-secondary)]">
                             {rp.merchantName} · {formatPrice(rp.priceCents, rp.currency)}
                           </div>
                         </button>

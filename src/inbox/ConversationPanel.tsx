@@ -143,14 +143,14 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
         key={dm.id}
         className={`group relative flex items-center gap-1 rounded-xl transition-colors ${
           active
-            ? 'bg-[#4777DF]/[0.13] dark:bg-[#4777DF]/[0.16]'
-            : 'hover:bg-black/[0.04] dark:hover:bg-white/[0.04]'
+            ? 'bg-[#790B13]/[0.11] dark:bg-[#790B13]/30'
+            : 'hover:bg-[#2A0A0D]/[0.04] dark:hover:bg-[#FFF0DC]/[0.05]'
         }`}
       >
         <button
           type="button"
           onClick={() => bridge?.selectDm(dm.id)}
-          className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF] rounded-xl"
+          className="flex min-w-0 flex-1 items-center gap-3 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13] rounded-xl"
         >
           <AvatarBadge
             name={dm.name}
@@ -166,20 +166,20 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                 <span
                   className={`truncate text-[0.9rem] ${
                     active || dm.unreadCount > 0
-                      ? 'font-semibold text-[#202630] dark:text-[#F2F4F7]'
-                      : 'font-medium text-[#202630] dark:text-[#F2F4F7]'
+                      ? 'font-semibold text-[#2A0A0D] dark:text-[#FFF0DC]'
+                      : 'font-medium text-[#2A0A0D] dark:text-[#FFF0DC]'
                   }`}
                 >
                   {dm.name}
                 </span>
                 {handleText && dm.type === 'dm' && (
-                  <span className="truncate text-[0.74rem] text-[#677280] dark:text-[#77818F]">
+                  <span className="truncate text-[0.74rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                     {handleText}
                   </span>
                 )}
               </span>
               {timeLabel && (
-                <span className="shrink-0 text-[0.72rem] tabular-nums text-[#677280] dark:text-[#77818F]">
+                <span className="shrink-0 text-[0.72rem] tabular-nums text-[#6B4A4D] dark:text-[#C89D8B]">
                   {timeLabel}
                 </span>
               )}
@@ -189,10 +189,10 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
               <span
                 className={`truncate text-[0.8rem] ${
                   isTyping
-                    ? 'font-medium text-[#4777DF]'
+                    ? 'font-medium text-[#790B13] dark:text-[#F7E1D3]'
                     : dm.unreadCount > 0
-                      ? 'font-medium text-[#202630] dark:text-[#D5DCE6]'
-                      : 'text-[#596473] dark:text-[#A8B0BB]'
+                      ? 'font-medium text-[#2A0A0D] dark:text-[#FFF0DC]'
+                      : 'text-[#6B4A4D] dark:text-[#C89D8B]'
                 }`}
               >
                 {previewText}
@@ -200,7 +200,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
               {dm.unreadCount > 0 && (
                 <span
                   aria-label={`${dm.unreadCount} unread`}
-                  className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#4777DF] px-1.5 text-[0.7rem] font-semibold tabular-nums text-white"
+                  className="inline-flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-[#790B13] px-1.5 text-[0.7rem] font-semibold tabular-nums text-[#FFF0DC]"
                 >
                   {dm.unreadCount > 99 ? '99+' : dm.unreadCount}
                 </span>
@@ -214,7 +214,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
           onClick={() => void bridge?.toggleArchiveDm(dm.id)}
           title={archived ? 'Unarchive conversation' : 'Archive conversation'}
           aria-label={archived ? 'Unarchive conversation' : 'Archive conversation'}
-          className="mr-2 hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#77818F] hover:bg-black/[0.06] hover:text-[#202630] dark:hover:bg-white/[0.08] dark:hover:text-[#F2F4F7] group-hover:inline-flex focus-visible:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+          className="mr-2 hidden h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#6B4A4D] hover:bg-[#2A0A0D]/[0.06] hover:text-[#2A0A0D] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/[0.08] dark:hover:text-[#FFF0DC] group-hover:inline-flex focus-visible:inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
         >
           <Archive size={14} />
         </button>
@@ -228,7 +228,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
       <div className="space-y-3">
         {incomingPending.length > 0 && (
           <div className="space-y-1.5">
-            <div className="px-2 text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+            <div className="px-2 text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
               Incoming Requests · {incomingPending.length}
             </div>
             <div className="space-y-1.5">
@@ -237,7 +237,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                 return (
                   <div
                     key={req.id}
-                    className="flex items-center gap-2.5 rounded-xl border border-black/[0.08] bg-[#F5F6F8] px-3 py-2.5 dark:border-white/[0.08] dark:bg-[#1D232C]"
+                    className="flex items-center gap-2.5 rounded-xl border border-[#E8D3B8] bg-[#FFF0DC] px-3 py-2.5 dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]"
                   >
                     <AvatarBadge
                       name={sender?.displayName || req.fromName || 'Member'}
@@ -247,10 +247,10 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                       isOnline={Boolean(sender?.isOnline)}
                     />
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-[0.86rem] font-semibold text-[#202630] dark:text-[#F2F4F7]">
+                      <div className="truncate text-[0.86rem] font-semibold text-[#2A0A0D] dark:text-[#FFF0DC]">
                         {sender?.displayName || req.fromName || 'Member'}
                       </div>
-                      <div className="truncate text-[0.75rem] text-[#596473] dark:text-[#A8B0BB]">
+                      <div className="truncate text-[0.75rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                         Wants to message &amp; call
                       </div>
                     </div>
@@ -260,7 +260,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                         onClick={() => void bridge?.acceptRequest(req.id, req.fromUid)}
                         title="Accept request"
                         aria-label="Accept request"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#3868CE] text-white hover:bg-[#2D58B8] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#790B13] text-[#FFF0DC] hover:bg-[#5C0810] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
                       >
                         <Check size={14} />
                       </button>
@@ -269,7 +269,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                         onClick={() => void bridge?.declineRequest(req.id)}
                         title="Decline request"
                         aria-label="Decline request"
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-black/[0.06] text-[#596473] hover:bg-red-500/15 hover:text-red-500 dark:bg-white/[0.07] dark:text-[#A8B0BB] dark:hover:text-red-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-[#F7E5CE] text-[#6B4A4D] hover:bg-red-500/15 hover:text-red-700 dark:bg-[#FFF0DC]/10 dark:text-[#C89D8B] dark:hover:text-red-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
                       >
                         <X size={14} />
                       </button>
@@ -283,7 +283,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
 
         {outgoingPending.length > 0 && (
           <div className="space-y-1.5">
-            <div className="px-2 text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+            <div className="px-2 text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
               Pending Sent · {outgoingPending.length}
             </div>
             <div className="space-y-1">
@@ -294,7 +294,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                     key={req.id}
                     type="button"
                     onClick={() => void bridge?.openPendingPeer(req.toUid)}
-                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left hover:bg-[#2A0A0D]/[0.04] dark:hover:bg-[#FFF0DC]/[0.05]"
                   >
                     <AvatarBadge
                       name={target?.displayName || req.toName || 'Member'}
@@ -304,12 +304,12 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                     />
                     <span className="min-w-0 flex-1">
                       <span className="flex items-baseline justify-between gap-2">
-                        <span className="truncate text-[0.86rem] font-medium text-[#202630] dark:text-[#F2F4F7]">
+                        <span className="truncate text-[0.86rem] font-medium text-[#2A0A0D] dark:text-[#FFF0DC]">
                           {target?.displayName || req.toName || 'Member'}
                         </span>
-                        <span className="shrink-0 text-[0.72rem] text-[#C49A52]">Pending</span>
+                        <span className="shrink-0 text-[0.72rem] text-[#B45309] dark:text-[#FBBF24]">Pending</span>
                       </span>
-                      <span className="block truncate text-[0.76rem] text-[#677280] dark:text-[#77818F]">
+                      <span className="block truncate text-[0.76rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                         Awaiting approval
                       </span>
                     </span>
@@ -327,7 +327,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
     if (matchedPeople.length === 0) return null;
     return (
       <div className="space-y-1.5">
-        <div className="px-2 text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+        <div className="px-2 text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
           People on NEXORA · {matchedPeople.length}
         </div>
         <div className="space-y-1">
@@ -336,7 +336,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
               key={u.id}
               type="button"
               onClick={() => void bridge?.openPendingPeer(u.id)}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.04] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+              className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition-colors hover:bg-[#2A0A0D]/[0.04] dark:hover:bg-[#FFF0DC]/[0.05] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
             >
               <AvatarBadge
                 name={u.displayName}
@@ -347,14 +347,14 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
               />
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
-                  <span className="truncate text-[0.86rem] font-medium text-[#202630] dark:text-[#F2F4F7]">
+                  <span className="truncate text-[0.86rem] font-medium text-[#2A0A0D] dark:text-[#FFF0DC]">
                     {u.displayName}
                   </span>
-                  <span className="shrink-0 text-[0.74rem] font-medium text-[#4777DF]">
+                  <span className="shrink-0 text-[0.74rem] font-semibold text-[#790B13] dark:text-[#F7E1D3]">
                     Connect
                   </span>
                 </span>
-                <span className="block truncate text-[0.76rem] text-[#677280] dark:text-[#77818F]">
+                <span className="block truncate text-[0.76rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                   @{u.username}
                 </span>
               </span>
@@ -370,12 +370,12 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
       aria-label="Conversations list"
       className={`${
         snapshot.dmThreadActiveMobile ? 'hidden md:flex' : 'flex'
-      } h-full w-full shrink-0 flex-col border-r border-black/[0.09] bg-white dark:border-white/[0.09] dark:bg-[#171C23] md:w-[328px] xl:w-[356px]`}
+      } h-full w-full shrink-0 flex-col border-r border-[#E8D3B8] bg-[#FFF8EE] dark:border-[#FFF0DC]/15 dark:bg-[#260A0D] md:w-[328px] xl:w-[356px]`}
     >
       {/* Header */}
-      <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-black/[0.09] px-4 dark:border-white/[0.09]">
+      <div className="flex h-16 shrink-0 items-center justify-between gap-2 border-b border-[#E8D3B8] px-4 dark:border-[#FFF0DC]/15">
         <div className="min-w-0">
-          <h2 className="truncate text-[1.125rem] font-semibold tracking-tight text-[#202630] dark:text-[#F2F4F7]">
+          <h2 className="truncate font-['Playfair_Display',serif] text-[1.2rem] font-bold tracking-tight text-[#2A0A0D] dark:text-[#FFF0DC]">
             Messages
           </h2>
         </div>
@@ -386,7 +386,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             onClick={() => bridge?.openNewGroupModal()}
             title="New group chat"
             aria-label="New group chat"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] transition-colors hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] transition-colors hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
           >
             <Plus size={18} />
           </button>
@@ -397,7 +397,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             title="Messages options"
             aria-label="Messages options"
             aria-expanded={menuOpen}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#596473] transition-colors hover:bg-black/[0.05] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06] dark:hover:text-[#F2F4F7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#4777DF]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-xl text-[#6B4A4D] transition-colors hover:bg-[#790B13]/10 hover:text-[#790B13] dark:text-[#C89D8B] dark:hover:bg-[#FFF0DC]/10 dark:hover:text-[#FFF0DC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#790B13]"
           >
             <MoreHorizontal size={18} />
           </button>
@@ -405,7 +405,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
           {menuOpen && (
             <div
               role="menu"
-              className="absolute right-0 top-11 z-40 w-60 rounded-xl border border-black/[0.1] bg-white p-1.5 shadow-xl dark:border-white/[0.1] dark:bg-[#1D232C]"
+              className="absolute right-0 top-11 z-40 w-60 rounded-xl border border-[#E8D3B8] bg-[#FFF8EE] p-1.5 shadow-xl dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12]"
             >
               <button
                 type="button"
@@ -414,10 +414,10 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                   setMenuOpen(false);
                   bridge?.openNewGroupModal();
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>New Group Chat</span>
-                <Users size={14} className="text-[#77818F]" />
+                <Users size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
               <button
                 type="button"
@@ -426,10 +426,10 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                   setMenuOpen(false);
                   bridge?.openShareCommunityModal();
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>Share Community Invite Link</span>
-                <Share2 size={14} className="text-[#77818F]" />
+                <Share2 size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
               <button
                 type="button"
@@ -438,10 +438,10 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                   setMenuOpen(false);
                   bridge?.openJoinCommunityModal();
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>Join Community via Link</span>
-                <Link2 size={14} className="text-[#77818F]" />
+                <Link2 size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
               <button
                 type="button"
@@ -450,12 +450,12 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                   setMenuOpen(false);
                   bridge?.toggleShowArchivedDms();
                 }}
-                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#2A0A0D] hover:bg-[#790B13]/10 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
               >
                 <span>
                   {snapshot.showArchivedDms ? 'Hide Archived Chats' : 'Show Archived Chats'}
                 </span>
-                <Archive size={14} className="text-[#77818F]" />
+                <Archive size={14} className="text-[#6B4A4D] dark:text-[#C89D8B]" />
               </button>
             </div>
           )}
@@ -463,12 +463,12 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
       </div>
 
       {/* Search + Segmented Filter */}
-      <div className="shrink-0 space-y-3 border-b border-black/[0.06] px-3.5 py-3 dark:border-white/[0.06]">
+      <div className="shrink-0 space-y-3 border-b border-[#E8D3B8]/80 px-3.5 py-3 dark:border-[#FFF0DC]/10">
         <div className="relative flex items-center">
           <Search
             size={15}
             aria-hidden="true"
-            className="pointer-events-none absolute left-3 text-[#677280] dark:text-[#77818F]"
+            className="pointer-events-none absolute left-3 text-[#6B4A4D] dark:text-[#C89D8B]"
           />
           <input
             ref={searchInputRef}
@@ -477,7 +477,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             onChange={(e) => bridge?.setDmSearchQuery(e.target.value)}
             placeholder="Search chats, names, or @handles..."
             aria-label="Search conversations and people"
-            className="h-9 w-full rounded-xl border border-black/[0.09] bg-[#F5F6F8] pl-9 pr-8 text-[0.85rem] text-[#202630] placeholder:text-[#677280] focus:border-[#4777DF] focus:outline-none dark:border-white/[0.09] dark:bg-[#1D232C] dark:text-[#F2F4F7] dark:placeholder:text-[#77818F]"
+            className="h-9 w-full rounded-xl border border-[#E8D3B8] bg-[#F7E5CE] pl-9 pr-8 text-[0.85rem] text-[#2A0A0D] placeholder:text-[#6B4A4D] focus:border-[#790B13] focus:outline-none dark:border-[#FFF0DC]/15 dark:bg-[#2D0E12] dark:text-[#FFF0DC] dark:placeholder:text-[#C89D8B]"
           />
           {snapshot.dmSearchQuery.trim() && (
             <button
@@ -487,7 +487,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                 searchInputRef.current?.focus();
               }}
               aria-label="Clear search"
-              className="absolute right-2 inline-flex h-6 w-6 items-center justify-center rounded-md text-[#677280] hover:text-[#202630] dark:text-[#77818F] dark:hover:text-[#F2F4F7]"
+              className="absolute right-2 inline-flex h-6 w-6 items-center justify-center rounded-md text-[#6B4A4D] hover:text-[#2A0A0D] dark:text-[#C89D8B] dark:hover:text-[#FFF0DC]"
             >
               <X size={14} />
             </button>
@@ -497,7 +497,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
         <div
           role="tablist"
           aria-label="Conversation filters"
-          className="grid grid-cols-4 gap-1 rounded-xl bg-[#EBEEF2] p-1 dark:bg-[#1D232C]"
+          className="grid grid-cols-4 gap-1 rounded-xl bg-[#F7E5CE] p-1 dark:bg-[#2D0E12]"
         >
           {tabs.map((tab) => {
             const selected = snapshot.dmInboxTab === tab.id;
@@ -510,15 +510,15 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
                 onClick={() => bridge?.setDmInboxTab(tab.id)}
                 className={`flex items-center justify-center gap-1 rounded-lg px-2 py-1.5 text-[0.76rem] font-medium whitespace-nowrap transition-colors ${
                   selected
-                    ? 'bg-white text-[#202630] shadow-xs dark:bg-[#242B35] dark:text-[#F2F4F7]'
-                    : 'text-[#596473] hover:text-[#202630] dark:text-[#A8B0BB] dark:hover:text-[#F2F4F7]'
+                    ? 'bg-[#FFF8EE] text-[#2A0A0D] shadow-xs dark:bg-[#790B13] dark:text-[#FFF0DC]'
+                    : 'text-[#6B4A4D] hover:text-[#2A0A0D] dark:text-[#C89D8B] dark:hover:text-[#FFF0DC]'
                 }`}
               >
                 <span>{tab.label}</span>
                 {typeof tab.count === 'number' && tab.count > 0 && (
                   <span
                     className={`text-[0.68rem] tabular-nums ${
-                      selected ? 'text-[#4777DF]' : 'text-[#677280] dark:text-[#77818F]'
+                      selected ? 'text-[#790B13] dark:text-[#FFF0DC]' : 'text-[#6B4A4D] dark:text-[#C89D8B]'
                     }`}
                   >
                     {tab.count}
@@ -535,7 +535,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
         {snapshot.dmError && (
           <div
             role="alert"
-            className="flex items-center justify-between gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-[0.8rem] text-red-600 dark:text-red-300"
+            className="flex items-center justify-between gap-2 rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-[0.8rem] text-red-700 dark:text-red-300"
           >
             <span>{snapshot.dmError}</span>
             <button
@@ -552,7 +552,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
           <>
             {visibleDms.length > 0 && (
               <div className="space-y-1">
-                <div className="px-2 text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+                <div className="px-2 text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
                   Conversations · {visibleDms.length}
                 </div>
                 {visibleDms.map(renderDmRow)}
@@ -562,13 +562,13 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             {renderPeopleDiscovery(14)}
             {visibleDms.length === 0 && matchedPeople.length === 0 && reqCount === 0 && (
               <div className="px-4 py-8 text-center">
-                <p className="text-[0.84rem] text-[#596473] dark:text-[#A8B0BB]">
+                <p className="text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                   No matching conversations or people found for "{snapshot.dmSearchQuery.trim()}".
                 </p>
                 <button
                   type="button"
                   onClick={() => bridge?.setDmSearchQuery('')}
-                  className="mt-3 rounded-lg border border-black/[0.1] px-3 py-1.5 text-[0.78rem] font-medium text-[#202630] hover:bg-black/[0.04] dark:border-white/[0.1] dark:text-[#F2F4F7] dark:hover:bg-white/[0.05]"
+                  className="mt-3 rounded-lg border border-[#E8D3B8] px-3 py-1.5 text-[0.78rem] font-medium text-[#2A0A0D] hover:bg-[#790B13]/10 dark:border-[#FFF0DC]/15 dark:text-[#FFF0DC] dark:hover:bg-[#FFF0DC]/10"
                 >
                   Clear Search
                 </button>
@@ -577,13 +577,13 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
           </>
         ) : snapshot.dmInboxTab === 'unread' ? (
           <div className="space-y-1">
-            <div className="px-2 text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+            <div className="px-2 text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
               Unread · {unreadDms.length}
             </div>
             {unreadDms.length > 0 ? (
               unreadDms.map(renderDmRow)
             ) : (
-              <p className="px-3 py-6 text-center text-[0.84rem] text-[#677280] dark:text-[#77818F]">
+              <p className="px-3 py-6 text-center text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                 You are all caught up. No unread messages right now.
               </p>
             )}
@@ -593,7 +593,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             {renderRequestsBlock()}
             {renderPeopleDiscovery(12)}
             {reqCount === 0 && matchedPeople.length === 0 && (
-              <p className="px-3 py-6 text-center text-[0.84rem] text-[#677280] dark:text-[#77818F]">
+              <p className="px-3 py-6 text-center text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                 No message requests right now.
               </p>
             )}
@@ -601,13 +601,13 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
         ) : snapshot.dmInboxTab === 'groups' ? (
           <div className="space-y-2">
             <div className="flex items-center justify-between px-2">
-              <span className="text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+              <span className="text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
                 Group Chats · {groupDms.length}
               </span>
               <button
                 type="button"
                 onClick={() => bridge?.openNewGroupModal()}
-                className="inline-flex items-center gap-1 text-[0.76rem] font-medium text-[#4777DF] hover:underline"
+                className="inline-flex items-center gap-1 text-[0.76rem] font-semibold text-[#790B13] hover:underline dark:text-[#F7E1D3]"
               >
                 <Plus size={13} />
                 New Group
@@ -616,7 +616,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             {groupDms.length > 0 ? (
               groupDms.map(renderDmRow)
             ) : (
-              <p className="px-3 py-6 text-center text-[0.84rem] text-[#677280] dark:text-[#77818F]">
+              <p className="px-3 py-6 text-center text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                 No group conversations yet. Start one with New Group.
               </p>
             )}
@@ -626,13 +626,13 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             {incomingPending.length > 0 && renderRequestsBlock()}
             <div className="space-y-1">
               <div className="flex items-center justify-between px-2 pb-0.5">
-                <span className="text-[0.72rem] font-semibold text-[#677280] dark:text-[#77818F]">
+                <span className="text-[0.72rem] font-semibold text-[#6B4A4D] dark:text-[#C89D8B]">
                   Conversations · {visibleDms.length}
                 </span>
                 <button
                   type="button"
                   onClick={() => bridge?.openNewGroupModal()}
-                  className="inline-flex items-center gap-1 text-[0.76rem] font-medium text-[#4777DF] hover:underline"
+                  className="inline-flex items-center gap-1 text-[0.76rem] font-semibold text-[#790B13] hover:underline dark:text-[#F7E1D3]"
                 >
                   <Plus size={13} />
                   New
@@ -641,7 +641,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
               {visibleDms.length > 0 ? (
                 visibleDms.map(renderDmRow)
               ) : (
-                <p className="px-3 py-6 text-center text-[0.84rem] text-[#677280] dark:text-[#77818F]">
+                <p className="px-3 py-6 text-center text-[0.84rem] text-[#6B4A4D] dark:text-[#C89D8B]">
                   No conversations yet. Search a handle or check Requests to connect.
                 </p>
               )}
@@ -655,7 +655,7 @@ export const ConversationPanel: React.FC<ConversationPanelProps> = ({ snapshot, 
             <button
               type="button"
               onClick={() => bridge?.toggleShowArchivedDms()}
-              className="text-[0.76rem] font-medium text-[#677280] hover:text-[#202630] dark:text-[#77818F] dark:hover:text-[#F2F4F7]"
+              className="text-[0.76rem] font-medium text-[#6B4A4D] hover:text-[#2A0A0D] dark:text-[#C89D8B] dark:hover:text-[#FFF0DC]"
             >
               {snapshot.showArchivedDms
                 ? `Hide archived (${archivedCount})`

@@ -3,53 +3,53 @@
    ========================================================================== */
 
 :root,
-:root[data-theme="dark"],
-:root[data-theme="navy-dark"] {
-  --nx-canvas: var(--nx-bg, #101318);
-  --nx-sidebar-bg: var(--nx-bg-secondary, #171C23);
-  --nx-header-bg: var(--nx-glass-bg, rgba(23, 28, 35, 0.84));
-  --nx-card-bg: var(--nx-surface, #1D232C);
-  --nx-card-soft: var(--nx-surface-elevated, #242B35);
-  --nx-input-bg: #181D25;
-  --nx-border: rgba(255, 255, 255, 0.09);
-  --nx-border-strong: rgba(255, 255, 255, 0.16);
-  --nx-text: #F2F4F7;
-  --nx-text-secondary: #A8B0BB;
-  --nx-text-muted: #8C96A5;
-  --nx-hover: rgba(71, 119, 223, 0.12);
-  --nx-shadow: 0 14px 36px rgba(0, 0, 0, 0.42);
-  --nx-shadow-card: 0 6px 24px rgba(0, 0, 0, 0.32);
-  --nx-live-card-bg: linear-gradient(145deg, rgba(71, 119, 223, 0.16) 0%, rgba(196, 154, 82, 0.10) 100%);
-  --nx-live-card-border: rgba(71, 119, 223, 0.34);
-  --nx-live-card-text: #F2F4F7;
-  --nx-live-btn-bg: #3868CE;
-  --nx-live-btn-text: #FFFFFF;
-  --nx-badge-red: #C49A52;
-  --nx-ring-bg: #171C23;
+:root[data-theme="light"] {
+  --nx-canvas: var(--nx-bg, #FFF0DC);
+  --nx-sidebar-bg: var(--nx-surface, #FFF8EE);
+  --nx-header-bg: var(--nx-glass-bg, rgba(255, 248, 238, 0.92));
+  --nx-card-bg: var(--nx-surface, #FFF8EE);
+  --nx-card-soft: var(--nx-bg-secondary, #F7E5CE);
+  --nx-input-bg: #F7E5CE;
+  --nx-border: #E8D3B8;
+  --nx-border-strong: #D7BA98;
+  --nx-text: #2A0A0D;
+  --nx-text-secondary: #6B4A4D;
+  --nx-text-muted: #6B4A4D;
+  --nx-hover: rgba(121, 11, 19, 0.08);
+  --nx-shadow: 0 8px 24px rgba(42, 10, 13, 0.08);
+  --nx-shadow-card: 0 4px 16px rgba(42, 10, 13, 0.06);
+  --nx-live-card-bg: linear-gradient(145deg, #FFF8EE 0%, #F7E1D3 100%);
+  --nx-live-card-border: rgba(121, 11, 19, 0.24);
+  --nx-live-card-text: #2A0A0D;
+  --nx-live-btn-bg: #790B13;
+  --nx-live-btn-text: #FFF0DC;
+  --nx-badge-red: #790B13;
+  --nx-ring-bg: #FFF8EE;
 }
 
-:root[data-theme="light"] {
-  --nx-canvas: var(--nx-bg, #F5F6F8);
-  --nx-sidebar-bg: var(--nx-surface, #FFFFFF);
-  --nx-header-bg: var(--nx-glass-bg, rgba(255, 255, 255, 0.90));
-  --nx-card-bg: var(--nx-surface, #FFFFFF);
-  --nx-card-soft: var(--nx-bg-secondary, #EBEEF2);
-  --nx-input-bg: #EBEEF2;
-  --nx-border: rgba(32, 38, 48, 0.09);
-  --nx-border-strong: rgba(32, 38, 48, 0.16);
-  --nx-text: #202630;
-  --nx-text-secondary: #596473;
-  --nx-text-muted: #677280;
-  --nx-hover: rgba(56, 104, 200, 0.08);
-  --nx-shadow: 0 6px 24px rgba(32, 38, 48, 0.08);
-  --nx-shadow-card: 0 2px 14px rgba(32, 38, 48, 0.05);
-  --nx-live-card-bg: linear-gradient(145deg, #EEF3FC 0%, #F7F4EE 100%);
-  --nx-live-card-border: rgba(56, 104, 200, 0.24);
-  --nx-live-card-text: #202630;
-  --nx-live-btn-bg: #3868C8;
-  --nx-live-btn-text: #FFFFFF;
-  --nx-badge-red: #A67B38;
-  --nx-ring-bg: #FFFFFF;
+:root[data-theme="dark"],
+:root[data-theme="navy-dark"] {
+  --nx-canvas: var(--nx-bg, #1B0709);
+  --nx-sidebar-bg: var(--nx-bg-secondary, #260A0D);
+  --nx-header-bg: var(--nx-glass-bg, rgba(38, 10, 13, 0.88));
+  --nx-card-bg: var(--nx-surface, #2D0E12);
+  --nx-card-soft: var(--nx-surface-elevated, #3A1419);
+  --nx-input-bg: #260A0D;
+  --nx-border: rgba(255, 240, 220, 0.14);
+  --nx-border-strong: rgba(255, 240, 220, 0.24);
+  --nx-text: #FFF0DC;
+  --nx-text-secondary: #E4C7B2;
+  --nx-text-muted: #C89D8B;
+  --nx-hover: rgba(255, 240, 220, 0.09);
+  --nx-shadow: 0 14px 36px rgba(15, 3, 4, 0.48);
+  --nx-shadow-card: 0 6px 24px rgba(15, 3, 4, 0.36);
+  --nx-live-card-bg: linear-gradient(145deg, rgba(121, 11, 19, 0.34) 0%, rgba(92, 8, 16, 0.22) 100%);
+  --nx-live-card-border: rgba(255, 240, 220, 0.22);
+  --nx-live-card-text: #FFF0DC;
+  --nx-live-btn-bg: #9E1B24;
+  --nx-live-btn-text: #FFF0DC;
+  --nx-badge-red: #F7E1D3;
+  --nx-ring-bg: #260A0D;
 }
 
 /* Shell Frame */
@@ -682,9 +682,9 @@
   border: 2px solid var(--nx-card-bg);
 }
 
-.nx-online-dot.busy { background: #F87171; }
-.nx-online-dot.idle { background: #C49A52; }
-.nx-online-dot.offline { background: #8C96A5; }
+.nx-online-dot.busy { background: #9F1239; }
+.nx-online-dot.idle { background: #B45309; }
+.nx-online-dot.offline { background: #6B4A4D; }
 
 /* Workspace Body Containers */
 .nx-workspace-area {
@@ -1013,7 +1013,7 @@
   overflow: hidden;
   border: 1px solid var(--nx-border);
   aspect-ratio: 4/3;
-  background: #0F1022;
+  background: #2A0A0D;
 }
 
 .nx-media-thumb-box img,
@@ -1032,8 +1032,8 @@
   height: 24px;
   border-radius: 999px;
   border: none;
-  background: rgba(16, 17, 36, 0.78);
-  color: #FFFFFF;
+  background: rgba(42, 10, 13, 0.84);
+  color: #FFF0DC;
   display: grid;
   place-items: center;
 }
@@ -1101,7 +1101,7 @@
 .nx-tab-chip.active {
   background: var(--nx-grad);
   border-color: transparent;
-  color: #FFFFFF;
+  color: #FFF0DC;
 }
 
 /* Social Feed Post Card */
@@ -1140,8 +1140,8 @@
   width: 16px;
   height: 16px;
   border-radius: 999px;
-  background: #286BFF;
-  color: #FFFFFF;
+  background: #790B13;
+  color: #FFF0DC;
   display: inline-grid;
   place-items: center;
   font-size: 0.65rem;
@@ -1196,7 +1196,7 @@
   max-height: 440px;
   object-fit: cover;
   display: block;
-  background: #0B0C1C;
+  background: #2A0A0D;
 }
 
 .nx-post-footer {
@@ -1358,7 +1358,7 @@
   position: relative;
   border-radius: 22px;
   overflow: hidden;
-  background: #090915;
+  background: #1B0709;
   aspect-ratio: 9 / 16;
   max-height: 76vh;
   border: 1px solid var(--nx-border-strong);

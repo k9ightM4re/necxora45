@@ -39,7 +39,7 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
       style={{ width: size, height: size }}
     >
       {isGroup ? (
-        <span className="flex h-full w-full items-center justify-center rounded-full bg-[#4777DF]/15 text-[#4777DF] border border-[#4777DF]/25">
+        <span className="flex h-full w-full items-center justify-center rounded-full bg-[#790B13]/12 text-[#790B13] border border-[#790B13]/25 dark:bg-[#790B13]/30 dark:text-[#FFF0DC]">
           <Users size={Math.max(14, Math.round(size * 0.44))} aria-hidden="true" />
         </span>
       ) : safeAvatar ? (
@@ -48,11 +48,11 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
           alt={name}
           referrerPolicy="no-referrer"
           onError={() => setImgFailed(true)}
-          className="h-full w-full rounded-full object-cover border border-black/10 dark:border-white/10"
+          className="h-full w-full rounded-full object-cover border border-[#E8D3B8] dark:border-[#FFF0DC]/15"
         />
       ) : (
         <span
-          className="flex h-full w-full items-center justify-center rounded-full bg-[#242B35] text-[#F2F4F7] font-semibold tracking-tight border border-white/10"
+          className="flex h-full w-full items-center justify-center rounded-full bg-[#790B13] text-[#FFF0DC] font-semibold tracking-tight border border-[#E8D3B8]/40"
           style={{ fontSize: Math.max(11, Math.round(size * 0.36)) }}
         >
           {fallbackInitials}
@@ -62,7 +62,7 @@ export const AvatarBadge: React.FC<AvatarBadgeProps> = ({
       {!isGroup && isOnline && (
         <span
           aria-label="Online"
-          className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white dark:ring-[#171C23]"
+          className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-600 ring-2 ring-[#FFF8EE] dark:ring-[#260A0D]"
         />
       )}
     </span>

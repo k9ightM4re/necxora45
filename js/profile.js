@@ -219,11 +219,11 @@ export async function updateUserProfile(uid, updates) {
 export function getCartoonAvatarSvg(userId, displayName, size = 40) {
   const hash = Array.from(String(userId || 'nx')).reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const palettes = [
-    ['#FF7A2F', '#FFB03A', '#111D33'],
-    ['#2563EB', '#38BDF8', '#0B1424'],
-    ['#16A34A', '#4ADE80', '#064E3B'],
-    ['#3868CE', '#4777DF', '#1D232C'],
-    ['#C49A52', '#E0B873', '#242B35'],
+    ['#790B13', '#B91C1C', '#2A0A0D'],
+    ['#9A3412', '#EA580C', '#431407'],
+    ['#B45309', '#D97706', '#451A03'],
+    ['#5C0810', '#790B13', '#1B0709'],
+    ['#881337', '#BE123C', '#2A0A0D'],
   ];
   const palette = palettes[hash % palettes.length];
   const initials = getInitials(displayName || 'Member');
@@ -231,11 +231,11 @@ export function getCartoonAvatarSvg(userId, displayName, size = 40) {
 
   let innerArt = '';
   if (monsterType === 0) {
-    innerArt = `<rect x="8" y="8" width="24" height="20" rx="6" fill="${palette[1]}"/><circle cx="16" cy="16" r="3" fill="#ffffff"/><circle cx="24" cy="16" r="3" fill="#ffffff"/><circle cx="16" cy="16" r="1.2" fill="#0b1424"/><circle cx="24" cy="16" r="1.2" fill="#0b1424"/><rect x="15" y="22" width="10" height="3" rx="1.5" fill="#ffffff"/><line x1="20" y1="8" x2="20" y2="4" stroke="${palette[1]}" stroke-width="2"/><circle cx="20" cy="3" r="2" fill="${palette[0]}"/>`;
+    innerArt = `<rect x="8" y="8" width="24" height="20" rx="6" fill="${palette[1]}"/><circle cx="16" cy="16" r="3" fill="#FFF0DC"/><circle cx="24" cy="16" r="3" fill="#FFF0DC"/><circle cx="16" cy="16" r="1.2" fill="#2A0A0D"/><circle cx="24" cy="16" r="1.2" fill="#2A0A0D"/><rect x="15" y="22" width="10" height="3" rx="1.5" fill="#FFF0DC"/><line x1="20" y1="8" x2="20" y2="4" stroke="${palette[1]}" stroke-width="2"/><circle cx="20" cy="3" r="2" fill="${palette[0]}"/>`;
   } else if (monsterType === 1) {
-    innerArt = `<circle cx="20" cy="20" r="14" fill="${palette[1]}"/><circle cx="14" cy="17" r="3.5" fill="#ffffff"/><circle cx="26" cy="17" r="3.5" fill="#ffffff"/><circle cx="14" cy="17" r="1.5" fill="#0b1424"/><circle cx="26" cy="17" r="1.5" fill="#0b1424"/><path d="M15 24 Q20 28 25 24" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round"/><polygon points="10,8 14,13 16,10" fill="${palette[0]}"/><polygon points="30,8 26,13 24,10" fill="${palette[0]}"/>`;
+    innerArt = `<circle cx="20" cy="20" r="14" fill="${palette[1]}"/><circle cx="14" cy="17" r="3.5" fill="#FFF0DC"/><circle cx="26" cy="17" r="3.5" fill="#FFF0DC"/><circle cx="14" cy="17" r="1.5" fill="#2A0A0D"/><circle cx="26" cy="17" r="1.5" fill="#2A0A0D"/><path d="M15 24 Q20 28 25 24" stroke="#FFF0DC" stroke-width="2" fill="none" stroke-linecap="round"/><polygon points="10,8 14,13 16,10" fill="${palette[0]}"/><polygon points="30,8 26,13 24,10" fill="${palette[0]}"/>`;
   } else {
-    innerArt = `<circle cx="20" cy="20" r="15" fill="${palette[1]}"/><text x="20" y="25" text-anchor="middle" fill="#ffffff" font-weight="800" font-size="14" font-family="system-ui">${initials}</text><circle cx="12" cy="12" r="2" fill="${palette[0]}"/><circle cx="28" cy="28" r="2" fill="${palette[0]}"/>`;
+    innerArt = `<circle cx="20" cy="20" r="15" fill="${palette[1]}"/><text x="20" y="25" text-anchor="middle" fill="#FFF0DC" font-weight="800" font-size="14" font-family="'DM Sans', system-ui">${initials}</text><circle cx="12" cy="12" r="2" fill="${palette[0]}"/><circle cx="28" cy="28" r="2" fill="${palette[0]}"/>`;
   }
 
   return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="cartoon-avatar-svg" style="border-radius:50%;background:linear-gradient(135deg, ${palette[0]}, ${palette[2]});box-shadow:0 2px 8px rgba(0,0,0,0.2);flex-shrink:0;">${innerArt}</svg>`;

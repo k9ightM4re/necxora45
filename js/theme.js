@@ -3,8 +3,8 @@ import { NEXORA_THEMES, normalizeThemePreference } from './social_utils.js';
 export const THEME_STORAGE_KEY = 'nexora_theme';
 
 export const THEME_META = [
-  { id: 'dark', label: 'Dark (Graphite)', short: 'Dark', swatch: '#4777DF' },
-  { id: 'light', label: 'Light', short: 'Light', swatch: '#3868C8' },
+  { id: 'light', label: 'Warm Ivory (Editorial)', short: 'Ivory', swatch: '#790B13' },
+  { id: 'dark', label: 'Deep Burgundy', short: 'Burgundy', swatch: '#2A0A0D' },
 ];
 
 export function getStoredTheme() {
@@ -17,19 +17,20 @@ export function getStoredTheme() {
       if (parsed?.theme) return normalizeThemePreference(parsed.theme);
     }
   } catch {}
-  // Dark is the official Nexora default theme
-  return 'dark';
+  // Warm Ivory Editorial is the official Nexora default theme
+  return 'light';
 }
 
 function commitThemeDom(normalized) {
   if (typeof document === 'undefined') return;
   const isLight = normalized === 'light';
   document.documentElement.setAttribute('data-theme', normalized);
+  document.documentElement.classList.toggle('dark', !isLight);
   document.documentElement.style.colorScheme = isLight ? 'light' : 'dark';
 
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if (metaTheme) {
-    metaTheme.setAttribute('content', isLight ? '#F5F6F8' : '#101318');
+    metaTheme.setAttribute('content', isLight ? '#FFF0DC' : '#1B0709');
   }
 
   document.body?.classList.toggle('theme-dark', !isLight);

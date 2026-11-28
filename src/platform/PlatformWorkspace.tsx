@@ -60,7 +60,7 @@ class PlatformErrorBoundary extends Component<
           <button
             type="button"
             onClick={() => this.setState({ error: null })}
-            className="mt-4 rounded-lg bg-[#3868CE] px-3.5 py-1.5 text-xs font-semibold text-white"
+            className="mt-4 rounded-lg bg-[#790B13] px-3.5 py-1.5 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
           >
             Retry
           </button>
@@ -133,7 +133,7 @@ export const PlatformWorkspace: React.FC = () => {
                   onClick={() => handleNavigate(tab.id)}
                   className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
                     active
-                      ? 'bg-[#3868CE] text-white'
+                      ? 'bg-[#790B13] text-[#FFF0DC]'
                       : 'text-[var(--nx-text-secondary)] hover:bg-[var(--nx-card-soft)] hover:text-[var(--nx-text)]'
                   }`}
                 >

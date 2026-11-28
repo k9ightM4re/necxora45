@@ -1,6 +1,6 @@
 /* ==========================================================================
-   Nexora Authentication Pages — Graphite & Signal Blue Design System (v1.0)
-   Supports Dark (default) and Light themes via --nx-* CSS tokens
+   Nexora Authentication Pages — Warm Editorial Design System
+   Ivory Cream (#FFF0DC) + Deep Crimson Burgundy (#790B13)
    ========================================================================== */
 
 body {
@@ -8,22 +8,15 @@ body {
   min-height: 100vh;
   font-family: var(--font-sans);
   background-color: var(--nx-bg);
-  background-image:
-    radial-gradient(62% 48% at 50% 0%, rgba(71, 119, 223, 0.14) 0%, transparent 65%),
-    linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-  background-size: 100% 100%, 48px 48px, 48px 48px;
+  background-image: radial-gradient(70% 50% at 50% 0%, rgba(121, 11, 19, 0.06) 0%, transparent 65%);
   color: var(--nx-text-primary);
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
 }
 
-:root[data-theme="light"] body {
-  background-image:
-    radial-gradient(62% 48% at 50% 0%, rgba(56, 104, 200, 0.08) 0%, transparent 65%),
-    linear-gradient(to right, rgba(32, 38, 48, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(32, 38, 48, 0.03) 1px, transparent 1px);
+:root[data-theme="dark"] body {
+  background-image: radial-gradient(70% 50% at 50% 0%, rgba(121, 11, 19, 0.28) 0%, transparent 65%);
 }
 
 a {
@@ -38,8 +31,8 @@ select {
 }
 
 .auth-topbar {
-  height: 64px;
-  padding-inline: clamp(14px, 4vw, 28px);
+  height: 68px;
+  padding-inline: clamp(16px, 4vw, 32px);
   background-color: var(--nx-glass-bg);
   backdrop-filter: var(--nx-glass-blur);
   -webkit-backdrop-filter: var(--nx-glass-blur);
@@ -54,36 +47,37 @@ select {
 .auth-topbar-right {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .auth-theme-btn {
-  height: 32px;
-  padding: 0 11px;
-  border-radius: 999px;
-  border: 1px solid var(--nx-border-strong);
-  background-color: var(--nx-surface-elevated);
-  color: var(--nx-text-secondary);
-  font-size: 0.78rem;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--nx-border);
+  background-color: var(--nx-surface);
+  color: var(--nx-text-primary);
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 .auth-theme-btn:hover {
-  color: var(--nx-text-primary);
+  color: var(--nx-primary);
   border-color: var(--nx-primary);
+  background-color: var(--nx-primary-muted);
 }
 
 .back-link {
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 0.9rem;
+  font-weight: 600;
   color: var(--nx-text-secondary);
   transition: color var(--transition-fast);
 }
 
 .back-link:hover {
-  color: var(--nx-text-primary);
+  color: var(--nx-primary);
 }
 
 .brand-lockup {
@@ -91,67 +85,68 @@ select {
   align-items: center;
   gap: 9px;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: 700;
+  font-size: 1.15rem;
   letter-spacing: -0.02em;
-  color: var(--nx-text-primary);
+  color: var(--nx-primary);
 }
 
 .brand-lockup img {
   width: 26px;
   height: 26px;
-  border-radius: 7px;
+  border-radius: 8px;
 }
 
 .auth-main {
   flex: 1;
   display: grid;
   place-items: center;
-  padding: clamp(20px, 5vw, 42px) clamp(14px, 4vw, 22px);
-  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  padding: clamp(24px, 5vw, 48px) clamp(16px, 4vw, 24px);
+  padding-bottom: max(28px, env(safe-area-inset-bottom));
 }
 
 .auth-card {
   width: 100%;
-  max-width: 444px;
+  max-width: 452px;
   background-color: var(--nx-surface);
-  border: 1px solid var(--nx-border-strong);
-  border-radius: var(--radius-lg);
-  padding: 28px;
+  border: 1px solid var(--nx-border);
+  border-radius: 16px;
+  padding: 32px;
   box-shadow: var(--nx-glass-float-shadow);
   color: var(--nx-text-primary);
-  animation: nx-auth-card-in 480ms var(--ease-expo) both;
+  animation: nx-auth-card-in 320ms var(--ease-expo) both;
 }
 
 .auth-header {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .auth-header h1 {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-family: var(--font-display);
-  font-size: 1.48rem;
+  font-size: 1.75rem;
+  line-height: 1.2;
   font-weight: 700;
-  letter-spacing: -0.025em;
-  color: var(--nx-text-primary);
+  letter-spacing: -0.02em;
+  color: var(--nx-primary);
 }
 
 .auth-header p {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  color: var(--nx-text-secondary);
+  font-size: 0.96rem;
+  line-height: 1.55;
+  color: var(--nx-text-muted);
 }
 
 /* Google OAuth Button */
 .btn-google {
   width: 100%;
   height: 44px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--nx-border-strong);
-  background-color: var(--nx-surface-elevated);
+  border-radius: 12px;
+  border: 1px solid var(--nx-border);
+  background-color: var(--nx-bg);
   color: var(--nx-text-primary);
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   font-weight: 600;
   display: inline-flex;
   align-items: center;
@@ -159,11 +154,11 @@ select {
   gap: 10px;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 160ms ease;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-google:hover {
-  background-color: var(--nx-bg-secondary);
+  background-color: var(--nx-primary-muted);
   border-color: var(--nx-primary);
   transform: translateY(-1px);
 }
@@ -177,10 +172,9 @@ select {
   align-items: center;
   gap: 12px;
   color: var(--nx-text-muted);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   margin-block: 18px;
 }
 
@@ -198,19 +192,19 @@ select {
   grid-template-columns: 1fr 1fr;
   gap: 6px;
   padding: 4px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   background-color: var(--nx-bg-secondary);
   border: 1px solid var(--nx-border);
   margin-bottom: 16px;
 }
 
 .method-tab {
-  height: 34px;
+  height: 36px;
   border: none;
-  border-radius: 7px;
+  border-radius: 8px;
   background: transparent;
   color: var(--nx-text-secondary);
-  font-size: 0.84rem;
+  font-size: 0.88rem;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
@@ -219,7 +213,7 @@ select {
 
 .method-tab[aria-selected="true"] {
   background-color: var(--nx-primary-fill);
-  color: #ffffff;
+  color: #FFF0DC;
 }
 
 /* Secondary Mode Toggle inside Email: Email OTP vs Password */
@@ -259,7 +253,7 @@ select {
   background-color: var(--nx-surface-elevated);
   color: var(--nx-text-primary);
   border: 1px solid var(--nx-border-strong);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 6px rgba(42, 10, 13, 0.08);
 }
 
 .auth-session-gate {
@@ -280,7 +274,7 @@ select {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgba(255, 240, 220, 0.35);
   border-top-color: currentColor;
   display: inline-block;
   animation: nx-spin 0.75s linear infinite;
@@ -402,8 +396,8 @@ select {
   padding: 10px 12px;
   border-radius: var(--radius-sm);
   font-size: 0.84rem;
-  border: 1px solid rgba(248, 113, 113, 0.35);
-  background-color: rgba(248, 113, 113, 0.1);
+  border: 1px solid rgba(159, 18, 57, 0.35);
+  background-color: rgba(159, 18, 57, 0.08);
   color: var(--danger);
 }
 
@@ -412,23 +406,23 @@ select {
 }
 
 .form-alert.success {
-  border-color: rgba(52, 211, 153, 0.35);
-  background-color: rgba(52, 211, 153, 0.12);
+  border-color: rgba(21, 128, 61, 0.35);
+  background-color: rgba(21, 128, 61, 0.1);
   color: var(--success);
 }
 
 .btn-submit {
   width: 100%;
   height: 44px;
-  border-radius: var(--radius-sm);
+  border-radius: 12px;
   border: none;
   background-color: var(--nx-primary-fill);
-  color: #ffffff;
-  font-size: 0.92rem;
+  color: #FFF0DC;
+  font-size: 0.96rem;
   font-weight: 700;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color var(--transition-fast), transform 160ms ease;
+  transition: background-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-submit:hover:not(:disabled) {
@@ -448,15 +442,15 @@ select {
 .btn-secondary {
   width: 100%;
   height: 42px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--nx-border-strong);
-  background-color: var(--nx-surface-elevated);
+  border-radius: 12px;
+  border: 1px solid var(--nx-border);
+  background-color: var(--nx-bg);
   color: var(--nx-text-primary);
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   touch-action: manipulation;
-  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform 160ms ease;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
 }
 
 .btn-secondary:hover:not(:disabled) {

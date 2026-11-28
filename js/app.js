@@ -73,11 +73,11 @@ const KEYS = {
 };
 
 const ACCENTS = [
-  { name: 'Signal Blue', hex: '#3868CE', hover: '#2D58B8', soft: 'rgba(71, 119, 223, 0.14)', border: 'rgba(71, 119, 223, 0.36)' },
-  { name: 'Soft Amber', hex: '#C49A52', hover: '#B08843', soft: 'rgba(196, 154, 82, 0.14)', border: 'rgba(196, 154, 82, 0.38)' },
-  { name: 'Emerald', hex: '#34D399', hover: '#2BB885', soft: 'rgba(52, 211, 153, 0.14)', border: 'rgba(52, 211, 153, 0.38)' },
-  { name: 'Slate', hex: '#64748B', hover: '#475569', soft: 'rgba(100, 116, 139, 0.14)', border: 'rgba(100, 116, 139, 0.38)' },
-  { name: 'Graphite', hex: '#242B35', hover: '#1D232C', soft: 'rgba(36, 43, 53, 0.14)', border: 'rgba(36, 43, 53, 0.35)' },
+  { name: 'Editorial Crimson', hex: '#790B13', hover: '#5C0810', soft: 'rgba(121, 11, 19, 0.12)', border: 'rgba(121, 11, 19, 0.34)' },
+  { name: 'Deep Burgundy', hex: '#5C0810', hover: '#44060C', soft: 'rgba(92, 8, 16, 0.14)', border: 'rgba(92, 8, 16, 0.36)' },
+  { name: 'Warm Terracotta', hex: '#9A3412', hover: '#7C2D12', soft: 'rgba(154, 52, 18, 0.14)', border: 'rgba(154, 52, 18, 0.36)' },
+  { name: 'Amber Gold', hex: '#B45309', hover: '#92400E', soft: 'rgba(180, 83, 9, 0.14)', border: 'rgba(180, 83, 9, 0.36)' },
+  { name: 'Ivory Ink', hex: '#2A0A0D', hover: '#421217', soft: 'rgba(42, 10, 13, 0.12)', border: 'rgba(42, 10, 13, 0.32)' },
 ];
 
 const EMOJI_BANK = [
@@ -105,8 +105,8 @@ const EMOJI_BANK = [
 ];
 
 const DEFAULT_PREFS = {
-  theme: 'dark',
-  accent: '#3868CE',
+  theme: 'light',
+  accent: '#790B13',
   density: 'cozy',
   sidebarCollapsed: false,
   inspectorCollapsed: true,
@@ -4484,10 +4484,10 @@ function initShareBoardCanvas({ clear = false, titleText = '' } = {}) {
 
   const w = canvas.width;
   const h = canvas.height;
-  ctx.fillStyle = '#0b1424';
+  ctx.fillStyle = '#1B0709';
   ctx.fillRect(0, 0, w, h);
 
-  ctx.strokeStyle = 'rgba(148, 163, 184, 0.12)';
+  ctx.strokeStyle = 'rgba(255, 240, 220, 0.1)';
   ctx.lineWidth = 1;
   for (let x = 0; x <= w; x += 40) {
     ctx.beginPath();
@@ -4502,12 +4502,12 @@ function initShareBoardCanvas({ clear = false, titleText = '' } = {}) {
     ctx.stroke();
   }
 
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = '700 20px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#FFF0DC';
+  ctx.font = '700 20px "Playfair Display", Georgia, serif';
   ctx.fillText(titleText || `NEXORA Live Whiteboard • @${profile.username || 'member'}`, 22, 36);
 
-  ctx.fillStyle = '#94a3b8';
-  ctx.font = '400 14px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#E8D3B8';
+  ctx.font = '400 14px "DM Sans", system-ui, sans-serif';
   ctx.fillText('Draw with finger or mouse, add notes below, or load a screenshot to stream live.', 22, 60);
 
   paintShareLiveBadge(ctx, w);
@@ -4524,7 +4524,7 @@ function drawImageOntoShareCanvas(img, fileName = 'Shared Photo') {
 
   const w = canvas.width;
   const h = canvas.height;
-  ctx.fillStyle = '#0b1424';
+  ctx.fillStyle = '#1B0709';
   ctx.fillRect(0, 0, w, h);
 
   const pad = 24;
@@ -4538,10 +4538,10 @@ function drawImageOntoShareCanvas(img, fileName = 'Shared Photo') {
 
   ctx.drawImage(img, drawX, drawY, drawW, drawH);
 
-  ctx.fillStyle = 'rgba(11, 20, 36, 0.85)';
+  ctx.fillStyle = 'rgba(42, 10, 13, 0.88)';
   ctx.fillRect(0, 0, w, 50);
-  ctx.fillStyle = '#f8fafc';
-  ctx.font = '600 16px system-ui, -apple-system, sans-serif';
+  ctx.fillStyle = '#FFF0DC';
+  ctx.font = '600 16px "DM Sans", system-ui, sans-serif';
   ctx.fillText(`Shared Slide: ${fileName.slice(0, 48)}`, 20, 32);
   paintShareLiveBadge(ctx, w);
 

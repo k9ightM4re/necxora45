@@ -126,10 +126,10 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
           renderPipelineFrame(ctx, src, canvas.width, canvas.height, settings, ts);
         } else {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#171C23';
+          ctx.fillStyle = '#2A0A0D';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.fillStyle = '#9BA6B8';
-          ctx.font = '500 14px Inter, sans-serif';
+          ctx.fillStyle = '#FFF0DC';
+          ctx.font = '500 14px "DM Sans", sans-serif';
           ctx.textAlign = 'center';
           ctx.fillText(
             cameraError ? 'Upload a photo below or enable camera permission' : 'Connecting camera feed...',
@@ -301,12 +301,12 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
     <div className="mx-auto max-w-6xl space-y-6 pb-10">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-[#4777DF]">
+          <div className="inline-flex items-center gap-2 text-xs font-semibold tracking-wide text-[#790B13] dark:text-[#F2B8B5]">
             <Camera className="h-4 w-4" />
             <span>Nexora Camera</span>
           </div>
-          <h1 className="mt-1 text-2xl font-bold tracking-tight text-[var(--nx-text)]">
-            Outfit Capture, Studio Framing &amp; Visual Lookup
+          <h1 className="mt-1 font-display text-2xl font-bold tracking-tight text-[var(--nx-text)]">
+            Outfit capture, studio framing &amp; visual lookup
           </h1>
           <p className="mt-1 text-sm text-[var(--nx-text-secondary)]">
             Capture styled outfits or upload a photo with separated face effects, background presets, and garment framing guides.
@@ -321,18 +321,18 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
               setFacingMode(next);
               setSettings((s) => ({ ...s, mirrorPreview: next === 'user' }));
             }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <FlipHorizontal className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>{facingMode === 'user' ? 'Front Camera' : 'Rear Camera'}</span>
+            <FlipHorizontal className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>{facingMode === 'user' ? 'Front camera' : 'Rear camera'}</span>
           </button>
           <button
             type="button"
             onClick={() => onNavigate('visual-search')}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)]"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-2 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13]"
           >
-            <Search className="h-3.5 w-3.5 text-[#4777DF]" />
-            <span>Visual Search</span>
+            <Search className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+            <span>Visual search</span>
           </button>
         </div>
       </div>
@@ -340,7 +340,7 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
       {/* Separated Pipeline Telemetry Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-4 py-2.5 text-xs">
         <div className="flex items-center gap-2">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <span className="font-semibold text-[var(--nx-text)]">
             Tracking: {pipelineStatus.trackingBackend === 'mediapipe' ? 'MediaPipe Face Landmarker' : 'Canvas Guide'} ·
             Segmentation: {pipelineStatus.segmentationBackend === 'mediapipe' ? 'MediaPipe Selfie' : 'Canvas Vignette'}
@@ -353,10 +353,10 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
         <div
           className={`flex items-center justify-between rounded-xl border px-4 py-2.5 text-sm ${
             banner.tone === 'error'
-              ? 'border-red-500/40 bg-red-500/10 text-red-400'
+              ? 'border-red-600/35 bg-red-600/10 text-red-700 dark:text-red-300'
               : banner.tone === 'warn'
-                ? 'border-[#C49A52]/40 bg-[#C49A52]/10 text-[#C49A52]'
-                : 'border-[#4777DF]/40 bg-[#4777DF]/10 text-[#4777DF]'
+                ? 'border-[#B45309]/40 bg-[#B45309]/10 text-[#B45309] dark:text-amber-300'
+                : 'border-[#790B13]/35 bg-[#F7E1D3]/70 text-[#790B13] dark:bg-[#790B13]/20 dark:text-[#FFF0DC]'
           }`}
         >
           <span>{banner.text}</span>
@@ -369,12 +369,12 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
       <div className="grid gap-6 lg:grid-cols-12">
         {/* Live Canvas Viewport */}
         <div className="space-y-4 lg:col-span-7">
-          <div className="relative overflow-hidden rounded-2xl border border-[var(--nx-border)] bg-[#101318]">
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--nx-border)] bg-[#2A0A0D]">
             <video ref={videoRef} playsInline muted className="hidden" />
             <canvas ref={canvasRef} width={720} height={540} className="aspect-[4/3] w-full object-cover" />
             {recording && (
-              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-semibold text-white">
-                <span className="h-2 w-2 animate-pulse rounded-full bg-white" />
+              <div className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-[#790B13] px-3 py-1 text-xs font-semibold text-[#FFF0DC]">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-[#FFF0DC]" />
                 <span>REC</span>
               </div>
             )}
@@ -385,34 +385,34 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
               <button
                 type="button"
                 onClick={handleCapturePhoto}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#3868CE] px-4 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#790B13] px-4 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
               >
                 <Camera className="h-3.5 w-3.5" />
-                <span>Capture Photo</span>
+                <span>Capture photo</span>
               </button>
               <button
                 type="button"
                 onClick={handleToggleRecording}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold ${
+                className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold ${
                   recording
-                    ? 'bg-red-600 text-white'
+                    ? 'bg-red-700 text-[#FFF0DC]'
                     : 'border border-[var(--nx-border)] bg-[var(--nx-card-soft)] text-[var(--nx-text)]'
                 }`}
               >
                 <Video className="h-3.5 w-3.5" />
-                <span>{recording ? 'Stop Recording' : 'Record Clip'}</span>
+                <span>{recording ? 'Stop recording' : 'Record clip'}</span>
               </button>
             </div>
 
-            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-medium text-[var(--nx-text)] hover:border-[#4777DF]">
+            <label className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-3 py-2 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]">
               <Upload className="h-3.5 w-3.5" />
-              <span>Upload Photo Fallback</span>
+              <span>Upload photo fallback</span>
               <input type="file" accept="image/png,image/jpeg,image/webp" onChange={handleFallbackUpload} className="hidden" />
             </label>
           </div>
 
           {cameraError && (
-            <div className="rounded-xl border border-[#C49A52]/40 bg-[#C49A52]/10 px-4 py-3 text-xs text-[#C49A52]">
+            <div className="rounded-xl border border-[#B45309]/40 bg-[#B45309]/10 px-4 py-3 text-xs text-[#B45309] dark:text-amber-300">
               {cameraError}
             </div>
           )}
@@ -420,12 +420,12 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
           {recordedVideoUrl && (
             <div className="space-y-2 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
               <div className="flex items-center justify-between text-xs font-semibold text-[var(--nx-text)]">
-                <span>Recorded Video Clip</span>
-                <a href={recordedVideoUrl} download="nexora-camera-clip.webm" className="text-[#4777DF] hover:underline">
+                <span>Recorded video clip</span>
+                <a href={recordedVideoUrl} download="nexora-camera-clip.webm" className="text-[#790B13] hover:underline dark:text-[#F2B8B5]">
                   Download WebM
                 </a>
               </div>
-              <video src={recordedVideoUrl} controls className="max-h-56 w-full rounded-lg bg-black" />
+              <video src={recordedVideoUrl} controls className="max-h-56 w-full rounded-lg bg-[#2A0A0D]" />
             </div>
           )}
         </div>
@@ -434,13 +434,13 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
         <div className="space-y-5 lg:col-span-5">
           <section className="space-y-4 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--nx-text)]">
-              <Layers className="h-4 w-4 text-[#4777DF]" />
-              <span>Modular Pipeline Controls</span>
+              <Layers className="h-4 w-4 text-[#790B13] dark:text-[#F2B8B5]" />
+              <span>Modular pipeline controls</span>
             </h2>
 
             <div>
               <label className="mb-1 block text-xs font-medium text-[var(--nx-text-secondary)]">
-                Face Effects (Landmark Tracked)
+                Face effects (landmark tracked)
               </label>
               <select
                 value={settings.faceEffect}
@@ -456,7 +456,7 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
 
             <div>
               <label className="mb-1 block text-xs font-medium text-[var(--nx-text-secondary)]">
-                Background Segmentation
+                Background segmentation
               </label>
               <select
                 value={settings.backgroundEffect}
@@ -467,14 +467,14 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
               >
                 <option value="none">Natural Background</option>
                 <option value="portrait_blur">Portrait Depth Blur</option>
-                <option value="studio_graphite">Studio Graphite (#171C23)</option>
-                <option value="warm_linen">Warm Linen (#EBEEF2)</option>
+                <option value="studio_graphite">Studio Dark (#2A0A0D)</option>
+                <option value="warm_linen">Warm Ivory (#FFF0DC)</option>
               </select>
             </div>
 
             <div>
               <label className="mb-1 block text-xs font-medium text-[var(--nx-text-secondary)]">
-                Fashion Look Grade
+                Fashion look grade
               </label>
               <select
                 value={settings.colorGrade}
@@ -483,9 +483,9 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
               >
                 <option value="natural">Natural Balanced</option>
                 <option value="editorial_film">Editorial Film</option>
-                <option value="graphite_studio">Graphite Monochrome</option>
-                <option value="warm_linen">Warm Linen Daylight</option>
-                <option value="crisp_daylight">Crisp Retail True-Color</option>
+                <option value="graphite_studio">Editorial Monochrome</option>
+                <option value="warm_linen">Warm Ivory Daylight</option>
+                <option value="crisp_daylight">Crisp True-Color</option>
               </select>
             </div>
 
@@ -511,29 +511,29 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
 
           <section className="space-y-4 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4">
             <h2 className="flex items-center gap-2 text-sm font-semibold text-[var(--nx-text)]">
-              <ImageIcon className="h-4 w-4 text-[#C49A52]" />
-              <span>Captured Look Handoffs</span>
+              <ImageIcon className="h-4 w-4 text-[#B45309] dark:text-amber-300" />
+              <span>Captured look handoffs</span>
             </h2>
 
             {!previewUrl ? (
               <p className="text-xs text-[var(--nx-text-secondary)]">
-                Capture a frame or upload a photo to search matching Exchange garments, save privately to AI Style Studio, or publish to your Home feed.
+                Capture a frame or upload a photo to search matching Shop items, save privately to AI Style Studio, or publish to your Home feed.
               </p>
             ) : (
               <div className="space-y-3">
                 <img
                   src={previewUrl}
                   alt="Captured look preview"
-                  className="max-h-48 w-full rounded-lg border border-[var(--nx-border)] bg-black object-contain"
+                  className="max-h-48 w-full rounded-lg border border-[var(--nx-border)] bg-[#2A0A0D] object-contain"
                 />
 
                 <button
                   type="button"
                   onClick={handleSearchVisually}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#3868CE] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#4777DF]"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#790B13] px-3.5 py-2 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
                 >
                   <Search className="h-3.5 w-3.5" />
-                  <span>Search Visually in Nexora Exchange</span>
+                  <span>Search visually in Shop</span>
                 </button>
 
                 <div className="space-y-2 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] p-3">
@@ -557,7 +557,7 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
                     type="button"
                     disabled={busyAction !== null}
                     onClick={handleSaveToStudio}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#C49A52]/50 bg-[#C49A52]/15 px-3 py-1.5 text-xs font-semibold text-[#C49A52] disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[#B45309]/45 bg-[#B45309]/12 px-3 py-1.5 text-xs font-semibold text-[#B45309] dark:text-amber-300 disabled:opacity-50"
                   >
                     <Sparkles className="h-3.5 w-3.5" />
                     <span>{busyAction === 'studio' ? 'Saving...' : 'Save to AI Style Studio'}</span>
@@ -576,10 +576,10 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
                     type="button"
                     disabled={busyAction !== null}
                     onClick={handlePublishSocialPost}
-                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--nx-text)] hover:border-[#4777DF] disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--nx-text)] hover:border-[#790B13] disabled:opacity-50"
                   >
-                    <Send className="h-3.5 w-3.5 text-[#4777DF]" />
-                    <span>{busyAction === 'post' ? 'Publishing...' : 'Publish to Home Feed'}</span>
+                    <Send className="h-3.5 w-3.5 text-[#790B13] dark:text-[#F2B8B5]" />
+                    <span>{busyAction === 'post' ? 'Publishing...' : 'Publish to Home feed'}</span>
                   </button>
                 </div>
               </div>
