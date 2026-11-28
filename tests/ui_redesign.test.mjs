@@ -23,14 +23,13 @@ test('Two accessible themes (dark Graphite and light Daylight) are defined clean
   assert.ok(globalCss.includes('view-transition'));
 });
 
-test('Landing page enforces zero download/installer UI, SynApse-inspired hero, and Live Team Scene', () => {
+test('Landing page enforces zero download/installer UI, human-first hero, and workspace preview', () => {
   const html = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf8');
   const lower = html.toLowerCase();
 
-  assert.ok(html.includes('One network.'), 'Hero must include "One network." headline');
-  assert.ok(html.includes('Infinite possibilities.'), 'Hero must include "Infinite possibilities." headline');
-  assert.ok(html.includes('Explore Nexora'), 'Hero must include "Explore Nexora" primary CTA');
-  assert.ok(html.includes('id="live-team-scene-root"'), 'Must include Live Team Scene mount point');
+  assert.ok(html.includes('Real people.'), 'Hero must include "Real people." headline');
+  assert.ok(html.includes('Connected in real time.'), 'Hero must include "Connected in real time." headline');
+  assert.ok(html.includes('Explore Messaging'), 'Hero must include "Explore Messaging" primary CTA');
   assert.ok(html.includes('hero-mockup-perspective'), 'Hero must include perspective workspace preview');
 
   // Zero download or installer links/scripts on landing page
@@ -38,25 +37,23 @@ test('Landing page enforces zero download/installer UI, SynApse-inspired hero, a
   assert.ok(!lower.includes('installer'), 'Landing page must not contain installer links');
   assert.ok(!html.includes('/js/pwa.js'), 'Landing page must not load PWA install prompt script');
 
-  // Light/Dark switcher + Manrope / Inter / JetBrains Mono fonts
+  // Light/Dark switcher + Manrope / JetBrains Mono fonts
   assert.ok(html.includes('data-theme-switch'));
   assert.ok(html.includes('data-theme-choice="dark"'));
   assert.ok(html.includes('data-theme-choice="light"'));
-  assert.ok(
-    html.includes('Manrope') &&
-      html.includes('Inter') &&
-      html.includes('JetBrains+Mono')
-  );
+  assert.ok(html.includes('Manrope') && html.includes('JetBrains+Mono'));
   assert.ok(!html.includes('Bricolage+Grotesque'));
   assert.ok(!html.includes('Plus+Jakarta+Sans'));
 });
 
-test('app.html and app.css expose Social Circle, Light/Dark switcher, and Instagram-inspired DM inbox while keeping existing IDs', () => {
+test('app.html and app.css expose Social Circle, Light/Dark switcher, Feature Discovery, and DM inbox while keeping existing IDs', () => {
   const appHtml = fs.readFileSync(path.resolve(process.cwd(), 'app.html'), 'utf8');
   const appCss = fs.readFileSync(path.resolve(process.cwd(), 'css/app.css'), 'utf8');
   const appJs = fs.readFileSync(path.resolve(process.cwd(), 'js/app.js'), 'utf8');
 
   assert.ok(appHtml.includes('data-nx-nav="social-circle"'));
+  assert.ok(appHtml.includes('data-nx-nav="features"'));
+  assert.ok(appHtml.includes('data-nx-nav="marketplace"'));
   assert.ok(appHtml.includes('data-theme-select'));
   assert.ok(appHtml.includes('id="nx-theme-pill"'));
   assert.ok(appHtml.includes('id="leader-alert-modal"'));

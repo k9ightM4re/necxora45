@@ -63,6 +63,9 @@ import {
   filterAddableUsers,
   summarizeUserAlerts,
 } from './community_moderation.js';
+import { apiV1Fetch } from './api_v1.js';
+
+const DM_OUTBOX_KEY = 'nx_dm_outbox_v1';
 
 const KEYS = {
   PREFS: 'nexora_lite_prefs_v2',
@@ -1176,6 +1179,8 @@ function subscribeDmThreads(uid) {
         const d = docSnap.data();
         const isGroup = d.type === 'group';
         const other = isGroup ? null : resolveOtherParticipant(d, uid, directoryMap);
+        const deletedFor = Array.isArray(d.deletedFor) ? d.deletedFor : [];
+        if (deletedFor.includes(uid)) return;
         threads.push({
           id: docSnap.id,
           type: isGroup ? 'group' : 'dm',
@@ -1183,6 +1188,9 @@ function subscribeDmThreads(uid) {
           participants: d.participants || [],
           participantMeta: d.participantMeta || {},
           archivedBy: Array.isArray(d.archivedBy) ? d.archivedBy : [],
+          mutedBy: Array.isArray(d.mutedBy) ? d.mutedBy : [],
+          deletedFor,
+          memberRoles: d.memberRoles && typeof d.memberRoles === 'object' ? d.memberRoles : {},
           typing: d.typing && typeof d.typing === 'object' ? d.typing : {},
           createdBy: d.createdBy || '',
           userId: isGroup ? '' : other.id,
@@ -1967,11 +1975,19 @@ async function initWorkspaceForUser(fbUser, loadedProfile) {
 
   renderAll();
   const initialHash = typeof window !== 'undefined' ? window.location.hash || '' : '';
+  const hashSectionMap = {
+    '#features': 'features',
+    '#admin-feature-health': 'admin-feature-health',
+    '#marketplace': 'marketplace',
+    '#visual-search': 'visual-search',
+    '#studio': 'studio',
+    '#nearby': 'nearby',
+  };
   const initialSection = requestedServerMode
     ? 'communities'
     : initialHash.startsWith('#template')
       ? 'templates'
-      : 'home';
+      : hashSectionMap[initialHash] || 'home';
   if (initialSection === 'templates') {
     social.handleTemplateDeepLink(initialHash);
   }
@@ -4701,7 +4717,60 @@ async function logModerationAction(srv, actionText) {
   }
 }
 
-async function sendDmMessagePayload({ threadId, text, replyToId = null, attachment = null }) {
+function readDmOutbox() {
+  try {
+    const raw = localStorage.getItem(DM_OUTBOX_KEY);
+    const list = JSON.parse(raw || '[]');
+    return Array.isArray(list) ? list : [];
+  } catch {
+    return [];
+  }
+}
+
+function writeDmOutbox(list) {
+  try {
+    localStorage.setItem(DM_OUTBOX_KEY, JSON.stringify((list || []).slice(-40)));
+  } catch {}
+}
+
+let isFlushingOutbox = false;
+async function flushDmOutbox() {
+  if (isFlushingOutbox || !currentFirebaseUser || (typeof navigator !== 'undefined' && navigator.onLine === false)) return;
+  const queued = readDmOutbox();
+  if (queued.length === 0) return;
+  isFlushingOutbox = true;
+  const remaining = [];
+  for (const item of queued) {
+    try {
+      await apiV1Fetch(`/messages/threads/${encodeURIComponent(item.threadId)}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({
+          content: item.text,
+          clientMutationId: item.clientMutationId,
+          replyToId: item.replyToId || undefined,
+          attachment: item.attachment || undefined,
+        }),
+      });
+    } catch (err) {
+      if (!err?.status || err.status >= 500) {
+        remaining.push(item);
+      }
+    }
+  }
+  writeDmOutbox(remaining);
+  isFlushingOutbox = false;
+  if (remaining.length < queued.length) {
+    showToast('Offline messages delivered', 'success');
+  }
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    void flushDmOutbox();
+  });
+}
+
+async function sendDmMessagePayload({ threadId, text, replyToId = null, attachment = null, clientMutationId = '' }) {
   const activeDm = state.dms.find((d) => d.id === threadId);
   if (!activeDm || !currentFirebaseUser || !Array.isArray(activeDm.participants) || activeDm.participants.length < 2) {
     showToast('Select an accepted chat or group conversation first.');
@@ -4711,6 +4780,18 @@ async function sendDmMessagePayload({ threadId, text, replyToId = null, attachme
   const rawText = String(text || '').trim();
   if (!rawText && !attachment) return false;
   const messageText = (rawText || `[Attachment: ${attachment?.name || 'File'}]`).slice(0, 2000);
+  const mutationId =
+    clientMutationId ||
+    `mut-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    const outbox = readDmOutbox();
+    outbox.push({ threadId: activeDm.id, text: messageText, replyToId, attachment, clientMutationId: mutationId });
+    writeDmOutbox(outbox);
+    showToast('You are offline — message queued and will send when reconnected.');
+    return true;
+  }
+
   const msgId = `dmmsg-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   const payload = {
     id: msgId,
@@ -4720,6 +4801,7 @@ async function sendDmMessagePayload({ threadId, text, replyToId = null, attachme
     senderName: profile.displayName.slice(0, 50),
     senderInitials: profile.initials.slice(0, 4),
     content: messageText,
+    clientMutationId: mutationId,
     seenBy: [currentFirebaseUser.uid],
     edited: false,
     pinned: false,
@@ -4757,6 +4839,13 @@ async function sendDmMessagePayload({ threadId, text, replyToId = null, attachme
     }
     return true;
   } catch (err) {
+    if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+      const outbox = readDmOutbox();
+      outbox.push({ threadId: activeDm.id, text: messageText, replyToId, attachment, clientMutationId: mutationId });
+      writeDmOutbox(outbox);
+      showToast('Connection interrupted — message queued for retry.');
+      return true;
+    }
     handleFirestoreError(
       err,
       OperationType.CREATE,
@@ -7202,6 +7291,10 @@ function connectNexoraWs(fbUser) {
       if (ev.type === 'presence:snapshot') {
         state.wsConnected = true;
         state.onlineUids = new Set(Array.isArray(ev.onlineUids) ? ev.onlineUids : []);
+        void flushDmOutbox();
+        if (state.activeDmId) {
+          apiV1Fetch(`/messages/threads/${encodeURIComponent(state.activeDmId)}/sync?limit=40`).catch(() => {});
+        }
         notifyInboxBridge();
         return;
       }
@@ -7443,6 +7536,62 @@ window.NEXORA_APP_BRIDGE = {
       updatedAt: serverTimestamp(),
     });
     showToast(next.includes(currentFirebaseUser.uid) ? 'Conversation archived' : 'Conversation restored');
+  },
+  toggleMuteDm: async (dmId) => {
+    if (!dmId || !currentFirebaseUser) return;
+    const dm = state.dms.find((d) => d.id === dmId);
+    if (!dm) return;
+    const isMuted = Array.isArray(dm.mutedBy) && dm.mutedBy.includes(currentFirebaseUser.uid);
+    try {
+      await apiV1Fetch(`/messages/threads/${encodeURIComponent(dmId)}/preferences`, {
+        method: 'PATCH',
+        body: JSON.stringify({ muted: !isMuted }),
+      });
+      showToast(!isMuted ? 'Conversation muted' : 'Conversation unmuted');
+    } catch (err) {
+      showToast(err?.message || 'Could not update mute state.');
+    }
+  },
+  deleteThreadForMe: async (dmId) => {
+    if (!dmId || !currentFirebaseUser) return;
+    try {
+      await apiV1Fetch(`/messages/threads/${encodeURIComponent(dmId)}/preferences`, {
+        method: 'PATCH',
+        body: JSON.stringify({ deleteForMe: true }),
+      });
+      if (state.activeDmId === dmId) {
+        state.activeDmId = state.dms.find((d) => d.id !== dmId)?.id || '';
+      }
+      showToast('Conversation removed from your inbox');
+      notifyInboxBridge();
+    } catch (err) {
+      showToast(err?.message || 'Could not remove conversation.');
+    }
+  },
+  manageGroupMembers: async (dmId, args) => {
+    if (!dmId || !currentFirebaseUser) return false;
+    try {
+      await apiV1Fetch(`/messages/threads/${encodeURIComponent(dmId)}/members`, {
+        method: 'POST',
+        body: JSON.stringify(args || {}),
+      });
+      if (args?.action === 'leave' && state.activeDmId === dmId) {
+        state.activeDmId = state.dms.find((d) => d.id !== dmId)?.id || '';
+      }
+      showToast(
+        args?.action === 'rename'
+          ? 'Group renamed'
+          : args?.action === 'leave'
+            ? 'Left group conversation'
+            : 'Group updated',
+        'success'
+      );
+      notifyInboxBridge();
+      return true;
+    } catch (err) {
+      showToast(err?.message || 'Could not update group conversation.');
+      return false;
+    }
   },
   sendTypingSignal: (threadId, isTyping) => {
     if (!threadId || !currentFirebaseUser) return;

@@ -4,7 +4,8 @@ import path from 'path';
 export interface MediaRecord {
   id: string;
   ownerUid: string;
-  kind: 'avatar' | 'cover' | 'post' | 'story' | 'reel' | 'dm' | 'general';
+  kind: 'avatar' | 'cover' | 'post' | 'story' | 'reel' | 'dm' | 'studio' | 'body_profile' | 'general';
+  visibility?: 'public' | 'private';
   mimeType: string;
   ext: string;
   size: number;
@@ -20,7 +21,19 @@ export interface GeoUserLocation {
   lon: number;
   city: string;
   discoverable: boolean;
+  expiresAtMs?: number;
+  pausedUntilMs?: number;
   updatedAtMs: number;
+}
+
+export function formatCoarseDistanceLabel(distanceKm: number): string {
+  const meters = Math.round(distanceKm * 1000);
+  if (meters <= 100) return '< 100m';
+  if (meters <= 200) return '< 200m';
+  if (meters <= 500) return '< 500m';
+  if (distanceKm < 1) return '< 1 km';
+  if (distanceKm < 10) return `~${distanceKm.toFixed(1)} km`;
+  return `~${Math.round(distanceKm)} km`;
 }
 
 export interface LocalDiscoveryEvent {
@@ -90,7 +103,7 @@ export function haversineDistanceKm(lat1: number, lon1: number, lat2: number, lo
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return Math.round(R * c * 10) / 10;
+  return Math.round(R * c * 100) / 100;
 }
 
 class NexoraStore {
@@ -155,28 +168,42 @@ class NexoraStore {
   }
 
   upsertLocation(entry: GeoUserLocation): GeoUserLocation {
+    const now = Date.now();
     const clean: GeoUserLocation = {
       ...entry,
       lat: roundCoarseCoordinate(entry.lat),
       lon: roundCoarseCoordinate(entry.lon),
-      updatedAtMs: Date.now(),
+      expiresAtMs: entry.expiresAtMs ?? now + 15 * 60 * 1000,
+      pausedUntilMs: entry.pausedUntilMs ?? 0,
+      updatedAtMs: now,
     };
     this.data.locations[entry.uid] = clean;
     this.persist();
     return clean;
   }
 
-  listNearbyUsers(lat: number, lon: number, radiusKm: number, excludeUid: string) {
+  listNearbyUsers(
+    lat: number,
+    lon: number,
+    radiusKm: number,
+    excludeUid: string,
+    blockedOrMutedSet: Set<string> = new Set()
+  ) {
+    const now = Date.now();
     const out: Array<{
       uid: string;
       displayName: string;
       username: string;
       city: string;
       distanceKm: number;
+      distanceLabel: string;
       updatedAtMs: number;
     }> = [];
     for (const loc of Object.values(this.data.locations)) {
       if (!loc.discoverable || loc.uid === excludeUid) continue;
+      if (blockedOrMutedSet.has(loc.uid)) continue;
+      if (loc.expiresAtMs && now > loc.expiresAtMs) continue;
+      if (loc.pausedUntilMs && now < loc.pausedUntilMs) continue;
       const distanceKm = haversineDistanceKm(lat, lon, loc.lat, loc.lon);
       if (distanceKm <= radiusKm) {
         out.push({
@@ -185,6 +212,7 @@ class NexoraStore {
           username: loc.username,
           city: loc.city,
           distanceKm,
+          distanceLabel: formatCoarseDistanceLabel(distanceKm),
           updatedAtMs: loc.updatedAtMs,
         });
       }
@@ -268,12 +296,40 @@ class NexoraStore {
     return next;
   }
 
+  clearUserLocation(uid: string): void {
+    if (this.data.locations[uid]) {
+      delete this.data.locations[uid];
+      this.persist();
+    }
+  }
+
   savePushSubscription(uid: string, sub: PushSubscriptionEntry): void {
     const existing = this.data.pushSubscriptions[uid] || [];
     const deduped = existing.filter((s) => s.endpoint !== sub.endpoint);
     deduped.push(sub);
     this.data.pushSubscriptions[uid] = deduped.slice(-10);
     this.persist();
+  }
+
+  purgeUserData(uid: string): number {
+    let removedMedia = 0;
+    for (const [id, rec] of Object.entries(this.data.media)) {
+      if (rec.ownerUid === uid) {
+        const filePath = path.resolve(UPLOADS_DIR, `${rec.id}.${rec.ext}`);
+        if (filePath.startsWith(UPLOADS_DIR + path.sep) && fs.existsSync(filePath)) {
+          try {
+            fs.unlinkSync(filePath);
+          } catch {}
+        }
+        delete this.data.media[id];
+        removedMedia += 1;
+      }
+    }
+    delete this.data.locations[uid];
+    delete this.data.preferences[uid];
+    delete this.data.pushSubscriptions[uid];
+    this.persist();
+    return removedMedia;
   }
 }
 

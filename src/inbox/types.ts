@@ -45,6 +45,9 @@ export interface DmThreadItem {
   groupName?: string;
   participants: string[];
   archivedBy?: string[];
+  mutedBy?: string[];
+  deletedFor?: string[];
+  memberRoles?: Record<string, string>;
   typing?: Record<string, number>;
   createdBy?: string;
   userId?: string;
@@ -123,6 +126,12 @@ export interface NexoraAppBridge {
   deleteDmMessage: (threadId: string, msgId: string) => Promise<void>;
   togglePinDmMessage: (threadId: string, msgId: string) => Promise<void>;
   toggleArchiveDm: (dmId: string) => Promise<void>;
+  toggleMuteDm: (dmId: string) => Promise<void>;
+  deleteThreadForMe: (dmId: string) => Promise<void>;
+  manageGroupMembers: (
+    dmId: string,
+    args: { action: 'add' | 'remove' | 'rename' | 'leave' | 'promote' | 'demote'; targetUid?: string; groupName?: string }
+  ) => Promise<boolean>;
   sendTypingSignal: (threadId: string, isTyping: boolean) => void;
   markThreadRead: (threadId: string) => void;
   acceptRequest: (reqId: string, fromUid: string) => Promise<void>;

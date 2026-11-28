@@ -203,12 +203,47 @@ export async function changeAccountPassword(newPassword) {
   }
 }
 
+export async function deactivateCurrentAccount(reason = 'user_requested') {
+  const user = auth.currentUser;
+  if (!user) throw new Error('You are not signed in right now.');
+  try {
+    const token = await user.getIdToken();
+    await fetch('/api/v1/auth/deactivate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      credentials: 'same-origin',
+      body: JSON.stringify({ reason }),
+    });
+    await signOutSession('/login.html');
+  } catch (error) {
+    throw new Error(
+      formatFriendlyError(error, 'Site is busy right now. Could not deactivate account at this time.')
+    );
+  }
+}
+
 export async function deleteCurrentAccount() {
   const user = auth.currentUser;
   if (!user) throw new Error('You are not signed in right now.');
   const uid = user.uid;
 
   try {
+    const token = await user.getIdToken().catch(() => '');
+    if (token) {
+      await fetch('/api/v1/auth/account', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ confirmText: 'DELETE' }),
+      }).catch(() => {});
+    }
+    await deleteDoc(doc(db, 'users', uid, 'private', 'account_state')).catch(() => {});
     await deleteDoc(doc(db, 'users', uid, 'private', 'info')).catch(() => {});
     await deleteDoc(doc(db, 'users', uid)).catch(() => {});
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});

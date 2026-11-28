@@ -23,9 +23,11 @@ import {
 import {
   changeAccountEmail,
   changeAccountPassword,
+  deactivateCurrentAccount,
   deleteCurrentAccount,
   signOutSession,
 } from './session.js';
+import { apiV1Fetch } from './api_v1.js';
 import {
   buildCommentThreads,
   canUserViewPost,
@@ -78,9 +80,19 @@ import {
 import { createTemplateStudioModule } from './template_studio.js';
 import { createSocialCircleUi } from './social_circle_ui.js';
 
+const REACT_PLATFORM_VIEWS = new Set([
+  'marketplace',
+  'visual-search',
+  'studio',
+  'camera',
+  'features',
+  'admin-feature-health',
+]);
+
 const SOCIAL_VIEWS = new Set([
   'home',
   'explore',
+  'nearby',
   'reels',
   'templates',
   'social-circle',
@@ -140,10 +152,21 @@ export function createSocialModule(ctx) {
   let profileEditing = false;
   let confirmDeleteOpen = false;
   let nearbyCoords = null; // { lat, lon }
+  let nearbyRadiusKm = 10;
+  let nearbyPausedUntilMs = 0;
   let nearbyPeople = [];
   let nearbyEvents = [];
   let nearbyLoading = false;
   let nearbyError = '';
+  let exploreProducts = [];
+  let searchHistoryItems = [];
+  const hiddenPostIds = new Set();
+  const mutedAuthorIds = new Set();
+  let serverFeedRankedIds = [];
+  let serverFeedCursor = null;
+  let pendingFollowRequests = [];
+  let viewedProfileMutuals = [];
+  let viewedProfilePendingReq = false;
 
   // Composer transient state
   let composerText = '';
@@ -151,6 +174,7 @@ export function createSocialModule(ctx) {
   let composerFeeling = '';
   let composerLocation = '';
   let composerVisibility = 'public';
+  let composerProductTags = '';
   let editingPostId = null;
 
   // Comments & viewers
@@ -598,6 +622,9 @@ let pendingStoryStudioDataUrl = '';
     );
 
     subscribeViewedProfileEdges(fbUser.uid);
+    void refreshFollowRequests();
+    void refreshSearchHistory();
+    void refreshServerFeed(false);
     templateStudio.subscribeAll(fbUser);
     if (typeof window !== 'undefined' && window.location.hash?.startsWith('#template')) {
       templateStudio.handleDeepLink(window.location.hash);
@@ -721,6 +748,30 @@ let pendingStoryStudioDataUrl = '';
         handleFirestoreError(err, OperationType.LIST, `users/${targetUid}/following`, { silent: true });
       }
     );
+
+    if (currentUser) {
+      apiV1Fetch(`/users/${encodeURIComponent(targetUid)}/mutuals`)
+        .then((res) => {
+          viewedProfileMutuals = Array.isArray(res?.mutuals) ? res.mutuals : [];
+          if (currentSection === 'profile') render();
+        })
+        .catch(() => {
+          viewedProfileMutuals = [];
+        });
+      if (targetUid !== currentUser.uid) {
+        apiV1Fetch(`/users/${encodeURIComponent(targetUid)}`)
+          .then((res) => {
+            viewedProfilePendingReq = Boolean(res?.user?.hasPendingFollowRequest);
+            if (currentSection === 'profile') render();
+          })
+          .catch(() => {
+            viewedProfilePendingReq = false;
+          });
+      } else {
+        viewedProfilePendingReq = false;
+        void refreshFollowRequests();
+      }
+    }
   }
 
   function cleanup() {
@@ -782,18 +833,27 @@ let pendingStoryStudioDataUrl = '';
   function updateAdminNavVisibility() {
     const adminBtn = document.getElementById('nx-admin-nav-btn');
     if (adminBtn) adminBtn.hidden = !isCurrentUserAdmin;
+    const healthBtn = document.getElementById('nx-admin-health-nav-btn');
+    if (healthBtn) healthBtn.hidden = !isCurrentUserAdmin;
   }
 
   function updateNavActiveClasses() {
     document.querySelectorAll('[data-nx-nav]').forEach((btn) => {
       const target = btn.getAttribute('data-nx-nav');
-      btn.classList.toggle('active', target === currentSection);
+      const isActive =
+        target === currentSection ||
+        (currentSection === 'explore' && exploreTab === 'nearby' && target === 'nearby');
+      btn.classList.toggle('active', isActive);
     });
   }
 
-  function syncWorkspaceVisibility() {
+  let lastNavOpts = {};
+
+  function syncWorkspaceVisibility(opts = lastNavOpts) {
+    lastNavOpts = opts || {};
     const socialRoot = document.getElementById('nx-social-root');
     const inboxRoot = document.getElementById('nx-inbox-react-root');
+    const platformRoot = document.getElementById('nx-platform-react-root');
     const legacyWs = document.getElementById('nx-legacy-workspace');
     const frame = document.getElementById('app-shell');
     const leftNav = document.getElementById('nx-left-nav');
@@ -801,6 +861,7 @@ let pendingStoryStudioDataUrl = '';
 
     const isMessagesSection = currentSection === 'messages';
     const isCommunitiesSection = currentSection === 'communities';
+    const isPlatformReactSection = REACT_PLATFORM_VIEWS.has(currentSection);
     const isCollapsedSection = isMessagesSection || isCommunitiesSection;
     if (leftNav) {
       leftNav.classList.toggle('collapsed', isCollapsedSection);
@@ -808,13 +869,14 @@ let pendingStoryStudioDataUrl = '';
 
     if (isMessagesSection) {
       if (socialRoot) socialRoot.hidden = true;
+      if (platformRoot) platformRoot.hidden = true;
       if (legacyWs) {
         legacyWs.hidden = true;
         legacyWs.classList.remove('mobile-nav-open');
       }
       if (inboxRoot) inboxRoot.hidden = false;
       frame?.classList.remove('nav-open');
-      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
+      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection, opts: lastNavOpts } }));
       return;
     }
 
@@ -822,12 +884,13 @@ let pendingStoryStudioDataUrl = '';
 
     if (isCommunitiesSection) {
       if (socialRoot) socialRoot.hidden = true;
+      if (platformRoot) platformRoot.hidden = true;
       if (legacyWs) {
         legacyWs.hidden = false;
         legacyWs.classList.remove('mobile-nav-open');
       }
       frame?.classList.remove('nav-open');
-      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
+      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection, opts: lastNavOpts } }));
       return;
     }
 
@@ -835,21 +898,57 @@ let pendingStoryStudioDataUrl = '';
       legacyWs.hidden = true;
       legacyWs.classList.remove('mobile-nav-open');
     }
+
+    if (isPlatformReactSection) {
+      if (socialRoot) socialRoot.hidden = true;
+      if (platformRoot) platformRoot.hidden = false;
+      frame?.classList.remove('nav-open');
+      window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection, opts: lastNavOpts } }));
+      return;
+    }
+
+    if (platformRoot) platformRoot.hidden = true;
     if (socialRoot) socialRoot.hidden = false;
     frame?.classList.remove('nav-open');
-    window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection } }));
+    window.dispatchEvent(new CustomEvent('nexora:section-change', { detail: { section: currentSection, opts: lastNavOpts } }));
   }
 
   function navigateTo(section, opts = {}) {
     if (!section) return;
+    lastNavOpts = opts || {};
+    const createMenu = document.getElementById('nx-create-nav-menu');
+    const createBtn = document.getElementById('nx-create-nav-btn');
+    if (createMenu) createMenu.hidden = true;
+    if (createBtn) createBtn.setAttribute('aria-expanded', 'false');
+
     if (section !== 'reels') {
       feedAudioEngine.stop();
       lastFeedReelKey = '';
     }
     if (section === 'messages' || section === 'communities') {
       currentSection = section;
-      syncWorkspaceVisibility();
+      syncWorkspaceVisibility(lastNavOpts);
       navigateToLegacyMode(section, opts);
+      return;
+    }
+    if (section === 'nearby') {
+      exploreTab = 'nearby';
+      currentSection = 'explore';
+      syncWorkspaceVisibility(lastNavOpts);
+      render();
+      void refreshNearbyDiscovery();
+      return;
+    }
+    if (REACT_PLATFORM_VIEWS.has(section)) {
+      if (section === 'admin-feature-health' && !isCurrentUserAdmin) {
+        showToast('Admin Feature Health is restricted to verified administrators.');
+        return;
+      }
+      currentSection = section;
+      if (typeof window !== 'undefined' && window.location.hash !== `#${section}`) {
+        window.history.replaceState(null, '', `#${section}`);
+      }
+      syncWorkspaceVisibility(lastNavOpts);
       return;
     }
     if (!SOCIAL_VIEWS.has(section)) return;
@@ -871,13 +970,26 @@ let pendingStoryStudioDataUrl = '';
     if (opts.exploreQuery !== undefined) {
       exploreQuery = opts.exploreQuery;
     }
+    if (opts.focusComposer) {
+      setTimeout(() => {
+        const composer = document.getElementById('nx-post-textarea');
+        if (composer) {
+          composer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          composer.focus();
+        }
+      }, 60);
+    }
     currentSection = section;
-    syncWorkspaceVisibility();
+    syncWorkspaceVisibility(lastNavOpts);
     render();
   }
 
+  if (typeof window !== 'undefined') {
+    window.NEXORA_SOCIAL_NAV = navigateTo;
+  }
+
   function renderIfSocial() {
-    if (SOCIAL_VIEWS.has(currentSection)) {
+    if (SOCIAL_VIEWS.has(currentSection) && !REACT_PLATFORM_VIEWS.has(currentSection)) {
       render();
     }
   }
@@ -916,6 +1028,58 @@ let pendingStoryStudioDataUrl = '';
     return safe;
   }
 
+  async function refreshFollowRequests() {
+    if (!currentUser) return;
+    try {
+      const res = await apiV1Fetch('/follow-requests');
+      pendingFollowRequests = Array.isArray(res?.requests) ? res.requests : [];
+      if (currentSection === 'profile') render();
+    } catch {
+      pendingFollowRequests = [];
+    }
+  }
+
+  async function refreshSearchHistory() {
+    if (!currentUser) return;
+    try {
+      const res = await apiV1Fetch('/search/history');
+      searchHistoryItems = Array.isArray(res?.history) ? res.history : [];
+      if (currentSection === 'explore') render();
+    } catch {
+      searchHistoryItems = [];
+    }
+  }
+
+  async function refreshExploreProducts() {
+    if (!currentUser) return;
+    try {
+      const params = new URLSearchParams({ type: 'products' });
+      if (exploreQuery.trim()) params.set('q', exploreQuery.trim());
+      const res = await apiV1Fetch(`/search?${params.toString()}`);
+      exploreProducts = Array.isArray(res?.products) ? res.products : [];
+      if (currentSection === 'explore') render();
+    } catch {
+      exploreProducts = [];
+    }
+  }
+
+  async function refreshServerFeed(append = false) {
+    if (!currentUser) return;
+    try {
+      const params = new URLSearchParams({ tab: feedTab, limit: '15' });
+      if (activeHashtagFilter) params.set('hashtag', activeHashtagFilter);
+      if (append && serverFeedCursor) params.set('cursor', serverFeedCursor);
+      const res = await apiV1Fetch(`/feed?${params.toString()}`);
+      const items = Array.isArray(res?.items) ? res.items : [];
+      const ids = items.map((i) => i.id).filter(Boolean);
+      serverFeedRankedIds = append ? Array.from(new Set([...serverFeedRankedIds, ...ids])) : ids;
+      serverFeedCursor = res?.nextCursor || null;
+      if (currentSection === 'home') render();
+    } catch {
+      // Realtime Firestore listener stays active as seamless fallback
+    }
+  }
+
   async function refreshNearbyDiscovery() {
     if (!currentUser) return;
     nearbyLoading = true;
@@ -923,18 +1087,25 @@ let pendingStoryStudioDataUrl = '';
     renderIfSocial();
     try {
       const token = await currentUser.getIdToken();
-      const params = new URLSearchParams({ radiusKm: '50' });
+      const eventParams = new URLSearchParams({ radiusKm: String(nearbyRadiusKm) });
       if (nearbyCoords) {
-        params.set('lat', String(nearbyCoords.lat));
-        params.set('lon', String(nearbyCoords.lon));
+        eventParams.set('lat', String(nearbyCoords.lat));
+        eventParams.set('lon', String(nearbyCoords.lon));
       }
-      const res = await fetch(`/api/discovery/nearby?${params.toString()}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.error || 'Could not load nearby discovery.');
-      nearbyPeople = Array.isArray(data.people) ? data.people : [];
-      nearbyEvents = Array.isArray(data.events) ? data.events : [];
+      const [eventsRes, peopleRes] = await Promise.all([
+        fetch(`/api/discovery/nearby?${eventParams.toString()}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        }).then((r) => r.json().catch(() => ({}))),
+        nearbyCoords
+          ? apiV1Fetch(
+              `/nearby/people?lat=${encodeURIComponent(String(nearbyCoords.lat))}&lon=${encodeURIComponent(
+                String(nearbyCoords.lon)
+              )}&radiusKm=${encodeURIComponent(String(nearbyRadiusKm))}`
+            ).catch(() => ({ people: [] }))
+          : Promise.resolve({ people: [] }),
+      ]);
+      nearbyPeople = Array.isArray(peopleRes?.people) ? peopleRes.people : [];
+      nearbyEvents = Array.isArray(eventsRes?.events) ? eventsRes.events : [];
     } catch (err) {
       nearbyError = formatFriendlyError(err, 'Unable to load nearby discovery.');
     } finally {
@@ -959,20 +1130,17 @@ let pendingStoryStudioDataUrl = '';
             lat: pos.coords.latitude,
             lon: pos.coords.longitude,
           };
-          const token = await currentUser.getIdToken();
-          await fetch('/api/discovery/location', {
+          nearbyPausedUntilMs = 0;
+          await apiV1Fetch('/nearby/location', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`,
-            },
             body: JSON.stringify({
               lat: nearbyCoords.lat,
               lon: nearbyCoords.lon,
-              city: 'Local Area',
+              city: profile.locationLabel || 'Local Area',
               displayName: profile.displayName,
               username: profile.username,
               discoverable: true,
+              ttlMinutes: 30,
             }),
           });
           showToast('Approximate area updated for nearby discovery.', 'success');
@@ -990,6 +1158,51 @@ let pendingStoryStudioDataUrl = '';
       },
       { enableHighAccuracy: false, timeout: 8000, maximumAge: 120000 }
     );
+  }
+
+  async function pauseNearbyDiscovery(pauseMinutes) {
+    if (!currentUser || !nearbyCoords) {
+      showToast('Enable location discovery first before pausing.');
+      return;
+    }
+    try {
+      const res = await apiV1Fetch('/nearby/location', {
+        method: 'POST',
+        body: JSON.stringify({
+          lat: nearbyCoords.lat,
+          lon: nearbyCoords.lon,
+          city: profile.locationLabel || 'Local Area',
+          discoverable: true,
+          pauseMinutes,
+        }),
+      });
+      nearbyPausedUntilMs = Number(res?.location?.pausedUntilMs || Date.now() + pauseMinutes * 60_000);
+      showToast(`Nearby discovery paused for ${pauseMinutes} minutes.`, 'success');
+      renderIfSocial();
+    } catch (err) {
+      showToast(formatFriendlyError(err, 'Could not pause discovery.'), 'error');
+    }
+  }
+
+  async function stopNearbyDiscovery() {
+    if (!currentUser) return;
+    try {
+      await apiV1Fetch('/nearby/location', {
+        method: 'POST',
+        body: JSON.stringify({
+          lat: nearbyCoords?.lat ?? 0,
+          lon: nearbyCoords?.lon ?? 0,
+          discoverable: false,
+        }),
+      });
+      nearbyCoords = null;
+      nearbyPausedUntilMs = 0;
+      nearbyPeople = [];
+      showToast('Nearby location sharing turned off and cleared.');
+      renderIfSocial();
+    } catch (err) {
+      showToast(formatFriendlyError(err, 'Could not clear location.'), 'error');
+    }
   }
 
   /* ---------- COMMENTS & ENGAGEMENT SUBSCRIPTIONS ---------- */
@@ -1329,6 +1542,7 @@ let pendingStoryStudioDataUrl = '';
   /* ---------- HOME FEED COMPOSER & POST CARDS ---------- */
 
   function renderComposerCardHtml() {
+    const hasDraft = Boolean(localStorage.getItem('nx_post_draft_v1'));
     return `
       <section class="nx-card nx-composer-card" aria-label="Create post">
         <div class="nx-composer-top">
@@ -1343,7 +1557,7 @@ let pendingStoryStudioDataUrl = '';
         </div>
 
         ${
-          composerFeeling || composerLocation
+          composerFeeling || composerLocation || composerProductTags
             ? `<div class="nx-composer-meta-chips">
                 ${
                   composerFeeling
@@ -1353,6 +1567,11 @@ let pendingStoryStudioDataUrl = '';
                 ${
                   composerLocation
                     ? `<span class="nx-meta-chip">${svgIcon('mapPin', 12)} ${escapeHtml(composerLocation)} <button type="button" class="nx-link-action" data-nx-act="clear-composer-location" aria-label="Remove location">×</button></span>`
+                    : ''
+                }
+                ${
+                  composerProductTags
+                    ? `<span class="nx-meta-chip">Products: ${escapeHtml(composerProductTags)} <button type="button" class="nx-link-action" data-nx-act="clear-composer-products" aria-label="Remove product tags">×</button></span>`
                     : ''
                 }
               </div>`
@@ -1404,9 +1623,18 @@ let pendingStoryStudioDataUrl = '';
               <span class="ic-loc">${svgIcon('mapPin', 16)}</span>
               <span>Check-in</span>
             </button>
+            <button type="button" class="nx-tool-pill" data-nx-act="prompt-product-tag">
+              <span>Tag Product</span>
+            </button>
           </div>
 
-          <div style="display:flex;align-items:center;gap:8px;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button type="button" class="nx-btn-soft" style="height:32px;font-size:0.74rem;" data-nx-act="save-post-draft">Save Draft</button>
+            ${
+              hasDraft
+                ? `<button type="button" class="nx-btn-soft" style="height:32px;font-size:0.74rem;" data-nx-act="load-post-draft">Restore Draft</button>`
+                : ''
+            }
             <select id="nx-post-visibility" class="select" style="height:34px;font-size:0.78rem;width:auto;padding-inline:10px;" aria-label="Post visibility">
               <option value="public" ${composerVisibility === 'public' ? 'selected' : ''}>Public</option>
               <option value="followers" ${composerVisibility === 'followers' ? 'selected' : ''}>Followers</option>
@@ -1513,10 +1741,13 @@ let pendingStoryStudioDataUrl = '';
                     <button type="button" class="nx-btn-soft" style="height:32px;" data-nx-act="cancel-edit-comment" data-post-id="${escapeHtml(post.id)}">Cancel</button>
                   </form>`
                 : `<div style="font-size:0.84rem;line-height:1.4;margin-top:2px;">${formatRichContent(c.content)}</div>
-                   <div style="display:flex;gap:10px;margin-top:4px;">
+                   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;align-items:center;">
+                     <button type="button" class="nx-link-action" style="font-size:0.74rem;" data-nx-act="react-comment" data-post-id="${escapeHtml(post.id)}" data-comment-id="${escapeHtml(c.id)}" data-emoji="👍">👍 ${Array.isArray(c.reactions?.['👍']) ? c.reactions['👍'].length : 0}</button>
+                     <button type="button" class="nx-link-action" style="font-size:0.74rem;" data-nx-act="react-comment" data-post-id="${escapeHtml(post.id)}" data-comment-id="${escapeHtml(c.id)}" data-emoji="❤️">❤️ ${Array.isArray(c.reactions?.['❤️']) ? c.reactions['❤️'].length : 0}</button>
                      <button type="button" class="nx-link-action" style="font-size:0.74rem;" data-nx-act="reply-comment" data-post-id="${escapeHtml(post.id)}" data-comment-id="${escapeHtml(c.id)}" data-author-name="${escapeHtml(commentAuthor.displayName || c.authorName || 'Member')}">Reply</button>
                      ${canEditComment ? `<button type="button" class="nx-link-action" style="font-size:0.74rem;" data-nx-act="edit-comment" data-post-id="${escapeHtml(post.id)}" data-comment-id="${escapeHtml(c.id)}">Edit</button>` : ''}
                      ${canDeleteComment ? `<button type="button" class="nx-link-action" style="font-size:0.74rem;color:var(--danger);" data-nx-act="delete-comment" data-post-id="${escapeHtml(post.id)}" data-comment-id="${escapeHtml(c.id)}">Delete</button>` : ''}
+                     ${!canEditComment ? `<button type="button" class="nx-link-action" style="font-size:0.74rem;" data-action="open-report" data-target-type="comment" data-target-id="${escapeHtml(c.id)}">Report</button>` : ''}
                    </div>`
             }
           </div>
@@ -1587,6 +1818,18 @@ let pendingStoryStudioDataUrl = '';
 
         ${editBlock}
         ${mediaHtml}
+        ${
+          Array.isArray(post.productIds) && post.productIds.length > 0
+            ? `<div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${post.productIds
+                  .map(
+                    (pidTag) =>
+                      `<button type="button" class="nx-meta-chip" data-nx-nav="marketplace" data-product-id="${escapeHtml(String(pidTag))}">Shop Tagged Item: ${escapeHtml(String(pidTag))}</button>`
+                  )
+                  .join('')}
+              </div>`
+            : ''
+        }
 
         <div class="nx-post-footer">
           <div class="nx-post-actions-left">
@@ -1744,13 +1987,14 @@ let pendingStoryStudioDataUrl = '';
           </div>
           <p class="member-sub" style="margin:0 0 10px;line-height:1.45;">Quick 1-click access to all NEXORA features:</p>
           <div class="nx-quick-actions-grid">
+            <button type="button" class="nx-quick-action-pill" data-nx-nav="camera">${svgIcon('camera', 14)} Nexora Camera</button>
+            <button type="button" class="nx-quick-action-pill" data-nx-nav="visual-search">${svgIcon('search', 14)} Visual Search</button>
+            <button type="button" class="nx-quick-action-pill" data-nx-nav="studio">${svgIcon('sparkles', 14)} Style Studio</button>
+            <button type="button" class="nx-quick-action-pill" data-nx-nav="marketplace">${svgIcon('share', 14)} Exchange</button>
             <button type="button" class="nx-quick-action-pill" data-nx-nav="templates">${svgIcon('templates', 14)} AI Templates</button>
             <button type="button" class="nx-quick-action-pill" data-nx-act="open-upload-reel">${svgIcon('reels', 14)} Reel Studio</button>
-            <button type="button" class="nx-quick-action-pill" data-nx-act="start-instant-meeting">${svgIcon('video', 14)} Instant Meet</button>
-            <button type="button" class="nx-quick-action-pill" data-nx-nav="messages">${svgIcon('chat', 14)} Messages</button>
-            <button type="button" class="nx-quick-action-pill" data-nx-nav="communities">${svgIcon('users', 14)} Spaces</button>
+            <button type="button" class="nx-quick-action-pill" data-nx-nav="messages">${svgIcon('chat', 14)} Inbox</button>
             <button type="button" class="nx-quick-action-pill" data-nx-nav="live">${svgIcon('radio', 14)} Go Live</button>
-            <button type="button" class="nx-quick-action-pill" data-nx-act="open-create-story">${svgIcon('camera', 14)} Add Story</button>
           </div>
           <div style="margin-top:10px;text-align:center;">
             <button type="button" class="nx-link-action" data-nx-act="toggle-welcome-tour">
@@ -1903,16 +2147,26 @@ let pendingStoryStudioDataUrl = '';
   }
 
   function renderHomeView() {
-    const visiblePosts = filterAndSortFeedPosts(posts, {
+    let visiblePosts = filterAndSortFeedPosts(posts, {
       viewerUid: profile.id,
       followingIds: myFollowingIds,
       blockedSet: state.blockedSet,
       feedTab,
       hashtag: activeHashtagFilter,
-    });
+    }).filter((p) => !hiddenPostIds.has(p.id) && !mutedAuthorIds.has(p.authorId));
+
+    if (feedTab === 'for-you' && serverFeedRankedIds.length > 0) {
+      const rankOrder = new Map(serverFeedRankedIds.map((id, idx) => [id, idx]));
+      visiblePosts = [...visiblePosts].sort((a, b) => {
+        const ra = rankOrder.has(a.id) ? rankOrder.get(a.id) : 9999;
+        const rb = rankOrder.has(b.id) ? rankOrder.get(b.id) : 9999;
+        if (ra !== rb) return ra - rb;
+        return (b.createdAtMs || 0) - (a.createdAtMs || 0);
+      });
+    }
 
     const sliced = visiblePosts.slice(0, feedLimit);
-    const hasMore = visiblePosts.length > sliced.length || hasMoreServerPosts;
+    const hasMore = visiblePosts.length > sliced.length || hasMoreServerPosts || Boolean(serverFeedCursor);
 
     return `
       <div class="nx-home-grid">
@@ -1997,13 +2251,30 @@ let pendingStoryStudioDataUrl = '';
             <input type="search" id="nx-explore-search-input" class="input" style="max-width:300px;" placeholder="Filter people, hashtags, posts..." value="${escapeHtml(exploreQuery)}" />
           </div>
           <div class="nx-feed-tabs">
-            ${['all', 'people', 'nearby', 'posts', 'reels', 'hashtags', 'communities']
+            ${['all', 'people', 'nearby', 'posts', 'reels', 'hashtags', 'communities', 'products']
               .map(
                 (t) =>
                   `<button type="button" class="nx-tab-chip ${exploreTab === t ? 'active' : ''}" data-nx-act="set-explore-tab" data-tab="${t}">${t === 'nearby' ? 'Nearby & Local' : t[0].toUpperCase() + t.slice(1)}</button>`
               )
               .join('')}
           </div>
+          ${
+            searchHistoryItems.length > 0
+              ? `<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                  <span class="member-sub">Recent:</span>
+                  ${searchHistoryItems
+                    .slice(0, 6)
+                    .map(
+                      (h) => `
+                      <span class="nx-meta-chip" style="display:inline-flex;align-items:center;gap:4px;">
+                        <button type="button" class="nx-link-action" data-nx-act="apply-search-history" data-query="${escapeHtml(h.query)}">${escapeHtml(h.query)}</button>
+                        <button type="button" class="nx-link-action" data-nx-act="delete-search-history" data-id="${escapeHtml(h.id)}" aria-label="Remove search history">×</button>
+                      </span>`
+                    )
+                    .join('')}
+                </div>`
+              : ''
+          }
         </div>
 
         ${
@@ -2012,12 +2283,31 @@ let pendingStoryStudioDataUrl = '';
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
                   <div>
                     <h3 style="margin:0;font-size:1rem;">Nearby People &amp; Local Events</h3>
-                    <p class="member-sub" style="margin:3px 0 0;">Approximate ~1 km radius discovery — exact coordinates are never stored or shared.</p>
+                    <p class="member-sub" style="margin:3px 0 0;">Privacy-safe radius discovery — raw peer coordinates are rounded and never shared.</p>
                   </div>
                   <div style="display:flex;gap:8px;flex-wrap:wrap;">
                     <button type="button" class="nx-btn-grad" data-nx-act="enable-geo-discovery" ${nearbyLoading ? 'disabled' : ''}>${nearbyLoading ? 'Locating...' : nearbyCoords ? 'Update My Area' : 'Share My Area'}</button>
                     <button type="button" class="nx-btn-soft" data-nx-act="refresh-nearby-discovery" ${nearbyLoading ? 'disabled' : ''}>Refresh</button>
+                    ${nearbyCoords ? `<button type="button" class="nx-btn-soft" data-nx-act="pause-nearby" data-minutes="15">Pause 15m</button>` : ''}
+                    ${nearbyCoords ? `<button type="button" class="nx-btn-soft" data-nx-act="pause-nearby" data-minutes="60">Pause 1h</button>` : ''}
+                    ${nearbyCoords ? `<button type="button" class="nx-btn-danger" data-nx-act="stop-nearby-discovery">Stop Sharing</button>` : ''}
                   </div>
+                </div>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+                  <span class="member-sub">Radius:</span>
+                  ${[
+                    { km: 0.1, label: '100m' },
+                    { km: 0.2, label: '200m' },
+                    { km: 1, label: '1 km' },
+                    { km: 10, label: '10 km' },
+                    { km: 50, label: '50 km' },
+                  ]
+                    .map(
+                      (r) =>
+                        `<button type="button" class="nx-tab-chip ${nearbyRadiusKm === r.km ? 'active' : ''}" data-nx-act="set-nearby-radius" data-km="${r.km}">${r.label}</button>`
+                    )
+                    .join('')}
+                  ${nearbyPausedUntilMs > Date.now() ? `<span class="nx-meta-chip">Discovery Paused</span>` : ''}
                 </div>
                 ${nearbyError ? `<p class="member-sub" style="color:var(--danger);margin:0;">${escapeHtml(nearbyError)}</p>` : ''}
 
@@ -2032,7 +2322,7 @@ let pendingStoryStudioDataUrl = '';
                               <div class="file-row" style="justify-content:space-between;padding:10px;">
                                 <div>
                                   <strong style="display:block;font-size:0.88rem;">${escapeHtml(p.displayName)}</strong>
-                                  <span class="member-sub">@${escapeHtml(p.username)} · ~${escapeHtml(String(p.distanceKm))} km away</span>
+                                  <span class="member-sub">@${escapeHtml(p.username)} · ${escapeHtml(p.distanceLabel || `~${p.distanceKm} km away`)}</span>
                                 </div>
                                 <div style="display:flex;gap:6px;">
                                   <button type="button" class="nx-btn-soft" style="height:30px;font-size:0.76rem;" data-nx-act="view-user-profile" data-uid="${escapeHtml(p.uid)}">Profile</button>
@@ -2042,7 +2332,7 @@ let pendingStoryStudioDataUrl = '';
                             `)
                             .join('')}
                         </div>`
-                      : `<span class="member-sub">${nearbyCoords ? 'No other discoverable members within 50 km yet.' : 'Click "Share My Area" above to discover people nearby.'}</span>`
+                      : `<span class="member-sub">${nearbyCoords ? 'No other discoverable members within this radius yet.' : 'Click "Share My Area" above to discover people nearby.'}</span>`
                   }
                 </div>
 
@@ -2158,6 +2448,27 @@ let pendingStoryStudioDataUrl = '';
                         )
                         .join('')
                     : `<div class="nx-card"><span class="member-sub">No reels uploaded yet.</span></div>`
+                }
+              </section>`
+            : ''
+        }
+
+        ${
+          exploreTab === 'products'
+            ? `<section class="nx-two-col-grid">
+                ${
+                  exploreProducts.length > 0
+                    ? exploreProducts
+                        .map(
+                      (pr) => `
+                        <div class="nx-card" style="display:grid;gap:8px;">
+                          <strong>${escapeHtml(pr.title)}</strong>
+                          <span class="member-sub">${escapeHtml(pr.merchantName || 'Merchant')} · ${escapeHtml(pr.category || 'Catalog')} · $${(Number(pr.priceCents || 0) / 100).toFixed(2)}</span>
+                          <button type="button" class="nx-btn-grad" data-nx-nav="marketplace" data-product-id="${escapeHtml(String(pr.id))}">View in Exchange</button>
+                        </div>`
+                    )
+                    .join('')
+                    : `<div class="nx-card"><span class="member-sub">No Exchange products match this search yet. <button type="button" class="nx-link-action" data-nx-nav="marketplace">Browse Exchange</button></span></div>`
                 }
               </section>`
             : ''
@@ -3099,9 +3410,10 @@ let pendingStoryStudioDataUrl = '';
                   isSelf
                     ? `<button type="button" class="nx-btn-grad" data-nx-act="toggle-profile-edit">${profileEditing ? 'Close Editor' : 'Edit Profile'}</button>
                        <button type="button" class="nx-btn-soft" data-nx-act="goto-saved">Saved Posts</button>`
-                    : `<button type="button" class="${isFollowing ? 'nx-btn-soft' : 'nx-btn-grad'}" data-nx-act="toggle-follow" data-uid="${escapeHtml(uid)}">${isFollowing ? 'Following' : 'Follow'}</button>
+                    : `<button type="button" class="${isFollowing || viewedProfilePendingReq ? 'nx-btn-soft' : 'nx-btn-grad'}" data-nx-act="toggle-follow" data-uid="${escapeHtml(uid)}">${isFollowing ? 'Following' : viewedProfilePendingReq ? 'Requested' : 'Follow'}</button>
                        <button type="button" class="nx-btn-soft" data-nx-act="open-dm-user" data-uid="${escapeHtml(uid)}">Message</button>
-                       <button type="button" class="nx-btn-soft" data-nx-act="call-dm-user" data-uid="${escapeHtml(uid)}">Video Call</button>`
+                       <button type="button" class="nx-btn-soft" data-nx-act="call-dm-user" data-uid="${escapeHtml(uid)}">Video Call</button>
+                       <button type="button" class="nx-btn-soft" data-nx-act="toggle-mute-user" data-uid="${escapeHtml(uid)}">${mutedAuthorIds.has(uid) ? 'Unmute' : 'Mute'}</button>`
                 }
               </div>
             </div>
@@ -3114,13 +3426,53 @@ let pendingStoryStudioDataUrl = '';
               </h2>
               <div class="member-sub">@${escapeHtml(targetUser.username)} · ${escapeHtml(targetUser.customStatus || 'Connect. Create. Share.')}</div>
               <p style="margin:8px 0 0;font-size:0.9rem;line-height:1.5;">${escapeHtml(targetUser.bio || 'Member of the NEXORA ecosystem.')}</p>
+              ${
+                targetUser.locationLabel || targetUser.website
+                  ? `<div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:0.82rem;" class="member-sub">
+                      ${targetUser.locationLabel ? `<span>${svgIcon('mapPin', 12)} ${escapeHtml(targetUser.locationLabel)}</span>` : ''}
+                      ${
+                        targetUser.website && sanitizeSafeUrl(targetUser.website)
+                          ? `<a href="${escapeHtml(sanitizeSafeUrl(targetUser.website))}" target="_blank" rel="noopener noreferrer" class="nx-hashtag-link">${escapeHtml(targetUser.website)}</a>`
+                          : ''
+                      }
+                    </div>`
+                  : ''
+              }
+              ${
+                Array.isArray(targetUser.interests) && targetUser.interests.length > 0
+                  ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+                      ${targetUser.interests.map((tag) => `<span class="nx-meta-chip">${escapeHtml(tag)}</span>`).join('')}
+                    </div>`
+                  : ''
+              }
             </div>
 
             <div class="nx-profile-stats">
               <span><strong>${postsCountDisplay}</strong> Posts</span>
               <span><strong>${followersCountDisplay}</strong> Followers</span>
               <span><strong>${followingCountDisplay}</strong> Following</span>
+              ${!isSelf ? `<span><strong>${viewedProfileMutuals.length}</strong> Mutuals</span>` : ''}
             </div>
+
+            ${
+              isSelf && pendingFollowRequests.length > 0
+                ? `<div style="display:grid;gap:8px;padding-top:12px;border-top:1px solid var(--nx-border);">
+                    <strong style="font-size:0.88rem;">Pending Follow Requests (${pendingFollowRequests.length})</strong>
+                    ${pendingFollowRequests
+                      .map(
+                        (reqItem) => `
+                        <div class="file-row" style="justify-content:space-between;padding:8px 10px;">
+                          <span><strong>${escapeHtml(reqItem.displayName || 'Member')}</strong> <span class="member-sub">@${escapeHtml(reqItem.username || 'member')}</span></span>
+                          <div style="display:flex;gap:6px;">
+                            <button type="button" class="nx-btn-grad" style="height:28px;font-size:0.74rem;" data-nx-act="respond-follow-request" data-uid="${escapeHtml(reqItem.requesterUid)}" data-decision="accept">Accept</button>
+                            <button type="button" class="nx-btn-soft" style="height:28px;font-size:0.74rem;" data-nx-act="respond-follow-request" data-uid="${escapeHtml(reqItem.requesterUid)}" data-decision="decline">Decline</button>
+                          </div>
+                        </div>`
+                      )
+                      .join('')}
+                  </div>`
+                : ''
+            }
 
             ${
               isSelf && profileEditing
@@ -3139,6 +3491,11 @@ let pendingStoryStudioDataUrl = '';
                         </select>
                       </label>
                     </div>
+                    <div class="nx-two-col-grid">
+                      <label><span class="member-sub">Location</span><input type="text" id="nx-prof-location" class="input" value="${escapeHtml(profile.locationLabel || '')}" placeholder="City or region" /></label>
+                      <label><span class="member-sub">Website</span><input type="url" id="nx-prof-website" class="input" value="${escapeHtml(profile.website || '')}" placeholder="https://example.com" /></label>
+                    </div>
+                    <label><span class="member-sub">Interests (comma-separated)</span><input type="text" id="nx-prof-interests" class="input" value="${escapeHtml((profile.interests || []).join(', '))}" placeholder="design, photography, audio, startups" /></label>
                     <label><span class="member-sub">Bio</span><textarea id="nx-prof-bio" class="textarea" rows="2">${escapeHtml(profile.bio)}</textarea></label>
                     <div><button type="submit" class="nx-btn-grad">Save Profile Changes</button></div>
                   </form>`
@@ -3153,6 +3510,7 @@ let pendingStoryStudioDataUrl = '';
           <button type="button" class="nx-tab-chip ${profileTab === 'templates' ? 'active' : ''}" data-nx-act="set-profile-tab" data-tab="templates">Templates</button>
           <button type="button" class="nx-tab-chip ${profileTab === 'followers' ? 'active' : ''}" data-nx-act="set-profile-tab" data-tab="followers">Followers (${followersCountDisplay})</button>
           <button type="button" class="nx-tab-chip ${profileTab === 'following' ? 'active' : ''}" data-nx-act="set-profile-tab" data-tab="following">Following (${followingCountDisplay})</button>
+          ${!isSelf ? `<button type="button" class="nx-tab-chip ${profileTab === 'mutuals' ? 'active' : ''}" data-nx-act="set-profile-tab" data-tab="mutuals">Mutuals (${viewedProfileMutuals.length})</button>` : ''}
         </div>
 
         ${
@@ -3179,6 +3537,23 @@ let pendingStoryStudioDataUrl = '';
                           .join('') || `<div class="nx-card"><span class="member-sub">No photos or videos shared yet.</span></div>`
                       }
                     </div>`
+                : profileTab === 'mutuals'
+                  ? `<div class="nx-card nx-two-col-grid">
+                      ${
+                        viewedProfileMutuals
+                          .map(
+                            (m) => `
+                          <button type="button" class="nx-active-row" data-nx-act="view-user-profile" data-uid="${escapeHtml(m.uid)}">
+                            ${renderUserAvatarHtml(m, 36)}
+                            <div>
+                              <strong style="display:block;font-size:0.88rem;">${escapeHtml(m.displayName || 'Member')}</strong>
+                              <span class="member-sub">@${escapeHtml(m.username || 'member')}</span>
+                            </div>
+                          </button>`
+                          )
+                          .join('') || `<span class="member-sub">No mutual connections yet.</span>`
+                      }
+                    </div>`
                 : `<div class="nx-card nx-two-col-grid">
                     ${
                       (profileTab === 'followers' ? viewedProfileFollowers : viewedProfileFollowing)
@@ -3190,13 +3565,20 @@ let pendingStoryStudioDataUrl = '';
                             avatar: f.avatar,
                           });
                           return `
-                          <button type="button" class="nx-active-row" data-nx-act="view-user-profile" data-uid="${escapeHtml(fUid)}">
-                            ${renderUserAvatarHtml(liveUser, 36)}
-                            <div>
-                              <strong style="display:block;font-size:0.88rem;">${escapeHtml(liveUser.displayName || 'Member')}</strong>
-                              <span class="member-sub">@${escapeHtml(liveUser.username || 'member')}</span>
-                            </div>
-                          </button>
+                          <div class="file-row" style="justify-content:space-between;padding:8px 10px;">
+                            <button type="button" class="nx-active-row" style="flex:1;" data-nx-act="view-user-profile" data-uid="${escapeHtml(fUid)}">
+                              ${renderUserAvatarHtml(liveUser, 36)}
+                              <div>
+                                <strong style="display:block;font-size:0.88rem;">${escapeHtml(liveUser.displayName || 'Member')}</strong>
+                                <span class="member-sub">@${escapeHtml(liveUser.username || 'member')}</span>
+                              </div>
+                            </button>
+                            ${
+                              isSelf && profileTab === 'followers'
+                                ? `<button type="button" class="nx-btn-soft" style="height:28px;font-size:0.74rem;" data-nx-act="remove-follower" data-uid="${escapeHtml(fUid)}">Remove</button>`
+                                : ''
+                            }
+                          </div>
                         `;
                         })
                         .join('') || `<span class="member-sub">None yet.</span>`
@@ -3437,6 +3819,7 @@ let pendingStoryStudioDataUrl = '';
                         <h3 class="nx-settings-section-title">Your Information &amp; Account Ownership</h3>
                         <div style="display:flex;gap:10px;flex-wrap:wrap;">
                           <button type="button" class="nx-btn-soft" data-action="export-user-data">Download Your Information (JSON)</button>
+                          <button type="button" class="nx-btn-soft" data-nx-act="deactivate-account">Deactivate Account</button>
                           ${
                             confirmDeleteOpen
                               ? `<button type="button" class="nx-btn-danger" data-nx-act="confirm-delete-me">Confirm Permanent Delete</button>
@@ -3474,6 +3857,11 @@ let pendingStoryStudioDataUrl = '';
                             </select>
                           </label>
                         </div>
+                        <div class="nx-two-col-grid">
+                          <label><span class="member-sub">Location</span><input type="text" id="nx-set-location" class="input" value="${escapeHtml(profile.locationLabel || '')}" placeholder="City or region" /></label>
+                          <label><span class="member-sub">Website</span><input type="url" id="nx-set-website" class="input" value="${escapeHtml(profile.website || '')}" placeholder="https://example.com" /></label>
+                        </div>
+                        <label><span class="member-sub">Interests (comma-separated)</span><input type="text" id="nx-set-interests" class="input" value="${escapeHtml((profile.interests || []).join(', '))}" placeholder="design, photography, audio, startups" /></label>
                         <label><span class="member-sub">Bio</span><textarea id="nx-set-bio" class="textarea" rows="3">${escapeHtml(profile.bio)}</textarea></label>
                         <div><button type="submit" class="nx-btn-grad">Save Account Center</button></div>
                       </form>
@@ -3827,6 +4215,12 @@ let pendingStoryStudioDataUrl = '';
             ? 'video'
             : 'image';
 
+    const taggedIds = composerProductTags
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean)
+      .slice(0, 10);
+
     const payload = {
       id: postId,
       authorId: currentUser.uid,
@@ -3840,6 +4234,7 @@ let pendingStoryStudioDataUrl = '';
       mediaItems: composerMedia.slice(0, 4),
       feeling: composerFeeling.slice(0, 80),
       location: composerLocation.slice(0, 100),
+      productIds: taggedIds,
       hashtags: extractHashtags(content),
       mentions: extractMentions(content),
       visibility,
@@ -3879,6 +4274,8 @@ let pendingStoryStudioDataUrl = '';
       composerMedia = [];
       composerFeeling = '';
       composerLocation = '';
+      composerProductTags = '';
+      localStorage.removeItem('nx_post_draft_v1');
       showToast('Post published to NEXORA', 'success');
       render();
     } catch (err) {
@@ -3959,6 +4356,31 @@ let pendingStoryStudioDataUrl = '';
 
     pendingFollowUids.add(targetUid);
     const targetUser = resolveUserDisplay(targetUid);
+    const isPrivateOrReq = targetUser.accountPrivacy === 'private' || targetUser.accountPrivacy === 'requests_only';
+
+    if (!myFollowingIds.has(targetUid) && (viewedProfilePendingReq || isPrivateOrReq)) {
+      try {
+        if (viewedProfilePendingReq) {
+          await apiV1Fetch(`/users/${encodeURIComponent(targetUid)}/follow`, { method: 'DELETE' });
+          viewedProfilePendingReq = false;
+          showToast('Follow request cancelled');
+        } else {
+          const res = await apiV1Fetch(`/users/${encodeURIComponent(targetUid)}/follow`, { method: 'POST' });
+          if (res?.status === 'requested') {
+            viewedProfilePendingReq = true;
+            showToast(`Follow request sent to ${targetUser.displayName}`, 'success');
+          }
+        }
+        renderIfSocial();
+        return;
+      } catch (err) {
+        showToast(formatFriendlyError(err, 'Could not update follow request right now.'), 'error');
+        return;
+      } finally {
+        pendingFollowUids.delete(targetUid);
+      }
+    }
+
     const meRef = doc(db, 'users', currentUser.uid);
     const targetRef = doc(db, 'users', targetUid);
     const followingRef = doc(db, 'users', currentUser.uid, 'following', targetUid);
@@ -4120,12 +4542,50 @@ let pendingStoryStudioDataUrl = '';
 
     const socialRoot = document.getElementById('nx-social-root');
 
-    // Left sidebar navigation
+    // Left sidebar navigation, Create menu, and More & Tools drawer
     document.getElementById('nx-left-nav')?.addEventListener('click', (e) => {
-      const btn = e.target instanceof Element ? e.target.closest('[data-nx-nav]') : null;
+      const targetEl = e.target instanceof Element ? e.target : null;
+      if (!targetEl) return;
+      const createToggle = targetEl.closest('#nx-create-nav-btn');
+      if (createToggle) {
+        const menu = document.getElementById('nx-create-nav-menu');
+        if (menu) {
+          const nextHidden = !menu.hidden;
+          menu.hidden = nextHidden;
+          createToggle.setAttribute('aria-expanded', String(!nextHidden));
+        }
+        return;
+      }
+      const moreToggle = targetEl.closest('#nx-more-tools-btn');
+      if (moreToggle) {
+        const drawer = document.getElementById('nx-secondary-nav-drawer');
+        if (drawer) {
+          const nextHidden = !drawer.hidden;
+          drawer.hidden = nextHidden;
+          moreToggle.setAttribute('aria-expanded', String(!nextHidden));
+        }
+        return;
+      }
+      const createAct = targetEl.closest('[data-nx-create]');
+      if (createAct) {
+        const kind = createAct.getAttribute('data-nx-create');
+        if (kind === 'post') {
+          navigateTo('home', { focusComposer: true });
+        } else if (kind === 'story') {
+          pendingStoryStudioDataUrl = '';
+          openModal('post-story-modal');
+          const menu = document.getElementById('nx-create-nav-menu');
+          if (menu) menu.hidden = true;
+        } else if (kind === 'product') {
+          navigateTo('marketplace', { openCreate: true });
+        }
+        return;
+      }
+      const btn = targetEl.closest('[data-nx-nav]');
       if (!btn) return;
       const target = btn.getAttribute('data-nx-nav');
-      navigateTo(target);
+      const productId = btn.getAttribute('data-product-id') || undefined;
+      navigateTo(target, productId ? { productId } : {});
     });
 
     document.getElementById('nx-brand-home-link')?.addEventListener('click', (e) => {
@@ -4211,7 +4671,16 @@ let pendingStoryStudioDataUrl = '';
         e.preventDefault();
         const drop = document.getElementById('nx-search-dropdown');
         if (drop) drop.hidden = true;
-        navigateTo('explore', { exploreQuery: searchInput.value.trim() });
+        const q = searchInput.value.trim();
+        if (q) {
+          apiV1Fetch('/search/history', {
+            method: 'POST',
+            body: JSON.stringify({ query: q, category: exploreTab || 'all' }),
+          })
+            .then(() => refreshSearchHistory())
+            .catch(() => {});
+        }
+        navigateTo('explore', { exploreQuery: q });
       }
     });
 
@@ -4333,8 +4802,9 @@ let pendingStoryStudioDataUrl = '';
       const navEl = target.closest('[data-nx-nav]');
       if (navEl && !target.closest('#nx-left-nav')) {
         const navTarget = navEl.getAttribute('data-nx-nav');
+        const productId = navEl.getAttribute('data-product-id') || undefined;
         if (navTarget) {
-          navigateTo(navTarget);
+          navigateTo(navTarget, productId ? { productId } : {});
           return;
         }
       }
@@ -4500,6 +4970,92 @@ let pendingStoryStudioDataUrl = '';
           composerLocation = '';
           render();
           break;
+        case 'prompt-product-tag': {
+          const anchor = actEl;
+          void apiV1Fetch('/products?limit=8')
+            .then((res) => {
+              const items = Array.isArray(res?.products) ? res.products : [];
+              openPopoverNear(
+                anchor,
+                `<div style="display:grid;gap:8px;min-width:240px;">
+                  ${
+                    items.length > 0
+                      ? `<div style="display:grid;gap:4px;max-height:160px;overflow-y:auto;">
+                          ${items
+                            .map(
+                              (p) =>
+                                `<button type="button" class="menu-item" data-nx-act="pick-product-tag" data-product-id="${escapeHtml(p.id)}">${escapeHtml(p.title)} · $${(Number(p.priceCents || 0) / 100).toFixed(2)}</button>`
+                            )
+                            .join('')}
+                        </div>`
+                      : ''
+                  }
+                  <form id="nx-product-tag-form" style="display:flex;gap:6px;">
+                    <input type="text" id="nx-product-tag-input" class="input" placeholder="Product IDs (comma-separated)..." value="${escapeHtml(composerProductTags)}" maxlength="120" />
+                    <button type="submit" class="nx-btn-grad" style="height:36px;">Tag</button>
+                  </form>
+                </div>`
+              );
+            })
+            .catch(() => {
+              openPopoverNear(
+                anchor,
+                `<form id="nx-product-tag-form" style="display:flex;gap:6px;">
+                  <input type="text" id="nx-product-tag-input" class="input" placeholder="Product IDs (comma-separated)..." value="${escapeHtml(composerProductTags)}" maxlength="120" />
+                  <button type="submit" class="nx-btn-grad" style="height:36px;">Tag</button>
+                </form>`
+              );
+            });
+          break;
+        }
+        case 'pick-product-tag': {
+          const pid = (actEl.getAttribute('data-product-id') || '').trim();
+          if (pid) {
+            const existing = composerProductTags
+              .split(',')
+              .map((s) => s.trim())
+              .filter(Boolean);
+            if (!existing.includes(pid)) existing.push(pid);
+            composerProductTags = existing.join(', ');
+          }
+          closePopover();
+          render();
+          break;
+        }
+        case 'clear-composer-products':
+          composerProductTags = '';
+          render();
+          break;
+        case 'save-post-draft': {
+          const curTxt = document.getElementById('nx-post-textarea')?.value || composerText;
+          localStorage.setItem(
+            'nx_post_draft_v1',
+            JSON.stringify({
+              text: curTxt,
+              feeling: composerFeeling,
+              location: composerLocation,
+              visibility: composerVisibility,
+              productTags: composerProductTags,
+            })
+          );
+          showToast('Draft saved locally', 'success');
+          render();
+          break;
+        }
+        case 'load-post-draft': {
+          try {
+            const raw = JSON.parse(localStorage.getItem('nx_post_draft_v1') || 'null');
+            if (raw) {
+              composerText = String(raw.text || '');
+              composerFeeling = String(raw.feeling || '');
+              composerLocation = String(raw.location || '');
+              composerVisibility = String(raw.visibility || 'public');
+              composerProductTags = String(raw.productTags || '');
+              render();
+            }
+          } catch {}
+          break;
+        }
         case 'remove-composer-media': {
           const idx = Number(actEl.getAttribute('data-idx'));
           composerMedia.splice(idx, 1);
@@ -4512,17 +5068,20 @@ let pendingStoryStudioDataUrl = '';
         case 'set-feed-tab':
           feedTab = actEl.getAttribute('data-tab') || 'for-you';
           render();
+          void refreshServerFeed(false);
           break;
         case 'filter-hashtag': {
           const tag = actEl.getAttribute('data-tag') || '';
           activeHashtagFilter = tag.startsWith('#') ? tag.toLowerCase() : `#${tag.toLowerCase()}`;
           currentSection = 'home';
           render();
+          void refreshServerFeed(false);
           break;
         }
         case 'clear-hashtag-filter':
           activeHashtagFilter = '';
           render();
+          void refreshServerFeed(false);
           break;
         case 'open-mention': {
           const handle = (actEl.getAttribute('data-handle') || '').replace(/^@/, '').toLowerCase();
@@ -4539,6 +5098,7 @@ let pendingStoryStudioDataUrl = '';
             subscribeFollowersPosts(currentUser.uid);
             subscribeOwnPosts(currentUser.uid);
           }
+          void refreshServerFeed(false);
           render();
           break;
         case 'load-more-posts':
@@ -4547,6 +5107,7 @@ let pendingStoryStudioDataUrl = '';
             publicPostsLimit += 100;
             subscribePublicPosts();
           }
+          void refreshServerFeed(true);
           render();
           break;
         case 'toggle-like-post':
@@ -4669,6 +5230,22 @@ let pendingStoryStudioDataUrl = '';
           showToast('Post link copied to clipboard', 'success');
           break;
         }
+        case 'react-comment': {
+          const pid = actEl.getAttribute('data-post-id');
+          const cid = actEl.getAttribute('data-comment-id');
+          const emoji = actEl.getAttribute('data-emoji') || '👍';
+          if (pid && cid && currentUser) {
+            try {
+              await apiV1Fetch(`/posts/${encodeURIComponent(pid)}/comments/${encodeURIComponent(cid)}/react`, {
+                method: 'POST',
+                body: JSON.stringify({ emoji }),
+              });
+            } catch (err) {
+              showToast(formatFriendlyError(err, 'Could not react to comment.'), 'error');
+            }
+          }
+          break;
+        }
         case 'post-menu': {
           e.stopPropagation();
           const pid = actEl.getAttribute('data-post-id');
@@ -4681,9 +5258,25 @@ let pendingStoryStudioDataUrl = '';
             `<div class="menu-list">
               ${canEdit ? `<button type="button" class="menu-item" data-nx-act="edit-post" data-post-id="${escapeHtml(pid)}"><span>Edit Post</span></button>` : ''}
               ${canDelete ? `<button type="button" class="menu-item" style="color:var(--danger);" data-nx-act="delete-post" data-post-id="${escapeHtml(pid)}"><span>Delete Post</span></button>` : ''}
+              ${!canEdit ? `<button type="button" class="menu-item" data-nx-act="not-interested-post" data-post-id="${escapeHtml(pid)}" data-author-id="${escapeHtml(p.authorId)}"><span>Not Interested</span></button>` : ''}
               ${!canEdit ? `<button type="button" class="menu-item" data-action="open-report" data-target-type="post" data-target-id="${escapeHtml(pid)}"><span>Report Post</span></button>` : ''}
             </div>`
           );
+          break;
+        }
+        case 'not-interested-post': {
+          closePopover();
+          const pid = actEl.getAttribute('data-post-id');
+          const authorId = actEl.getAttribute('data-author-id') || '';
+          if (pid) {
+            hiddenPostIds.add(pid);
+            render();
+            apiV1Fetch('/feed/feedback', {
+              method: 'POST',
+              body: JSON.stringify({ postId: pid, authorId, action: 'not_interested' }),
+            }).catch(() => {});
+            showToast('Hidden from your feed');
+          }
           break;
         }
         case 'edit-post':
@@ -4778,8 +5371,76 @@ let pendingStoryStudioDataUrl = '';
           render();
           if (exploreTab === 'nearby') {
             void refreshNearbyDiscovery();
+          } else if (exploreTab === 'products') {
+            void refreshExploreProducts();
           }
           break;
+        case 'apply-search-history': {
+          const q = actEl.getAttribute('data-query') || '';
+          exploreQuery = q;
+          render();
+          if (exploreTab === 'products') void refreshExploreProducts();
+          break;
+        }
+        case 'delete-search-history': {
+          const id = actEl.getAttribute('data-id') || '';
+          if (id) {
+            searchHistoryItems = searchHistoryItems.filter((h) => h.id !== id);
+            render();
+            apiV1Fetch(`/search/history/${encodeURIComponent(id)}`, { method: 'DELETE' }).catch(() => {});
+          }
+          break;
+        }
+        case 'toggle-mute-user': {
+          const targetUid = actEl.getAttribute('data-uid') || '';
+          if (targetUid && currentUser) {
+            const alreadyMuted = mutedAuthorIds.has(targetUid);
+            try {
+              await apiV1Fetch(`/users/${encodeURIComponent(targetUid)}/mute`, {
+                method: alreadyMuted ? 'DELETE' : 'POST',
+              });
+              if (alreadyMuted) mutedAuthorIds.delete(targetUid);
+              else mutedAuthorIds.add(targetUid);
+              showToast(alreadyMuted ? 'User unmuted' : 'User muted across your feed');
+              render();
+            } catch (err) {
+              showToast(formatFriendlyError(err, 'Could not update mute state.'), 'error');
+            }
+          }
+          break;
+        }
+        case 'respond-follow-request': {
+          const requesterUid = actEl.getAttribute('data-uid') || '';
+          const decision = actEl.getAttribute('data-decision') || 'decline';
+          if (requesterUid && currentUser) {
+            try {
+              await apiV1Fetch(`/follow-requests/${encodeURIComponent(requesterUid)}/respond`, {
+                method: 'POST',
+                body: JSON.stringify({ action: decision }),
+              });
+              pendingFollowRequests = pendingFollowRequests.filter((r) => r.requesterUid !== requesterUid);
+              showToast(decision === 'accept' ? 'Follow request accepted' : 'Follow request declined');
+              render();
+            } catch (err) {
+              showToast(formatFriendlyError(err, 'Could not respond to follow request.'), 'error');
+            }
+          }
+          break;
+        }
+        case 'remove-follower': {
+          const followerUid = actEl.getAttribute('data-uid') || '';
+          if (followerUid && currentUser) {
+            try {
+              await apiV1Fetch(`/users/me/followers/${encodeURIComponent(followerUid)}`, { method: 'DELETE' });
+              viewedProfileFollowers = viewedProfileFollowers.filter((f) => (f.uid || f.id) !== followerUid);
+              showToast('Follower removed');
+              render();
+            } catch (err) {
+              showToast(formatFriendlyError(err, 'Could not remove follower.'), 'error');
+            }
+          }
+          break;
+        }
         case 'open-reel-at':
           activeReelIndex = Number(actEl.getAttribute('data-idx') || 0);
           navigateTo('reels');
@@ -5015,6 +5676,20 @@ let pendingStoryStudioDataUrl = '';
         case 'refresh-nearby-discovery':
           await refreshNearbyDiscovery();
           break;
+        case 'set-nearby-radius': {
+          const km = Number(actEl.getAttribute('data-km') || 10);
+          nearbyRadiusKm = Number.isFinite(km) && km > 0 ? km : 10;
+          await refreshNearbyDiscovery();
+          break;
+        }
+        case 'pause-nearby': {
+          const mins = Number(actEl.getAttribute('data-minutes') || 15);
+          await pauseNearbyDiscovery(mins);
+          break;
+        }
+        case 'stop-nearby-discovery':
+          await stopNearbyDiscovery();
+          break;
         case 'rsvp-local-event': {
           const evId = actEl.getAttribute('data-event-id');
           if (evId && currentUser) {
@@ -5056,6 +5731,13 @@ let pendingStoryStudioDataUrl = '';
           savePrefs();
           applyPrefsToDom();
           render();
+          break;
+        case 'deactivate-account':
+          try {
+            await deactivateCurrentAccount();
+          } catch (err) {
+            showToast(formatFriendlyError(err, 'Could not deactivate account.'), 'error');
+          }
           break;
         case 'prompt-delete-me':
           confirmDeleteOpen = true;
@@ -5150,6 +5832,14 @@ let pendingStoryStudioDataUrl = '';
       if (e.target.id === 'nx-checkin-form') {
         e.preventDefault();
         composerLocation = document.getElementById('nx-checkin-input')?.value?.trim() || '';
+        closePopover();
+        render();
+        return;
+      }
+
+      if (e.target.id === 'nx-product-tag-form') {
+        e.preventDefault();
+        composerProductTags = document.getElementById('nx-product-tag-input')?.value?.trim() || '';
         closePopover();
         render();
         return;
@@ -5537,6 +6227,14 @@ let pendingStoryStudioDataUrl = '';
         const username = document.getElementById(isInline ? 'nx-prof-handle' : 'nx-set-handle')?.value?.trim() || profile.username;
         const customStatus = document.getElementById(isInline ? 'nx-prof-status' : 'nx-set-status')?.value?.trim() || '';
         const accountPrivacy = document.getElementById(isInline ? 'nx-prof-privacy' : 'nx-set-privacy')?.value || 'everyone';
+        const locationLabel = document.getElementById(isInline ? 'nx-prof-location' : 'nx-set-location')?.value?.trim() || '';
+        const website = document.getElementById(isInline ? 'nx-prof-website' : 'nx-set-website')?.value?.trim() || '';
+        const interestsRaw = document.getElementById(isInline ? 'nx-prof-interests' : 'nx-set-interests')?.value || '';
+        const interests = interestsRaw
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+          .slice(0, 20);
         const bio = document.getElementById(isInline ? 'nx-prof-bio' : 'nx-set-bio')?.value?.trim() || '';
         const updated = await updateUserProfile(currentUser.uid, {
           ...profile,
@@ -5544,10 +6242,13 @@ let pendingStoryStudioDataUrl = '';
           username,
           customStatus,
           accountPrivacy,
+          locationLabel,
+          website,
+          interests,
           bio,
         });
         if (updated) {
-          Object.assign(profile, { ...updated, customStatus, bio });
+          Object.assign(profile, { ...updated, customStatus, bio, locationLabel, website, interests });
           profileEditing = false;
           showToast('Profile saved', 'success');
           render();
@@ -6176,9 +6877,24 @@ let pendingStoryStudioDataUrl = '';
 
     if (typeof window !== 'undefined') {
       window.addEventListener('hashchange', () => {
-        if (window.location.hash?.startsWith('#template')) {
-          templateStudio.handleDeepLink(window.location.hash);
+        const h = window.location.hash || '';
+        if (h.startsWith('#template')) {
+          templateStudio.handleDeepLink(h);
           navigateTo('templates');
+          return;
+        }
+        const hashSectionMap = {
+          '#features': 'features',
+          '#admin-feature-health': 'admin-feature-health',
+          '#marketplace': 'marketplace',
+          '#exchange': 'marketplace',
+          '#visual-search': 'visual-search',
+          '#studio': 'studio',
+          '#camera': 'camera',
+          '#nearby': 'nearby',
+        };
+        if (hashSectionMap[h]) {
+          navigateTo(hashSectionMap[h]);
         }
       });
     }

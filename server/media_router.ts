@@ -10,7 +10,11 @@ const MAX_MEDIA_BYTES = 10 * 1024 * 1024; // 10 MB
 const UploadSchema = z.object({
   name: z.string().min(1).max(120).optional().default('upload'),
   mimeType: z.string().min(3).max(80).optional().default('application/octet-stream'),
-  kind: z.enum(['avatar', 'cover', 'post', 'story', 'reel', 'dm', 'general']).optional().default('general'),
+  kind: z
+    .enum(['avatar', 'cover', 'post', 'story', 'reel', 'dm', 'studio', 'body_profile', 'general'])
+    .optional()
+    .default('general'),
+  visibility: z.enum(['public', 'private']).optional(),
   dataUrl: z.string().min(16).max(14_500_000),
 });
 
@@ -94,6 +98,36 @@ export interface MediaRouterDeps {
 
 const UUID_MEDIA_RE = /^[a-f0-9-]{20,64}$/;
 
+function streamMediaFile(req: Request, res: Response, filePath: string, mimeType: string, fileName: string, isPrivate: boolean) {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('Content-Type', mimeType);
+  res.setHeader(
+    'Cache-Control',
+    isPrivate ? 'private, no-store, max-age=0' : 'public, max-age=86400, immutable'
+  );
+  res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+
+  const stat = fs.statSync(filePath);
+  const range = req.headers.range;
+  if (range) {
+    const parts = range.replace(/bytes=/, '').split('-');
+    const start = Math.max(0, Number.parseInt(parts[0], 10) || 0);
+    const end = Math.min(stat.size - 1, parts[1] ? Number.parseInt(parts[1], 10) : stat.size - 1);
+    if (start <= end && start < stat.size) {
+      res.status(206);
+      res.setHeader('Content-Range', `bytes ${start}-${end}/${stat.size}`);
+      res.setHeader('Accept-Ranges', 'bytes');
+      res.setHeader('Content-Length', String(end - start + 1));
+      fs.createReadStream(filePath, { start, end }).pipe(res);
+      return;
+    }
+  }
+
+  res.setHeader('Content-Length', String(stat.size));
+  res.setHeader('Accept-Ranges', 'bytes');
+  fs.createReadStream(filePath).pipe(res);
+}
+
 export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
   app.post('/api/media/upload', async (req: Request, res: Response) => {
     const user = await deps.requireVerifiedBearer(req, res);
@@ -112,6 +146,9 @@ export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
     }
 
     const { dataUrl, kind, mimeType, name } = parsed.data;
+    const forcePrivate = kind === 'studio' || kind === 'body_profile' || parsed.data.visibility === 'private';
+    const visibility: 'public' | 'private' = forcePrivate ? 'private' : 'public';
+
     const match = /^data:([^;]+);base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl.trim());
     if (!match) {
       res.status(400).json({ error: 'Upload must be a valid base64 data payload.' });
@@ -148,6 +185,7 @@ export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
       id: mediaId,
       ownerUid: user.uid,
       kind,
+      visibility,
       mimeType: inspected.mimeType,
       ext: inspected.ext,
       size: buffer.length,
@@ -158,11 +196,41 @@ export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
     res.status(201).json({
       ok: true,
       id: record.id,
-      url: `/api/media/${record.id}`,
+      visibility,
+      url: visibility === 'private' ? `/api/media/private/${record.id}` : `/api/media/${record.id}`,
       mimeType: record.mimeType,
       size: record.size,
       fileName: record.fileName,
     });
+  });
+
+  app.get('/api/media/private/:mediaId', async (req: Request, res: Response) => {
+    const user = await deps.requireVerifiedBearer(req, res);
+    if (!user) return;
+
+    const mediaId = String(req.params.mediaId || '').trim();
+    if (!UUID_MEDIA_RE.test(mediaId)) {
+      res.status(400).json({ error: 'Invalid media identifier.' });
+      return;
+    }
+
+    const record = nexoraStore.getMedia(mediaId);
+    if (!record) {
+      res.status(404).json({ error: 'Media not found.' });
+      return;
+    }
+    if (record.ownerUid !== user.uid && !deps.isAdminUserServer(user)) {
+      res.status(403).json({ error: 'Forbidden: private media belongs to another user.' });
+      return;
+    }
+
+    const filePath = path.resolve(UPLOADS_DIR, `${record.id}.${record.ext}`);
+    if (!filePath.startsWith(UPLOADS_DIR + path.sep) || !fs.existsSync(filePath)) {
+      res.status(404).json({ error: 'Media binary missing.' });
+      return;
+    }
+
+    streamMediaFile(req, res, filePath, record.mimeType, record.fileName, true);
   });
 
   app.get('/api/media/:mediaId', (req: Request, res: Response) => {
@@ -177,6 +245,10 @@ export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
       res.status(404).json({ error: 'Media not found.' });
       return;
     }
+    if (record.visibility === 'private' || record.kind === 'studio' || record.kind === 'body_profile') {
+      res.status(403).json({ error: 'Private studio/body media cannot be accessed on the public media endpoint.' });
+      return;
+    }
 
     const filePath = path.resolve(UPLOADS_DIR, `${record.id}.${record.ext}`);
     if (!filePath.startsWith(UPLOADS_DIR + path.sep) || !fs.existsSync(filePath)) {
@@ -184,30 +256,7 @@ export function mountMediaRoutes(app: Express, deps: MediaRouterDeps): void {
       return;
     }
 
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('Content-Type', record.mimeType);
-    res.setHeader('Cache-Control', 'public, max-age=86400, immutable');
-    res.setHeader('Content-Disposition', `inline; filename="${record.fileName}"`);
-
-    const stat = fs.statSync(filePath);
-    const range = req.headers.range;
-    if (range) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = Math.max(0, Number.parseInt(parts[0], 10) || 0);
-      const end = Math.min(stat.size - 1, parts[1] ? Number.parseInt(parts[1], 10) : stat.size - 1);
-      if (start <= end && start < stat.size) {
-        res.status(206);
-        res.setHeader('Content-Range', `bytes ${start}-${end}/${stat.size}`);
-        res.setHeader('Accept-Ranges', 'bytes');
-        res.setHeader('Content-Length', String(end - start + 1));
-        fs.createReadStream(filePath, { start, end }).pipe(res);
-        return;
-      }
-    }
-
-    res.setHeader('Content-Length', String(stat.size));
-    res.setHeader('Accept-Ranges', 'bytes');
-    fs.createReadStream(filePath).pipe(res);
+    streamMediaFile(req, res, filePath, record.mimeType, record.fileName, false);
   });
 
   app.delete('/api/media/:mediaId', async (req: Request, res: Response) => {

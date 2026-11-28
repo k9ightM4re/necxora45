@@ -1,0 +1,548 @@
+{
+  "generatedAt": "2026-11-28T03:44:22.516Z",
+  "passed": true,
+  "lintPassed": true,
+  "eslintPassed": true,
+  "fileErrors": [],
+  "totalTests": 74,
+  "failedTests": 0,
+  "resultsByTestFile": {
+    "tests/api_v1_security.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/call_tab.test.mjs": {
+      "passed": true,
+      "total": 4,
+      "failed": 0
+    },
+    "tests/commerce_studio_adapters.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/community_leader_moderation.test.mjs": {
+      "passed": true,
+      "total": 6,
+      "failed": 0
+    },
+    "tests/feature_registry.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/feed_algorithm.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/messaging_reliability.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/messaging_ui.test.mjs": {
+      "passed": true,
+      "total": 4,
+      "failed": 0
+    },
+    "tests/multi_account_sync.test.mjs": {
+      "passed": true,
+      "total": 4,
+      "failed": 0
+    },
+    "tests/notifications.test.mjs": {
+      "passed": true,
+      "total": 7,
+      "failed": 0
+    },
+    "tests/reel_studio.test.mjs": {
+      "passed": true,
+      "total": 5,
+      "failed": 0
+    },
+    "tests/social_circle_m1.test.mjs": {
+      "passed": true,
+      "total": 6,
+      "failed": 0
+    },
+    "tests/social_utils.test.mjs": {
+      "passed": true,
+      "total": 8,
+      "failed": 0
+    },
+    "tests/template_studio.test.mjs": {
+      "passed": true,
+      "total": 9,
+      "failed": 0
+    },
+    "tests/ui_redesign.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    },
+    "tests/welcome_tour.test.mjs": {
+      "passed": true,
+      "total": 3,
+      "failed": 0
+    }
+  },
+  "adapterStatus": {
+    "gemini": {
+      "configured": false,
+      "label": "Platform Gemini API"
+    },
+    "s3Storage": {
+      "configured": false,
+      "fallback": "local-disk-validated-storage"
+    },
+    "ffmpegTranscoding": {
+      "configured": false,
+      "reason": "FFMPEG_PATH not configured; raw validated uploads pass through without server transcoding."
+    },
+    "merchantFeedSync": {
+      "configured": false,
+      "reason": "MERCHANT_FEED_URL and MERCHANT_FEED_API_KEY are not configured."
+    },
+    "externalVisualSearch": {
+      "configured": false,
+      "fallback": "firestore-catalog-tag-matching"
+    },
+    "virtualTryOn": {
+      "configured": false,
+      "reason": "VTON_PROVIDER_URL and VTON_API_KEY are not configured."
+    },
+    "turnRelay": {
+      "configured": false,
+      "fallback": "public-stun-only"
+    },
+    "redis": {
+      "configured": false,
+      "reason": "REDIS_URL not configured; single-node WebSocket active."
+    }
+  },
+  "features": [
+    {
+      "id": "NX-AUTH-01",
+      "name": "User Registration & Verification",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "4 checks"
+      }
+    },
+    {
+      "id": "NX-AUTH-02",
+      "name": "Sign In, Session Guard & Logout",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-AUTH-03",
+      "name": "Account Deactivation, Deletion & Privacy Controls",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-PROF-01",
+      "name": "User Profile & Extended Editing",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-PROF-02",
+      "name": "Followers, Following & Mutual Connections",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "4 checks"
+      }
+    },
+    {
+      "id": "NX-GRAPH-01",
+      "name": "Follow, Private Follow Requests & Remove Follower",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-GRAPH-02",
+      "name": "Block, Unblock & Mute Accounts",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-FEED-01",
+      "name": "Deterministic Ranked Home Feed (For You / Following / Latest)",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-FEED-02",
+      "name": "Posts Composer (Text, Multi-Image, Video, Audience, Product Tags)",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "8 checks"
+      }
+    },
+    {
+      "id": "NX-FEED-03",
+      "name": "Likes, Nested Comments, Reactions, Repost & Bookmarks",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "8 checks"
+      }
+    },
+    {
+      "id": "NX-DISC-01",
+      "name": "Unified Explore, Search Suggestions & Recent Searches",
+      "category": "Discovery",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-MSG-01",
+      "name": "3-Zone Direct & Group Messaging Workspace",
+      "category": "Communication",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "7 checks"
+      }
+    },
+    {
+      "id": "NX-MSG-02",
+      "name": "Real-Time WebSockets, Presence, Typing & Read Receipts",
+      "category": "Communication",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "7 checks"
+      }
+    },
+    {
+      "id": "NX-MSG-03",
+      "name": "Offline Outbox & Reconnection Catchup Sync",
+      "category": "Communication",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-MSG-04",
+      "name": "Multi-Node Redis Pub/Sub Fanout Adapter",
+      "category": "Communication",
+      "effectiveStatus": "BLOCKED_EXTERNAL_DEPENDENCY",
+      "effectiveAvailability": "REQUIRES_CONFIGURATION",
+      "providerConfigured": false,
+      "missingEnvVars": [
+        "REDIS_URL"
+      ],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-COMM-01",
+      "name": "Communities, Channels, Polls, Roles & Invites",
+      "category": "Communities",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "6 checks"
+      }
+    },
+    {
+      "id": "NX-MEDIA-01",
+      "name": "24-Hour Stories, Camera, Reactions & Expiration",
+      "category": "Media",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "8 checks"
+      }
+    },
+    {
+      "id": "NX-MEDIA-02",
+      "name": "Validated Media Upload & External Object/Transcoding Adapters",
+      "category": "Media",
+      "effectiveStatus": "BLOCKED_EXTERNAL_DEPENDENCY",
+      "effectiveAvailability": "REQUIRES_CONFIGURATION",
+      "providerConfigured": false,
+      "missingEnvVars": [
+        "S3_ENDPOINT",
+        "S3_BUCKET",
+        "FFMPEG_PATH"
+      ],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-MEDIA-03",
+      "name": "In-App Reels & Template Studio",
+      "category": "Media",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "14 checks"
+      }
+    },
+    {
+      "id": "NX-NEAR-01",
+      "name": "Privacy-Safe Nearby People & Local Events",
+      "category": "Discovery",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-NOTIF-01",
+      "name": "Real-Time Activity Notifications & Quiet Preferences",
+      "category": "Social",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "7 checks"
+      }
+    },
+    {
+      "id": "NX-SHOP-01",
+      "name": "Marketplace Catalog, Merchants & Product Collections",
+      "category": "Commerce",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-SHOP-02",
+      "name": "External Merchant Feed Sync Adapter",
+      "category": "Commerce",
+      "effectiveStatus": "BLOCKED_EXTERNAL_DEPENDENCY",
+      "effectiveAvailability": "REQUIRES_CONFIGURATION",
+      "providerConfigured": false,
+      "missingEnvVars": [
+        "MERCHANT_FEED_URL",
+        "MERCHANT_FEED_API_KEY"
+      ],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-VSEARCH-01",
+      "name": "Visual Product Search (Image Preview & Catalog Match)",
+      "category": "Commerce",
+      "effectiveStatus": "BLOCKED_EXTERNAL_DEPENDENCY",
+      "effectiveAvailability": "REQUIRES_CONFIGURATION",
+      "providerConfigured": false,
+      "missingEnvVars": [
+        "VISUAL_SEARCH_ENDPOINT",
+        "VISUAL_SEARCH_API_KEY"
+      ],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-STUDIO-01",
+      "name": "Nexora Studio (Consented Photos & Outfit Builder)",
+      "category": "Commerce",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-STUDIO-02",
+      "name": "Virtual Try-On Rendering Adapter",
+      "category": "Commerce",
+      "effectiveStatus": "BLOCKED_EXTERNAL_DEPENDENCY",
+      "effectiveAvailability": "REQUIRES_CONFIGURATION",
+      "providerConfigured": false,
+      "missingEnvVars": [
+        "VTON_PROVIDER_URL",
+        "VTON_API_KEY"
+      ],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-MOD-01",
+      "name": "Safety Reporting, Moderation Queue & Audit Logs",
+      "category": "Communities",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "RESTRICTED_BY_PERMISSIONS",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "9 checks"
+      }
+    },
+    {
+      "id": "NX-DISC-02",
+      "name": "Authenticated Feature Discovery Hub (/features)",
+      "category": "Discovery",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "ENABLED",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    },
+    {
+      "id": "NX-MOD-02",
+      "name": "Admin Feature Health Diagnostics (/admin/feature-health)",
+      "category": "Personalization",
+      "effectiveStatus": "IMPLEMENTED_AND_VERIFIED",
+      "effectiveAvailability": "RESTRICTED_BY_PERMISSIONS",
+      "providerConfigured": true,
+      "missingEnvVars": [],
+      "testResult": {
+        "passed": true,
+        "lastRunAt": "2026-11-28T03:44:22.516Z",
+        "detail": "3 checks"
+      }
+    }
+  ]
+}

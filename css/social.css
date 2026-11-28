@@ -297,6 +297,86 @@
   font-variant-numeric: tabular-nums;
 }
 
+.nx-nav-create-wrap {
+  position: relative;
+}
+
+.nx-nav-popover-menu {
+  margin: 4px 0 6px;
+  padding: 6px;
+  border-radius: 12px;
+  border: 1px solid var(--nx-border);
+  background: var(--nx-surface-elevated, var(--nx-card-bg));
+  display: grid;
+  gap: 2px;
+}
+
+.nx-nav-sub-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--nx-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nx-nav-sub-btn svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.nx-nav-sub-btn:hover {
+  background: var(--nx-hover);
+  color: var(--nx-text);
+}
+
+.nx-nav-divider {
+  height: 1px;
+  background: var(--nx-border);
+  margin: 6px 8px;
+}
+
+.nx-more-tools-btn .nx-more-chevron {
+  transition: transform 150ms ease;
+  color: var(--nx-text-muted);
+}
+
+.nx-more-tools-btn[aria-expanded="true"] .nx-more-chevron {
+  transform: rotate(180deg);
+}
+
+.nx-secondary-nav-drawer {
+  display: grid;
+  gap: 2px;
+  padding: 4px 0 6px 8px;
+  border-left: 1px solid var(--nx-border);
+  margin-left: 12px;
+}
+
+.nx-secondary-nav-drawer[hidden],
+.nx-nav-popover-menu[hidden] {
+  display: none !important;
+}
+
+.nx-nav-btn-sub {
+  padding: 8px 12px;
+  font-size: 0.83rem;
+}
+
+.nx-left-nav.collapsed .nx-nav-divider,
+.nx-left-nav.collapsed .nx-secondary-nav-drawer,
+.nx-left-nav.collapsed .nx-nav-popover-menu,
+.nx-left-nav.collapsed .nx-more-chevron {
+  display: none !important;
+}
+
 /* Go Live Card at Bottom of Left Sidebar */
 .nx-live-promo {
   margin-top: 14px;
@@ -633,8 +713,15 @@
   height: 100%;
 }
 
-.nx-inbox-react-root[hidden] {
+.nx-inbox-react-root[hidden],
+.nx-platform-react-root[hidden] {
   display: none !important;
+}
+
+.nx-platform-react-root {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px 48px;
 }
 
 .nx-legacy-workspace {
@@ -1611,7 +1698,8 @@
   .nx-top-profile-btn > svg {
     display: none;
   }
-  .nx-social-root {
+  .nx-social-root,
+  .nx-platform-react-root {
     padding: 12px 10px 24px;
   }
   .nx-reel-stage {

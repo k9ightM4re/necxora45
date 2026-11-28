@@ -65,21 +65,24 @@ test('getDmUnreadCount computes accurate unread counts excluding self messages a
   assert.equal(getDmUnreadCount(null, [], selfUid), 0);
 });
 
-test('3-zone Messaging UI exposes Zone A collapsed rail, Zone B inbox panel, Zone C thread tools, and Nexora AI integration', () => {
+test('3-zone Messaging UI exposes Zone A collapsed rail, Zone B React inbox panel, and Zone C thread tools', () => {
   const appHtml = fs.readFileSync(path.resolve(process.cwd(), 'app.html'), 'utf8');
   const appCss = fs.readFileSync(path.resolve(process.cwd(), 'css/app.css'), 'utf8');
   const socialCss = fs.readFileSync(path.resolve(process.cwd(), 'css/social.css'), 'utf8');
   const appJs = fs.readFileSync(path.resolve(process.cwd(), 'js/app.js'), 'utf8');
+  const inboxActive = fs.readFileSync(path.resolve(process.cwd(), 'src/inbox/ActiveConversation.tsx'), 'utf8');
 
-  // Zone A: Icon navigation rail + AI Agents entry + bottom profile avatar + tooltips
-  assert.ok(appHtml.includes('data-nx-nav="ai-agents"'));
+  // Zone A: Icon navigation rail + Messages + bottom profile avatar + tooltips
+  assert.ok(appHtml.includes('data-nx-nav="messages"'));
+  assert.ok(!appHtml.includes('data-nx-nav="ai-agents"'), 'Removed AI bot navigation must stay absent');
   assert.ok(appHtml.includes('id="nx-rail-user-btn"'));
   assert.ok(appHtml.includes('data-tooltip="Messages"'));
   assert.ok(socialCss.includes('.nx-left-nav.collapsed'));
   assert.ok(socialCss.includes('width: 72px'));
   assert.ok(socialCss.includes('[data-tooltip]:hover::after'));
 
-  // Zone B: Single navigation rail (server-rail & user-dock hidden), 340px panel, search clear, All|Unread|Requests
+  // Zone B & C: React 3-zone inbox mount, legacy fallback CSS, search clear, mute/delete/group management
+  assert.ok(appHtml.includes('id="nx-inbox-react-root"'));
   assert.ok(appCss.includes('.nx-legacy-workspace[data-workspace-mode="messages"] .server-rail'));
   assert.ok(appCss.includes('.nx-legacy-workspace[data-workspace-mode="messages"] .user-dock'));
   assert.ok(appCss.includes('width: 340px'));
@@ -87,15 +90,16 @@ test('3-zone Messaging UI exposes Zone A collapsed rail, Zone B inbox panel, Zon
   assert.ok(appJs.includes('data-dm-tab="all"'));
   assert.ok(appJs.includes('data-dm-tab="unread"'));
   assert.ok(appJs.includes('data-dm-tab="requests"'));
-  assert.ok(appJs.includes('NEXORA_AI_THREAD_ID'));
+  assert.ok(inboxActive.includes('toggleMuteDm'));
+  assert.ok(inboxActive.includes('deleteThreadForMe'));
+  assert.ok(inboxActive.includes('manageGroupMembers'));
 
-  // Zone C: Thread search clear/toggle, date separators, skeletons, AI citations, composer focus/sending/disabled
+  // Zone C: Thread search clear/toggle, date separators, skeletons, composer focus/sending/disabled
   assert.ok(appHtml.includes('id="msg-search-wrap"'));
   assert.ok(appHtml.includes('id="msg-search-clear-btn"'));
   assert.ok(appHtml.includes('id="msg-search-toggle-btn"'));
   assert.ok(appJs.includes('nx-msg-date-sep'));
   assert.ok(appJs.includes('nx-dm-skeleton-list'));
-  assert.ok(appJs.includes('nx-ai-citations'));
   assert.ok(appCss.includes('.nx-legacy-workspace[data-workspace-mode="messages"] .composer-box:focus-within'));
   assert.ok(appCss.includes('.composer-send.is-sending'));
   assert.ok(appCss.includes('[data-theme="light"] .nx-dm-bubble.is-peer'));

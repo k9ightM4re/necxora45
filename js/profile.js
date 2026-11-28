@@ -68,6 +68,9 @@ export async function ensureUserProfile(user, extra = {}) {
         avatar,
         coverPhoto: '',
         bio: String(extra.bio || 'Connect. Create. Share.').slice(0, 500),
+        website: sanitizeSafeUrl(extra.website || '').slice(0, 200),
+        locationLabel: String(extra.locationLabel || '').slice(0, 100),
+        interests: Array.isArray(extra.interests) ? extra.interests.slice(0, 20) : [],
         status: 'online',
         customStatus: String(extra.customStatus || 'Active on NEXORA').slice(0, 200),
         accountPrivacy: 'everyone',
@@ -122,6 +125,9 @@ export async function ensureUserProfile(user, extra = {}) {
     initials: publicProfile?.initials || initials,
     avatar: publicProfile?.avatar || avatar,
     coverPhoto: publicProfile?.coverPhoto || '',
+    website: publicProfile?.website || '',
+    locationLabel: publicProfile?.locationLabel || '',
+    interests: Array.isArray(publicProfile?.interests) ? publicProfile.interests : [],
     accountPrivacy: publicProfile?.accountPrivacy || 'everyone',
     followersCount: Math.max(0, Number(publicProfile?.followersCount || 0)),
     followingCount: Math.max(0, Number(publicProfile?.followingCount || 0)),
@@ -160,6 +166,16 @@ export async function updateUserProfile(uid, updates) {
       await updateProfile(auth.currentUser, { displayName }).catch(() => {});
     }
 
+    const cleanWebsite = updates.website !== undefined ? sanitizeSafeUrl(updates.website).slice(0, 200) : undefined;
+    const cleanLocation =
+      updates.locationLabel !== undefined ? String(updates.locationLabel || '').trim().slice(0, 100) : undefined;
+    const cleanInterests = Array.isArray(updates.interests)
+      ? updates.interests
+          .map((t) => String(t || '').trim().slice(0, 40))
+          .filter(Boolean)
+          .slice(0, 20)
+      : undefined;
+
     const payload = {
       displayName,
       username,
@@ -171,6 +187,9 @@ export async function updateUserProfile(uid, updates) {
       lastSeenMs: Date.now(),
       updatedAt: serverTimestamp(),
     };
+    if (cleanWebsite !== undefined) payload.website = cleanWebsite;
+    if (cleanLocation !== undefined) payload.locationLabel = cleanLocation;
+    if (cleanInterests !== undefined) payload.interests = cleanInterests;
     if (typeof updates.avatar === 'string') {
       payload.avatar = sanitizeSafeUrl(updates.avatar).slice(0, 200000);
     }
@@ -185,6 +204,9 @@ export async function updateUserProfile(uid, updates) {
       username,
       initials,
       accountPrivacy: privacy,
+      ...(cleanWebsite !== undefined ? { website: cleanWebsite } : {}),
+      ...(cleanLocation !== undefined ? { locationLabel: cleanLocation } : {}),
+      ...(cleanInterests !== undefined ? { interests: cleanInterests } : {}),
       ...(typeof payload.avatar === 'string' ? { avatar: payload.avatar } : {}),
       ...(typeof payload.coverPhoto === 'string' ? { coverPhoto: payload.coverPhoto } : {}),
     };

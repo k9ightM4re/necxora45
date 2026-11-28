@@ -4,10 +4,13 @@ import {
   Archive,
   ArrowLeft,
   Ban,
+  Bell,
+  BellOff,
   Check,
   CheckCheck,
   ChevronRight,
   Flag,
+  LogOut,
   Mic,
   MoreVertical,
   Paperclip,
@@ -66,6 +69,8 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [requestNote, setRequestNote] = useState('');
+  const [renamingGroup, setRenamingGroup] = useState(false);
+  const [groupTitleDraft, setGroupTitleDraft] = useState('');
   const [brokenMediaIds, setBrokenMediaIds] = useState<Record<string, boolean>>({});
 
   const moreRef = useRef<HTMLDivElement | null>(null);
@@ -414,6 +419,10 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
   }
 
   const isArchived = Array.isArray(activeDm.archivedBy) && activeDm.archivedBy.includes(currentUid);
+  const isMuted = Array.isArray(activeDm.mutedBy) && activeDm.mutedBy.includes(currentUid);
+  const isGroupAdmin =
+    activeDm.type === 'group' &&
+    (activeDm.createdBy === currentUid || activeDm.memberRoles?.[currentUid] === 'admin');
   const isTyping = activeDm.typingNames.length > 0;
   const statusLine = isTyping
     ? activeDm.typingNames.length === 1
@@ -919,6 +928,59 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
                 <span>{isArchived ? 'Restore Chat' : 'Archive Chat'}</span>
                 <Archive size={14} className="text-[#77818F]" />
               </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMoreOpen(false);
+                  void bridge?.toggleMuteDm(activeThreadId);
+                }}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+              >
+                <span>{isMuted ? 'Unmute Alerts' : 'Mute Alerts'}</span>
+                {isMuted ? <Bell size={14} className="text-[#77818F]" /> : <BellOff size={14} className="text-[#77818F]" />}
+              </button>
+              {activeDm.type === 'group' && isGroupAdmin && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    setGroupTitleDraft(activeDm.groupName || activeDm.name || '');
+                    setRenamingGroup(true);
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                >
+                  <span>Rename Group</span>
+                  <Pencil size={14} className="text-[#77818F]" />
+                </button>
+              )}
+              {activeDm.type === 'group' && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    void bridge?.manageGroupMembers(activeThreadId, { action: 'leave' });
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#202630] hover:bg-black/[0.05] dark:text-[#F2F4F7] dark:hover:bg-white/[0.06]"
+                >
+                  <span>Leave Group</span>
+                  <LogOut size={14} className="text-[#77818F]" />
+                </button>
+              )}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setMoreOpen(false);
+                  void bridge?.deleteThreadForMe(activeThreadId);
+                }}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[0.84rem] text-[#596473] hover:bg-black/[0.05] dark:text-[#A8B0BB] dark:hover:bg-white/[0.06]"
+              >
+                <span>Remove Chat (Me)</span>
+                <Trash2 size={14} className="text-[#77818F]" />
+              </button>
               {activeDm.type === 'dm' && activeDm.userId && (
                 <>
                   <button
@@ -951,6 +1013,30 @@ export const ActiveConversation: React.FC<ActiveConversationProps> = ({ snapshot
           )}
         </div>
       </header>
+
+      {renamingGroup && activeDm.type === 'group' && (
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+            const trimmed = groupTitleDraft.trim();
+            if (!trimmed) return;
+            const ok = await bridge?.manageGroupMembers(activeThreadId, { action: 'rename', groupName: trimmed });
+            if (ok) setRenamingGroup(false);
+          }}
+          className="flex shrink-0 items-center gap-2 border-b border-black/[0.08] bg-white px-4 py-2 dark:border-white/[0.08] dark:bg-[#171C23]"
+        >
+          <input
+            type="text"
+            value={groupTitleDraft}
+            onChange={(e) => setGroupTitleDraft(e.target.value)}
+            maxLength={60}
+            placeholder="Group name..."
+            className="h-8 flex-1 rounded-lg border border-black/[0.1] bg-[#F5F6F8] px-3 text-[0.84rem] text-[#202630] focus:border-[#4777DF] focus:outline-none dark:border-white/[0.1] dark:bg-[#1D232C] dark:text-[#F2F4F7]"
+          />
+          <button type="submit" className="h-8 rounded-lg bg-[#3868CE] px-3 text-[0.78rem] font-medium text-white">Save</button>
+          <button type="button" onClick={() => setRenamingGroup(false)} className="h-8 rounded-lg border border-black/[0.1] px-3 text-[0.78rem] dark:border-white/[0.1]">Cancel</button>
+        </form>
+      )}
 
       {/* Collapsible In-Thread Search */}
       {threadSearchOpen && (

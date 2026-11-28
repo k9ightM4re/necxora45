@@ -12,6 +12,9 @@
         "avatar": { "type": "string", "maxLength": 200000 },
         "coverPhoto": { "type": "string", "maxLength": 300000 },
         "bio": { "type": "string", "maxLength": 500 },
+        "website": { "type": "string", "maxLength": 200 },
+        "locationLabel": { "type": "string", "maxLength": 100 },
+        "interests": { "type": "array", "maxItems": 20 },
         "status": { "type": "string", "enum": ["online", "idle", "dnd", "offline", "invisible"] },
         "customStatus": { "type": "string", "maxLength": 200 },
         "accountPrivacy": { "type": "string", "enum": ["everyone", "requests_only", "private"] },
@@ -21,6 +24,7 @@
         "lastSeenMs": { "type": "number" },
         "suspended": { "type": "boolean" },
         "verified": { "type": "boolean" },
+        "deactivated": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -34,9 +38,51 @@
         "email": { "type": "string", "maxLength": 200 },
         "phoneNumber": { "type": "string", "maxLength": 40 },
         "authProvider": { "type": "string", "maxLength": 80 },
+        "deactivated": { "type": "boolean" },
+        "reason": { "type": "string", "maxLength": 300 },
+        "deactivatedAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["updatedAt"]
+    },
+    "followRequest": {
+      "title": "Private Account Follow Request",
+      "description": "Pending, accepted, or declined follow request for private profiles",
+      "type": "object",
+      "properties": {
+        "requesterUid": { "type": "string", "maxLength": 128 },
+        "targetUid": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "maxLength": 120 },
+        "username": { "type": "string", "maxLength": 50 },
+        "avatar": { "type": "string", "maxLength": 200000 },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requesterUid", "targetUid", "status", "createdAt", "updatedAt"]
+    },
+    "userMute": {
+      "title": "Muted User",
+      "description": "Per-user muted account hidden from feed and notifications",
+      "type": "object",
+      "properties": {
+        "mutedUid": { "type": "string", "maxLength": 128 },
+        "mutedName": { "type": "string", "maxLength": 80 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["mutedUid", "createdAt"]
+    },
+    "searchHistoryItem": {
+      "title": "Recent Search Entry",
+      "description": "Per-user persisted recent search query",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "query": { "type": "string", "maxLength": 120 },
+        "category": { "type": "string", "maxLength": 32 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "query", "createdAt"]
     },
     "userFollow": {
       "title": "User Follow Edge",
@@ -68,7 +114,7 @@
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 128 },
-        "sourceType": { "type": "string", "enum": ["channel", "dm", "post", "reel"] },
+        "sourceType": { "type": "string", "enum": ["channel", "dm", "post", "reel", "product"] },
         "sourceId": { "type": "string", "maxLength": 128 },
         "messageId": { "type": "string", "maxLength": 128 },
         "authorName": { "type": "string", "maxLength": 80 },
@@ -133,6 +179,8 @@
         "commentsCount": { "type": "number" },
         "sharesCount": { "type": "number" },
         "edited": { "type": "boolean" },
+        "isDraft": { "type": "boolean" },
+        "productIds": { "type": "array", "maxItems": 10 },
         "repostOfId": { "type": "string", "maxLength": 128 },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
@@ -153,6 +201,8 @@
         "content": { "type": "string", "maxLength": 1500 },
         "replyToId": { "type": "string", "maxLength": 128 },
         "replyToName": { "type": "string", "maxLength": 80 },
+        "depth": { "type": "number" },
+        "reactions": { "type": "object" },
         "likesUids": { "type": "array", "maxItems": 200 },
         "edited": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" },
@@ -343,7 +393,7 @@
       "properties": {
         "userId": { "type": "string", "maxLength": 128 },
         "displayName": { "type": "string", "maxLength": 50 },
-        "role": { "type": "string", "enum": ["owner", "moderator", "member"] },
+        "role": { "type": "string", "enum": ["owner", "administrator", "moderator", "member"] },
         "inviteCode": { "type": "string", "maxLength": 32 },
         "joinedAt": { "type": "string", "format": "date-time" }
       },
@@ -351,13 +401,13 @@
     },
     "channel": {
       "title": "Channel",
-      "description": "Text, announcement, voice, or stage channel",
+      "description": "Text, general, announcement, questions, events, media, voice, or stage channel",
       "type": "object",
       "properties": {
         "id": { "type": "string", "maxLength": 128 },
         "serverId": { "type": "string", "maxLength": 128 },
         "name": { "type": "string", "maxLength": 50 },
-        "type": { "type": "string", "enum": ["text", "announcement", "voice", "stage"] },
+        "type": { "type": "string", "enum": ["text", "general", "announcement", "questions", "events", "media", "voice", "stage"] },
         "topic": { "type": "string", "maxLength": 200 },
         "createdAt": { "type": "string", "format": "date-time" }
       },
@@ -407,12 +457,14 @@
         "id": { "type": "string", "maxLength": 128 },
         "reporterId": { "type": "string", "maxLength": 128 },
         "reporterName": { "type": "string", "maxLength": 80 },
-        "targetType": { "type": "string", "enum": ["user", "message", "server", "post", "reel", "story"] },
+        "targetType": { "type": "string", "enum": ["user", "message", "server", "post", "reel", "story", "product", "comment"] },
         "targetId": { "type": "string", "maxLength": 128 },
         "serverId": { "type": "string", "maxLength": 128 },
         "serverOwnerId": { "type": "string", "maxLength": 128 },
         "reason": { "type": "string", "maxLength": 300 },
-        "status": { "type": "string", "enum": ["open", "resolved", "dismissed"] },
+        "status": { "type": "string", "enum": ["open", "under_review", "resolved", "dismissed"] },
+        "reviewedBy": { "type": "string", "maxLength": 128 },
+        "actionTaken": { "type": "string", "maxLength": 300 },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },
@@ -478,7 +530,10 @@
         "groupName": { "type": "string", "maxLength": 80 },
         "participants": { "type": "array", "maxItems": 30 },
         "participantMeta": { "type": "object" },
+        "memberRoles": { "type": "object" },
         "archivedBy": { "type": "array", "maxItems": 30 },
+        "mutedBy": { "type": "array", "maxItems": 30 },
+        "deletedFor": { "type": "object" },
         "typing": { "type": "object" },
         "createdBy": { "type": "string", "maxLength": 128 },
         "lastMessage": { "type": "string", "maxLength": 300 },
@@ -496,14 +551,17 @@
       "properties": {
         "id": { "type": "string", "maxLength": 128 },
         "threadId": { "type": "string", "maxLength": 128 },
+        "clientMutationId": { "type": "string", "maxLength": 128 },
         "senderId": { "type": "string", "maxLength": 128 },
         "senderName": { "type": "string", "maxLength": 50 },
         "senderInitials": { "type": "string", "maxLength": 4 },
         "content": { "type": "string", "maxLength": 2000 },
         "attachment": { "type": "object" },
+        "deliveredTo": { "type": "array", "maxItems": 30 },
         "seenBy": { "type": "array", "maxItems": 30 },
         "edited": { "type": "boolean" },
         "pinned": { "type": "boolean" },
+        "deleted": { "type": "boolean" },
         "replyToId": { "type": "string", "maxLength": 128 },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
@@ -738,6 +796,94 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "userId", "provider", "label", "textModel", "hasKey", "isDefault", "createdAt", "updatedAt"]
+    },
+    "merchant": {
+      "title": "Social Commerce Merchant",
+      "description": "Verified or owner-submitted merchant storefront metadata",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "domain": { "type": "string", "maxLength": 160 },
+        "verified": { "type": "boolean" },
+        "feedConfigured": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "ownerId", "name", "domain", "createdAt", "updatedAt"]
+    },
+    "product": {
+      "title": "Commerce Catalog Product",
+      "description": "Merchant-linked product card with external offer link and price freshness",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "merchantId": { "type": "string", "maxLength": 128 },
+        "merchantName": { "type": "string", "maxLength": 100 },
+        "ownerId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 140 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "category": { "type": "string", "maxLength": 60 },
+        "priceCents": { "type": "number" },
+        "currency": { "type": "string", "maxLength": 8 },
+        "externalUrl": { "type": "string", "maxLength": 400 },
+        "imageUrl": { "type": "string", "maxLength": 400000 },
+        "tags": { "type": "array", "maxItems": 15 },
+        "inStock": { "type": "boolean" },
+        "priceLastCheckedAtMs": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "archived"] },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "merchantId", "merchantName", "ownerId", "title", "category", "priceCents", "currency", "externalUrl", "status", "createdAt", "updatedAt"]
+    },
+    "productCollection": {
+      "title": "User Saved Product Collection",
+      "description": "User-curated shopping board and product wishlist",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 80 },
+        "description": { "type": "string", "maxLength": 300 },
+        "productIds": { "type": "array", "maxItems": 50 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "title", "productIds", "createdAt", "updatedAt"]
+    },
+    "studioPhoto": {
+      "title": "Nexora Studio Consented Photo",
+      "description": "Strictly owner-only consented photo uploaded for outfit try-on",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "label": { "type": "string", "maxLength": 80 },
+        "mediaUrl": { "type": "string", "maxLength": 420000 },
+        "consentAccepted": { "type": "boolean" },
+        "consentAt": { "type": "string", "format": "date-time" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "mediaUrl", "consentAccepted", "consentAt", "createdAt"]
+    },
+    "studioOutfit": {
+      "title": "Nexora Studio Outfit & Try-On Job",
+      "description": "Saved outfit combination and external virtual try-on job state",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 80 },
+        "photoId": { "type": "string", "maxLength": 128 },
+        "productIds": { "type": "array", "maxItems": 10 },
+        "jobStatus": { "type": "string", "enum": ["draft", "unconfigured", "queued", "completed", "failed"] },
+        "providerMessage": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "name", "productIds", "jobStatus", "createdAt", "updatedAt"]
     }
   },
   "firestore": {
@@ -757,6 +903,30 @@
       "schema": { "$ref": "#/entities/userFollow" },
       "description": "Accounts followed by this user"
     },
+    "/users/{userId}/follow_requests/{requesterUid}": {
+      "schema": { "$ref": "#/entities/followRequest" },
+      "description": "Pending and resolved follow requests for private accounts"
+    },
+    "/users/{userId}/mutes/{mutedUid}": {
+      "schema": { "$ref": "#/entities/userMute" },
+      "description": "Muted user list"
+    },
+    "/users/{userId}/search_history/{entryId}": {
+      "schema": { "$ref": "#/entities/searchHistoryItem" },
+      "description": "Recent user search queries"
+    },
+    "/users/{userId}/product_collections/{collectionId}": {
+      "schema": { "$ref": "#/entities/productCollection" },
+      "description": "User saved product boards"
+    },
+    "/users/{userId}/studio_photos/{photoId}": {
+      "schema": { "$ref": "#/entities/studioPhoto" },
+      "description": "Owner-only consented personal Studio photos"
+    },
+    "/users/{userId}/studio_outfits/{outfitId}": {
+      "schema": { "$ref": "#/entities/studioOutfit" },
+      "description": "Owner-only Studio outfit plans and try-on jobs"
+    },
     "/users/{userId}/notifications/{notifId}": {
       "schema": { "$ref": "#/entities/notification" },
       "description": "User notifications"
@@ -767,7 +937,7 @@
     },
     "/users/{userId}/bookmarks/{bookmarkId}": {
       "schema": { "$ref": "#/entities/userBookmark" },
-      "description": "Saved/bookmarked messages, posts, and reels"
+      "description": "Saved/bookmarked messages, posts, reels, and products"
     },
     "/users/{userId}/joined_servers/{serverId}": {
       "schema": { "$ref": "#/entities/joinedServerRef" },
@@ -908,6 +1078,14 @@
     "/ai_provider_settings/{configId}": {
       "schema": { "$ref": "#/entities/aiProviderSetting" },
       "description": "Owner-only non-secret AI provider settings metadata"
+    },
+    "/merchants/{merchantId}": {
+      "schema": { "$ref": "#/entities/merchant" },
+      "description": "Verified and community merchant storefronts"
+    },
+    "/products/{productId}": {
+      "schema": { "$ref": "#/entities/product" },
+      "description": "Social Commerce catalog products"
     }
   }
 }

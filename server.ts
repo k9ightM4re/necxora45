@@ -50,7 +50,24 @@ async function startServer() {
   );
   app.use(express.urlencoded({ extended: false }));
 
-  mountNexoraApiRoutes(app);
+  const wsBroadcastRef: { broadcastToUids?: (uids: string[], payload: Record<string, any>) => void } = {};
+  mountNexoraApiRoutes(app, { wsBroadcastRef });
+
+  const deepLinkMap: Record<string, string> = {
+    '/features': '/app.html#features',
+    '/admin/feature-health': '/app.html#admin-feature-health',
+    '/marketplace': '/app.html#marketplace',
+    '/exchange': '/app.html#marketplace',
+    '/visual-search': '/app.html#visual-search',
+    '/studio': '/app.html#studio',
+    '/camera': '/app.html#camera',
+    '/nearby': '/app.html#nearby',
+  };
+  for (const [routePath, targetHash] of Object.entries(deepLinkMap)) {
+    app.get(routePath, (_req, res) => {
+      res.redirect(302, targetHash);
+    });
+  }
 
   if (!isProduction) {
     const vite = await createViteServer({
@@ -81,7 +98,8 @@ async function startServer() {
   }
 
   const httpServer = http.createServer(app);
-  attachNexoraWebSocketServer(httpServer, { verifyFirebaseToken });
+  const wsHub = attachNexoraWebSocketServer(httpServer, { verifyFirebaseToken });
+  wsBroadcastRef.broadcastToUids = wsHub.broadcastToUids;
 
   httpServer.listen(PORT, '0.0.0.0', () => {
     console.log(

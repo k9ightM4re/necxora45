@@ -8,20 +8,20 @@ export default defineConfig(() => {
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
       },
     },
     build: {
       rollupOptions: {
         input: {
-          main: path.resolve(__dirname, 'index.html'),
-          login: path.resolve(__dirname, 'login.html'),
-          signup: path.resolve(__dirname, 'signup.html'),
-          verify: path.resolve(__dirname, 'verify.html'),
-          welcome: path.resolve(__dirname, 'welcome.html'),
-          forgotPassword: path.resolve(__dirname, 'forgot-password.html'),
-          resetPassword: path.resolve(__dirname, 'reset-password.html'),
-          app: path.resolve(__dirname, 'app.html'),
+          main: path.resolve(import.meta.dirname, 'index.html'),
+          login: path.resolve(import.meta.dirname, 'login.html'),
+          signup: path.resolve(import.meta.dirname, 'signup.html'),
+          verify: path.resolve(import.meta.dirname, 'verify.html'),
+          welcome: path.resolve(import.meta.dirname, 'welcome.html'),
+          forgotPassword: path.resolve(import.meta.dirname, 'forgot-password.html'),
+          resetPassword: path.resolve(import.meta.dirname, 'reset-password.html'),
+          app: path.resolve(import.meta.dirname, 'app.html'),
         },
       },
     },

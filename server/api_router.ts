@@ -17,6 +17,8 @@ import {
 import { mountSocialCircleRoutes } from './social_circle/router.ts';
 import { mountMediaRoutes } from './media_router.ts';
 import { mountDiscoveryRoutes } from './discovery_router.ts';
+import { mountV1ApiRoutes } from './v1/router.ts';
+import type { AuthedRequest, VerifiedUser } from './v1/context.ts';
 
 const firebaseConfigPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
 const firebaseConfig = fs.existsSync(firebaseConfigPath)
@@ -93,24 +95,49 @@ export async function verifyFirebaseToken(idToken: string): Promise<any | null> 
       emailVerified: Boolean(user.emailVerified),
       phoneNumber: user.phoneNumber || '',
       displayName: user.displayName || '',
+      idToken,
     };
   } catch {
     return null;
   }
 }
 
-async function requireVerifiedBearer(req: Request, res: Response): Promise<any | null> {
+async function verifyOptionalBearer(req: AuthedRequest): Promise<VerifiedUser | null> {
+  const authHeader = String(req.headers['authorization'] || '');
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+  if (!token) return null;
+  const verified = await verifyFirebaseToken(token);
+  if (verified) req.verifiedUser = verified;
+  return verified;
+}
+
+async function requireVerifiedBearer(req: AuthedRequest, res: Response): Promise<VerifiedUser | null> {
   const authHeader = String(req.headers['authorization'] || '');
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
   const verified = await verifyFirebaseToken(token);
   if (!verified) {
-    res.status(401).json({ error: 'Authentication required. Please sign in to NEXORA.' });
+    if (req.originalUrl.startsWith('/api/v1')) {
+      res.status(401).json({
+        ok: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required. Please sign in to NEXORA.',
+          requestId: req.requestId || null,
+        },
+      });
+    } else {
+      res.status(401).json({ error: 'Authentication required. Please sign in to NEXORA.' });
+    }
     return null;
   }
+  req.verifiedUser = verified;
   return verified;
 }
 
-export function mountNexoraApiRoutes(app: Express): void {
+export function mountNexoraApiRoutes(
+  app: Express,
+  options?: { wsBroadcastRef?: { broadcastToUids?: (uids: string[], payload: Record<string, any>) => void } }
+): void {
   // Security headers + block direct static access to private server vault directory
   app.use((req: Request, res: Response, next: NextFunction) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -458,5 +485,14 @@ export function mountNexoraApiRoutes(app: Express): void {
   mountSocialCircleRoutes(app, {
     verifyFirebaseToken,
     checkRateLimit,
+  });
+
+  mountV1ApiRoutes(app, {
+    projectId: firebaseConfig.projectId || null,
+    requireVerifiedBearer,
+    verifyOptionalBearer,
+    checkRateLimit,
+    isAdminUserServer,
+    wsBroadcastRef: options?.wsBroadcastRef,
   });
 }
