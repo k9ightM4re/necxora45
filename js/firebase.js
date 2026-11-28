@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
-import { getAuth, GoogleAuthProvider } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, onAuthStateChanged } from 'firebase/auth';
 import {
-  disableNetwork,
   doc,
   enableNetwork,
   getDocFromServer,
@@ -10,6 +9,7 @@ import {
 } from 'firebase/firestore';
 import firebaseConfig from '../firebase-applet-config.json';
 import { formatFriendlyError, installGlobalErrorShield, notifyUser } from './notifications.js';
+import { getCachedLocalSession } from './local_session.js';
 
 installGlobalErrorShield();
 
@@ -21,8 +21,7 @@ function createDb() {
     return initializeFirestore(
       app,
       {
-        experimentalForceLongPolling: true,
-        experimentalLongPollingOptions: { timeoutSeconds: 20 },
+        experimentalAutoDetectLongPolling: true,
       },
       firebaseConfig.firestoreDatabaseId || undefined
     );
@@ -35,6 +34,8 @@ function createDb() {
 export const db = createDb();
 
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope('email');
+googleProvider.addScope('profile');
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
 export const OperationType = {
@@ -67,6 +68,9 @@ export function handleFirestoreError(error, operationType, path, fallbackOrOptio
       })),
     },
   };
+  if (!auth.currentUser && getCachedLocalSession()) {
+    return formatFriendlyError(error, opts.fallback || 'Workspace ready.');
+  }
   console.error('Firestore Error: ', JSON.stringify(errInfo));
   const friendly = formatFriendlyError(
     error,
@@ -82,65 +86,99 @@ export function handleFirestoreError(error, operationType, path, fallbackOrOptio
 }
 
 let isUnloading = false;
+let lastTestedUid = '';
+let activeConnectionTest = null;
 
 export async function testConnection(retryCount = 0) {
   if (isUnloading) return;
+  if (retryCount === 0 && activeConnectionTest) {
+    return activeConnectionTest;
+  }
   if (typeof navigator !== 'undefined' && navigator.onLine === false) {
     if (typeof window !== 'undefined') {
       window.addEventListener(
         'online',
         () => {
-          if (isUnloading) return;
+          if (isUnloading || !auth.currentUser) return;
           enableNetwork(db).catch(() => {});
-          testConnection(0);
+          void testConnection(0);
         },
         { once: true }
       );
     }
     return;
   }
-  try {
-    if (typeof auth.authStateReady === 'function') {
-      await auth.authStateReady().catch(() => {});
-    }
-    if (isUnloading) return;
-    await getDocFromServer(doc(db, 'test', 'connection'));
-  } catch (error) {
-    if (isUnloading) return;
-    if (error instanceof Error) {
-      const msg = error.message.toLowerCase();
-      // If document not found or permission denied, the Firestore backend is online and reachable
-      if (msg.includes('not-found') || msg.includes('permission-denied') || msg.includes('already exists')) {
-        return;
+
+  const run = (async () => {
+    try {
+      if (typeof auth.authStateReady === 'function') {
+        await auth.authStateReady().catch(() => {});
       }
-      if (msg.includes('the client is offline') || msg.includes('unavailable') || msg.includes('network-request-failed')) {
-        if (retryCount < 2) {
-          setTimeout(() => {
-            if (!isUnloading) testConnection(retryCount + 1);
-          }, (retryCount + 1) * 1800);
+      if (isUnloading || !auth.currentUser) return;
+      await getDocFromServer(doc(db, 'test', 'connection'));
+    } catch (error) {
+      if (isUnloading || !auth.currentUser) return;
+      if (error instanceof Error) {
+        const msg = error.message.toLowerCase();
+        // If document not found or permission denied, the Firestore backend is online and reachable
+        if (msg.includes('not-found') || msg.includes('permission-denied') || msg.includes('already exists')) {
           return;
         }
-        notifyUser('Site is busy or your connection is unstable. Reconnecting...', 'busy');
+        if (
+          msg.includes('the client is offline') ||
+          msg.includes('unavailable') ||
+          msg.includes('network-request-failed')
+        ) {
+          if (retryCount < 2 && (typeof navigator === 'undefined' || navigator.onLine !== false)) {
+            setTimeout(() => {
+              if (!isUnloading && auth.currentUser) {
+                void testConnection(retryCount + 1);
+              }
+            }, (retryCount + 1) * 2000);
+            return;
+          }
+          notifyUser('Site is busy or your connection is unstable. Reconnecting...', 'busy');
+        }
+      }
+    } finally {
+      if (retryCount === 0) {
+        activeConnectionTest = null;
       }
     }
+  })();
+
+  if (retryCount === 0) {
+    activeConnectionTest = run;
   }
+  return run;
 }
 
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
     isUnloading = false;
     enableNetwork(db).catch(() => {});
+    if (auth.currentUser) {
+      void testConnection(0);
+    }
   });
   window.addEventListener('pagehide', () => {
     isUnloading = true;
-    disableNetwork(db).catch(() => {});
   });
   window.addEventListener('pageshow', (event) => {
     isUnloading = false;
-    if (event.persisted) {
+    if (event.persisted && auth.currentUser) {
       enableNetwork(db).catch(() => {});
     }
   });
 }
 
-testConnection();
+onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    lastTestedUid = '';
+    return;
+  }
+  if (user.uid !== lastTestedUid) {
+    lastTestedUid = user.uid;
+    void testConnection(0);
+  }
+});

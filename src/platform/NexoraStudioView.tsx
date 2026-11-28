@@ -16,7 +16,7 @@ import {
   UserCheck,
   Wand2,
 } from 'lucide-react';
-import { auth } from '../../js/firebase.js';
+import { getActiveIdToken } from '../../js/session.js';
 import { ApiV1Error, apiV1Request } from './apiClient';
 import type { ProductItem } from './MarketplaceView';
 
@@ -121,7 +121,7 @@ const PrivateStudioImage: React.FC<{ src: string; alt: string; className?: strin
     let objectUrl = '';
     const loadPrivate = async () => {
       try {
-        const token = await auth.currentUser?.getIdToken();
+        const token = await getActiveIdToken();
         const res = await fetch(src, {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
           credentials: 'same-origin',
@@ -278,7 +278,7 @@ export const NexoraStudioView: React.FC<NexoraStudioViewProps> = ({ onNavigate }
       if (typeof reader.result !== 'string') return;
       try {
         setBusy(true);
-        const token = await auth.currentUser?.getIdToken();
+        const token = await getActiveIdToken();
         const res = await fetch('/api/media/upload', {
           method: 'POST',
           headers: {

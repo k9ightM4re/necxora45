@@ -2,6 +2,7 @@ import { updateProfile } from 'firebase/auth';
 import { doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db, handleFirestoreError, OperationType } from './firebase.js';
 import { sanitizeSafeUrl } from './social_utils.js';
+import { getCachedLocalSession, updateLocalProfile } from './local_session.js';
 
 export function sanitizeHandle(raw, seed = '') {
   const cleaned = String(raw || '')
@@ -38,8 +39,6 @@ export function getInitials(name) {
 
 export async function ensureUserProfile(user, extra = {}) {
   if (!user?.uid) return null;
-  const userPath = `users/${user.uid}`;
-  const userRef = doc(db, 'users', user.uid);
 
   const fallbackName =
     extra.displayName ||
@@ -52,6 +51,44 @@ export async function ensureUserProfile(user, extra = {}) {
   const username = sanitizeHandle(extra.username || user.email?.split('@')[0] || displayName, user.uid);
   const initials = getInitials(displayName);
   const avatar = String(user.photoURL || '').slice(0, 200000);
+
+  if (user.isNexoraAccount) {
+    const cached = getCachedLocalSession();
+    if (extra.displayName && extra.displayName !== user.displayName) {
+      try {
+        const updated = await updateLocalProfile({ displayName: extra.displayName });
+        if (updated) return updated;
+      } catch {}
+    }
+    return (
+      cached?.profile || {
+        id: user.uid,
+        username,
+        displayName,
+        initials,
+        avatar,
+        coverPhoto: '',
+        bio: String(extra.bio || 'Connect. Create. Share.').slice(0, 500),
+        website: '',
+        locationLabel: '',
+        interests: [],
+        status: 'online',
+        customStatus: 'Active on NEXORA',
+        accountPrivacy: 'everyone',
+        followersCount: 0,
+        followingCount: 0,
+        postsCount: 0,
+        email: user.email || '',
+        phoneNumber: user.phoneNumber || '',
+        emailVerified: true,
+        verified: false,
+        suspended: false,
+      }
+    );
+  }
+
+  const userPath = `users/${user.uid}`;
+  const userRef = doc(db, 'users', user.uid);
 
   let publicProfile = null;
 
@@ -141,6 +178,10 @@ export async function ensureUserProfile(user, extra = {}) {
 }
 
 export async function loadUserProfile(uid) {
+  const local = getCachedLocalSession();
+  if (!auth.currentUser && local?.user?.uid === uid) {
+    return local.profile || null;
+  }
   const path = `users/${uid}`;
   try {
     const snap = await getDoc(doc(db, 'users', uid));
@@ -152,6 +193,14 @@ export async function loadUserProfile(uid) {
 }
 
 export async function updateUserProfile(uid, updates) {
+  const local = getCachedLocalSession();
+  if (!auth.currentUser && local?.user?.uid === uid) {
+    try {
+      return await updateLocalProfile(updates);
+    } catch {
+      return null;
+    }
+  }
   const path = `users/${uid}`;
   try {
     const rawDisplay = Array.from(String(updates.displayName || '').trim()).slice(0, 50).join('');

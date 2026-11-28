@@ -12,7 +12,8 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { auth, db, handleFirestoreError, OperationType } from './firebase.js';
+import { db, handleFirestoreError, OperationType } from './firebase.js';
+import { getActiveIdToken } from './session.js';
 import { formatFriendlyError } from './notifications.js';
 import { svgIcon } from './icons.js';
 import { renderUserAvatarHtml } from './profile.js';
@@ -182,8 +183,7 @@ export function createTemplateStudioModule(ctx) {
   }
 
   async function getAuthHeaders() {
-    const u = auth.currentUser;
-    const token = u ? await u.getIdToken() : '';
+    const token = await getActiveIdToken();
     return {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${token}`,
@@ -299,6 +299,12 @@ export function createTemplateStudioModule(ctx) {
     if (!fbUser) return;
 
     loadStarterLikesFromLocal(fbUser.uid);
+
+    if (fbUser.isNexoraAccount) {
+      void refreshServerProviders();
+      requestSocialRender();
+      return;
+    }
 
     unsubPublicTpls = onSnapshot(
       query(

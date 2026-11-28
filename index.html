@@ -1,24 +1,25 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#FFF0DC" />
-    <meta name="color-scheme" content="light" />
-    <title>Nexora — Social, Shop, and Learn in one warm space</title>
+    <meta name="theme-color" content="#09090B" />
+    <meta name="color-scheme" content="dark" />
+    <title>Nexora — Discover people, products, and learning, in one place.</title>
     <meta
       name="description"
-      content="Nexora brings together social discovery, curated shopping from partner stores, and school-connected learning in one warm editorial space."
+      content="Nexora brings together Social reels and nearby discovery, Shop virtual try-ons from independent stores, and Learn communities for your classes."
     />
     <meta property="og:title" content="Nexora — Social, Shop, and Learn" />
     <meta
       property="og:description"
-      content="Connect with friends and classmates, discover curated products from partner stores, and stay in sync with school-connected learning."
+      content="Nexora brings together Social reels and nearby discovery, Shop virtual try-ons from independent stores, and Learn communities for your classes."
     />
     <meta property="og:type" content="website" />
     <meta http-equiv="X-Content-Type-Options" content="nosniff" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg" />
+    <link rel="icon" type="image/png" href="/assets/icon-192.png" />
+    <link rel="apple-touch-icon" href="/assets/icon-192.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -36,27 +37,55 @@
   <body>
     <a class="skip-link" href="#main-content">Skip to content</a>
 
-    <!-- Sticky Editorial Navbar (3-Zone Contract) -->
+    <!-- WebGL2 Topographic Contour Background -->
+    <div id="nx-bg-topography-root" class="nx-bg-topography" aria-hidden="true"></div>
+
+    <!-- Sticky Black Editorial Navbar (3-Zone Contract) -->
     <header class="nx-navbar" id="site-header">
       <div class="nx-container nx-navbar-inner">
         <a href="/index.html?landing=1" class="nx-wordmark">
-          <svg class="nx-wordmark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-            <rect width="32" height="32" rx="8" fill="#790B13" />
-            <path d="M9 22V10h3.1l7.8 8.3V10H23v12h-3.1l-7.8-8.3V22H9z" fill="#FFF0DC" />
-          </svg>
+          <span class="nx-wordmark-badge" aria-hidden="true">
+            <img src="/assets/aistudio/nexora_dark_logo_22b15f11.jpeg" alt="" class="nx-logo-emblem" />
+          </span>
           <span>Nexora</span>
         </a>
 
         <nav class="nx-nav-links" aria-label="Primary navigation">
+          <a href="#community" class="nx-nav-link">Community</a>
           <a href="#social" class="nx-nav-link">Social</a>
           <a href="#shop" class="nx-nav-link">Shop</a>
           <a href="#learn" class="nx-nav-link">Learn</a>
-          <a href="#schools" class="nx-nav-link">For schools</a>
-          <a href="#faq" class="nx-nav-link">FAQ</a>
+          <a href="#pricing" class="nx-nav-link">Pricing</a>
+          <a href="#schools" class="nx-nav-link">For Schools</a>
         </nav>
 
         <div class="nx-nav-cta-zone">
-          <a href="/signup.html" class="nx-btn nx-btn-primary">Register for free</a>
+          <div class="nx-theme-toggle" role="group" aria-label="Color theme">
+            <button
+              type="button"
+              class="nx-theme-btn is-active"
+              data-landing-theme="dark"
+              aria-pressed="true"
+              aria-label="Switch to Dark Theme"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">dark_mode</span>
+              <span class="nx-theme-btn-label">Dark</span>
+            </button>
+            <button
+              type="button"
+              class="nx-theme-btn"
+              data-landing-theme="light"
+              aria-pressed="false"
+              aria-label="Switch to Light Theme"
+            >
+              <span class="material-symbols-outlined" aria-hidden="true">light_mode</span>
+              <span class="nx-theme-btn-label">Light</span>
+            </button>
+          </div>
+          <button type="button" class="nx-btn nx-btn-outline nx-nav-auth-btn" id="nx-nav-auth-btn" data-open-auth-modal="login">
+            Sign in
+          </button>
+          <button type="button" class="nx-btn nx-btn-primary" data-open-app-modal>Get the app</button>
           <button
             type="button"
             class="nx-mobile-trigger"
@@ -73,230 +102,337 @@
       <div class="nx-mobile-drawer" id="mobile-drawer" hidden>
         <div class="nx-container nx-mobile-drawer-inner">
           <nav class="nx-mobile-links" aria-label="Mobile navigation">
+            <a href="#community">Community</a>
             <a href="#social">Social</a>
             <a href="#shop">Shop</a>
             <a href="#learn">Learn</a>
-            <a href="#schools">For schools</a>
-            <a href="#faq">FAQ</a>
+            <a href="#pricing">Pricing</a>
+            <a href="#schools">For Schools</a>
           </nav>
           <div class="nx-mobile-actions">
-            <a href="/login.html" class="nx-btn nx-btn-outline">Log in</a>
-            <a href="/signup.html" class="nx-btn nx-btn-primary">Register for free</a>
+            <button type="button" class="nx-btn nx-btn-outline" id="nx-mobile-auth-btn" data-open-auth-modal="login">Sign in</button>
+            <button type="button" class="nx-btn nx-btn-outline-crimson" data-open-auth-modal="register">Register</button>
+            <button type="button" class="nx-btn nx-btn-primary nx-mobile-app-btn" data-open-app-modal>Get the app</button>
           </div>
         </div>
       </div>
     </header>
 
-    <main id="main-content">
-      <!-- Hero Section -->
-      <section class="nx-section nx-hero" aria-labelledby="hero-heading">
+    <main id="main-content" class="nx-main">
+      <!-- Editorial Hero Section -->
+      <section class="nx-hero" aria-labelledby="hero-heading">
         <div class="nx-container nx-hero-grid">
           <div class="nx-hero-copy">
-            <p class="nx-kicker">Social · Shop · Learn</p>
+            <span class="nx-hero-badge">Free to start</span>
             <h1 class="nx-display" id="hero-heading">
-              Social, Shop, and Learn in one warm space.
+              Discover people, products, and learning, in one place.
             </h1>
             <p class="nx-body-lg nx-hero-subtitle">
-              Connect with friends and classmates, discover curated essentials from partner stores, and stay in sync with school-connected learning—without algorithmic noise.
+              Nexora brings together Social reels and nearby discovery, Shop virtual try-ons from independent stores, and Learn communities for your classes.
             </p>
             <div class="nx-hero-actions">
-              <a href="/signup.html" class="nx-btn nx-btn-primary nx-btn-lg">
+              <button type="button" class="nx-btn nx-btn-primary nx-btn-lg nx-btn-poly" data-open-app-modal data-polymorph="app-launch">
+                <span class="material-symbols-outlined" aria-hidden="true">apps</span>
                 <span>Get the app</span>
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
-              </a>
-              <button type="button" class="nx-btn nx-btn-outline nx-btn-lg" id="hero-explore-btn">
-                Explore
               </button>
-              <a href="/login.html" class="nx-inline-login">Log in</a>
+              <button type="button" class="nx-btn nx-btn-outline-crimson nx-btn-lg nx-btn-poly" data-open-school-modal data-polymorph="school">
+                <span class="material-symbols-outlined" aria-hidden="true">school</span>
+                <span>Register your school</span>
+              </button>
             </div>
-            <p class="nx-hero-meta">Free for students and individuals · Direct messaging · Verified partner stores</p>
           </div>
 
-          <!-- Editorial Device Showcase Frame (24px Radius) -->
-          <div class="nx-hero-showcase">
-            <div class="nx-device-frame" aria-label="Interactive preview of Nexora Social, Shop, and Learn">
-              <div class="nx-device-bar">
-                <span class="nx-device-brand">Nexora Workspace</span>
-                <div class="nx-device-tabs" role="tablist" aria-label="Preview pillars">
-                  <button type="button" class="nx-device-tab is-active" role="tab" aria-selected="true" data-preview-tab="social">Social</button>
-                  <button type="button" class="nx-device-tab" role="tab" aria-selected="false" data-preview-tab="shop">Shop</button>
-                  <button type="button" class="nx-device-tab" role="tab" aria-selected="false" data-preview-tab="learn">Learn</button>
+          <!-- Dual Editorial Showcase: Reel Story + Floating Try-on Preview -->
+          <div class="nx-hero-visual" aria-label="Featured reel and virtual try-on preview">
+            <div class="nx-showcase-stack">
+              <article class="nx-showcase-reel">
+                <div class="nx-reel-media">
+                  <div class="nx-reel-overlay-top">
+                    <div class="nx-reel-author">
+                      <strong>@claire.m</strong>
+                      <span>Autumn capsule · 42m away</span>
+                    </div>
+                    <button
+                      type="button"
+                      class="nx-reel-heart-btn"
+                      id="hero-reel-like"
+                      aria-pressed="false"
+                      aria-label="Like @claire.m reel"
+                    >
+                      <span class="material-symbols-outlined" aria-hidden="true">favorite_border</span>
+                    </button>
+                  </div>
+                  <img
+                    src="/assets/images/claire-cafe.jpg"
+                    alt="Claire wearing a burgundy autumn blazer at an outdoor café"
+                    class="nx-reel-photo"
+                  />
                 </div>
-              </div>
+              </article>
 
-              <div class="nx-device-body" id="nx-device-preview">
-                <!-- Populated & switched smoothly via landing.js; initial Social state rendered inline for zero-latency paint -->
-                <article class="nx-preview-card">
-                  <div class="nx-preview-head">
-                    <div class="nx-avatar-circle" aria-hidden="true">ML</div>
-                    <div>
-                      <strong class="nx-preview-author">Maya Lin</strong>
-                      <span class="nx-preview-meta">Design Studio Circle · 12m ago</span>
-                    </div>
-                  </div>
-                  <p class="nx-preview-text">
-                    Shared our autumn print typography guide in the studio thread and opened peer notes for tonight’s review session.
-                  </p>
-                  <div class="nx-preview-footer">
-                    <span>24 likes</span>
-                    <span aria-hidden="true">·</span>
-                    <span>6 replies</span>
-                    <span aria-hidden="true">·</span>
-                    <span>Saved to bookmarks</span>
-                  </div>
-                </article>
-
-                <div class="nx-preview-split">
-                  <div class="nx-preview-mini">
-                    <span class="material-symbols-outlined nx-mini-icon" aria-hidden="true">chat_bubble_outline</span>
-                    <div>
-                      <strong>Direct messages</strong>
-                      <span>Liam Patel: Audio huddle starts in 5 minutes.</span>
-                    </div>
-                  </div>
-                  <div class="nx-preview-mini">
-                    <span class="material-symbols-outlined nx-mini-icon" aria-hidden="true">storefront</span>
-                    <div>
-                      <strong>Partner store drop</strong>
-                      <span>Linen Sketchbook Folio · Studio Press</span>
-                    </div>
-                  </div>
+              <aside class="nx-showcase-tryon" aria-label="Try-on preview card">
+                <div class="nx-tryon-header">
+                  <span>Try-on preview</span>
+                  <span class="material-symbols-outlined" aria-hidden="true">checkroom</span>
                 </div>
-              </div>
+                <div class="nx-tryon-frame">
+                  <img
+                    src="/assets/images/tryon-linen.jpg"
+                    alt="Atelier Rowan relaxed linen lookbook virtual try-on"
+                    class="nx-tryon-photo"
+                  />
+                </div>
+                <p class="nx-tryon-caption">
+                  <span class="nx-tryon-caption-full">Wool Trench · Atelier Rowan</span>
+                  <span class="nx-tryon-caption-short" aria-hidden="true">Atelier Rowan</span>
+                </p>
+              </aside>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Three Pillars Section: Social, Shop, Learn -->
-      <section class="nx-section nx-section-alt" id="pillars" aria-labelledby="pillars-heading">
+      <!-- Three Pillars Row Directly Below Hero -->
+      <section class="nx-pillars-band" id="pillars" aria-label="Nexora core pillars">
         <div class="nx-container">
-          <div class="nx-section-head">
-            <p class="nx-kicker">Three connected pillars</p>
-            <h2 class="nx-headline-lg" id="pillars-heading">
-              Everything your daily circle needs, arranged with care.
-            </h2>
-            <p class="nx-body-lg nx-section-lead">
-              Move smoothly between conversations with friends, thoughtful finds from partner stores, and shared campus study spaces.
-            </p>
-          </div>
-
           <div class="nx-pillars-grid">
             <article class="nx-card nx-pillar-card" id="social">
-              <div class="nx-icon-circle" aria-hidden="true">
-                <span class="material-symbols-outlined">forum</span>
+              <div class="nx-pillar-badge" aria-hidden="true">
+                <span class="material-symbols-outlined">groups</span>
               </div>
-              <h3 class="nx-headline-md">Social</h3>
-              <p class="nx-body-md nx-card-copy">
-                Share updates, 24-hour stories, and reels with real people. Keep direct messages calm with request controls, Close Friends lists, and live voice rooms.
+              <h2 class="nx-pillar-title">Social</h2>
+              <p class="nx-pillar-desc">
+                Share short reels and discover people nearby on your own terms.
               </p>
-              <ul class="nx-clean-list">
-                <li>Chronological and circle-first feeds</li>
-                <li>Request-gated direct &amp; group messaging</li>
-                <li>Voice and video calls built into every thread</li>
-              </ul>
-              <a href="/signup.html" class="nx-card-link">
-                <span>Explore Social</span>
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              <a href="#radar-feature" class="nx-pillar-link">
+                <span>Explore</span>
+                <span aria-hidden="true">→</span>
               </a>
             </article>
 
             <article class="nx-card nx-pillar-card" id="shop">
-              <div class="nx-icon-circle" aria-hidden="true">
-                <span class="material-symbols-outlined">storefront</span>
+              <div class="nx-pillar-badge" aria-hidden="true">
+                <span class="material-symbols-outlined">shopping_bag</span>
               </div>
-              <h3 class="nx-headline-md">Shop</h3>
-              <p class="nx-body-md nx-card-copy">
-                Browse curated collections, student essentials, and style pieces directly from verified partner stores—without leaving your conversations.
+              <h2 class="nx-pillar-title">Shop</h2>
+              <p class="nx-pillar-desc">
+                Try on garments from partner stores using your own photo before buying.
               </p>
-              <ul class="nx-clean-list">
-                <li>Curated drops from trusted partner stores</li>
-                <li>Visual search to match styles from photos</li>
-                <li>Direct questions and offers with storefronts</li>
-              </ul>
-              <a href="/marketplace" class="nx-card-link">
-                <span>Explore Shop</span>
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              <a href="#tryon-feature" class="nx-pillar-link">
+                <span>Explore</span>
+                <span aria-hidden="true">→</span>
               </a>
             </article>
 
             <article class="nx-card nx-pillar-card" id="learn">
-              <div class="nx-icon-circle" aria-hidden="true">
+              <div class="nx-pillar-badge" aria-hidden="true">
                 <span class="material-symbols-outlined">school</span>
               </div>
-              <h3 class="nx-headline-md">Learn</h3>
-              <p class="nx-body-md nx-card-copy">
-                Stay aligned with school-connected spaces, study groups, shared reading notes, and campus events organized by course and club.
+              <h2 class="nx-pillar-title">Learn</h2>
+              <p class="nx-pillar-desc">
+                Keep class updates, study groups, and school announcements organized.
               </p>
-              <ul class="nx-clean-list">
-                <li>Verified campus and study circles</li>
-                <li>Live study rooms and shared resource boards</li>
-                <li>Campus calendar and nearby event discovery</li>
-              </ul>
-              <a href="/welcome.html" class="nx-card-link">
-                <span>Explore Learn</span>
-                <span class="material-symbols-outlined" aria-hidden="true">arrow_forward</span>
+              <a href="#schools" class="nx-pillar-link">
+                <span>Explore</span>
+                <span aria-hidden="true">→</span>
               </a>
             </article>
           </div>
         </div>
       </section>
 
-      <!-- Editorial Rhythm / How It Connects Section -->
-      <section class="nx-section" id="experience" aria-labelledby="experience-heading">
+      <!-- Interactive Liquid-Lens Community Showcase (React Bits FlexCarousel) -->
+      <section class="nx-section nx-community-band" id="community" aria-labelledby="community-heading">
+        <div id="nx-community-carousel-root"></div>
+      </section>
+
+      <!-- Feature Row 1: Virtual Try-On Layer Switcher -->
+      <section class="nx-section nx-section-surface" id="tryon-feature" aria-labelledby="tryon-heading">
         <div class="nx-container nx-split-grid">
+          <div class="nx-tryon-stage-col">
+            <div class="nx-card nx-tryon-dropzone" id="nx-tryon-dropzone" aria-live="polite">
+              <div class="nx-tryon-stage-media">
+                <img
+                  src="/assets/images/tryon-linen.jpg"
+                  alt="Studio portrait ready for multi-layer garment try-on"
+                  class="nx-tryon-stage-photo"
+                />
+                <div class="nx-tryon-live-bar">
+                  <span class="nx-tryon-live-title">Active look</span>
+                  <span class="nx-tryon-live-summary" id="nx-tryon-summary">Camel Trench</span>
+                </div>
+              </div>
+              <div class="nx-tryon-stage-meta">
+                <span id="nx-tryon-count">1 of 3 layers applied</span>
+                <button type="button" class="nx-inline-reset" id="nx-tryon-clear">Clear layers</button>
+              </div>
+            </div>
+          </div>
+
           <div class="nx-split-copy">
-            <p class="nx-kicker">Designed for clarity</p>
-            <h2 class="nx-headline-lg" id="experience-heading">
-              One calm space instead of five noisy apps.
+            <p class="nx-kicker">Shop · Virtual Fitting Room</p>
+            <h2 class="nx-headline-lg" id="tryon-heading">
+              Layer coats, bags, and footwear on your own photo.
             </h2>
             <p class="nx-body-md nx-split-lead">
-              Select a step to see how Nexora connects everyday campus life, friend circles, and curated partner stores.
+              Click or drag any piece onto the studio portrait to toggle multiple garment layers before ordering from verified partner stores.
             </p>
 
-            <div class="nx-step-list" role="tablist" aria-label="Nexora workflow steps">
-              <button type="button" class="nx-step-btn is-active" role="tab" aria-selected="true" data-flow-step="0">
-                <span class="nx-step-num tabular">01</span>
-                <span class="nx-step-text">
-                  <strong>Coordinate with your circle</strong>
-                  <span>Post updates, share class notes, or start an audio huddle in two taps.</span>
-                </span>
+            <div class="nx-layer-list" role="group" aria-label="Try-on garment layers">
+              <button
+                type="button"
+                class="nx-layer-card is-active"
+                draggable="true"
+                data-tryon-layer="camel-trench"
+                data-layer-label="Camel Trench"
+                aria-pressed="true"
+              >
+                <div class="nx-layer-icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">checkroom</span>
+                </div>
+                <div class="nx-layer-info">
+                  <strong>Camel Trench</strong>
+                  <span>Atelier Rowan · $240</span>
+                </div>
+                <span class="nx-layer-state">Active layer</span>
               </button>
-              <button type="button" class="nx-step-btn" role="tab" aria-selected="false" data-flow-step="1">
-                <span class="nx-step-num tabular">02</span>
-                <span class="nx-step-text">
-                  <strong>Discover from partner stores</strong>
-                  <span>Save curated books, stationery, and apparel directly inside shared boards.</span>
-                </span>
+
+              <button
+                type="button"
+                class="nx-layer-card"
+                draggable="true"
+                data-tryon-layer="oxblood-bag"
+                data-layer-label="Oxblood Bag"
+                aria-pressed="false"
+              >
+                <div class="nx-layer-icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">work_outline</span>
+                </div>
+                <div class="nx-layer-info">
+                  <strong>Oxblood Bag</strong>
+                  <span>Maren Leather · $185</span>
+                </div>
+                <span class="nx-layer-state">Add layer</span>
               </button>
-              <button type="button" class="nx-step-btn" role="tab" aria-selected="false" data-flow-step="2">
-                <span class="nx-step-num tabular">03</span>
-                <span class="nx-step-text">
-                  <strong>Learn together on campus</strong>
-                  <span>Join verified school communities with structured channels and office hours.</span>
-                </span>
+
+              <button
+                type="button"
+                class="nx-layer-card"
+                draggable="true"
+                data-tryon-layer="chelsea-boots"
+                data-layer-label="Chelsea Boots"
+                aria-pressed="false"
+              >
+                <div class="nx-layer-icon" aria-hidden="true">
+                  <span class="material-symbols-outlined">hiking</span>
+                </div>
+                <div class="nx-layer-info">
+                  <strong>Chelsea Boots</strong>
+                  <span>Alder &amp; Co. · $210</span>
+                </div>
+                <span class="nx-layer-state">Add layer</span>
               </button>
             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Feature Row 2: 100 m Nearby Discovery Radar -->
+      <section class="nx-section" id="radar-feature" aria-labelledby="radar-heading">
+        <div class="nx-container nx-split-grid">
+          <div class="nx-split-copy">
+            <p class="nx-kicker">Social · Nearby Discovery</p>
+            <h2 class="nx-headline-lg" id="radar-heading">
+              Appear within 100 meters only when you choose.
+            </h2>
+            <p class="nx-body-md nx-split-lead">
+              Step into discoverable mode at campus cafés or exhibitions, and switch back to invisible anytime without sharing exact location coordinates.
+            </p>
+
+            <div class="nx-segmented" role="group" aria-label="Nearby visibility mode">
+              <button
+                type="button"
+                class="nx-seg-btn is-active"
+                data-radar-mode="discoverable"
+                aria-pressed="true"
+              >
+                Discoverable
+              </button>
+              <button
+                type="button"
+                class="nx-seg-btn"
+                data-radar-mode="invisible"
+                aria-pressed="false"
+              >
+                Invisible
+              </button>
+            </div>
+
+            <div class="nx-radar-status-row" aria-live="polite">
+              <span class="material-symbols-outlined nx-radar-status-icon" aria-hidden="true">radar</span>
+              <span id="nx-radar-status-text">Visible within 100 m</span>
+            </div>
+            <p class="nx-radar-member-detail" id="nx-radar-member-detail">
+              4 circle members nearby — click a node on the radar to preview.
+            </p>
           </div>
 
           <div class="nx-split-panel">
-            <div class="nx-card nx-flow-display" id="nx-flow-display">
-              <div class="nx-flow-head">
-                <span class="nx-flow-label">Social · Direct Thread</span>
-                <span class="nx-flow-meta tabular">Today · 4:15 PM</span>
-              </div>
-              <h3 class="nx-headline-md">Architecture reading group</h3>
-              <p class="nx-body-md">
-                “Uploaded the annotated chapter PDF and pinned the discussion prompts for Thursday’s studio critique.”
-              </p>
-              <div class="nx-flow-items">
-                <div class="nx-flow-row">
-                  <span>14 classmates active</span>
-                  <span>Study room open</span>
-                </div>
-                <div class="nx-flow-row">
-                  <span>Message requests</span>
-                  <span>Filtered to contacts</span>
+            <div class="nx-card nx-radar-card is-discoverable" id="nx-radar-card">
+              <div class="nx-radar-stage" id="nx-radar-stage">
+                <div id="nx-radar-webgl-root" class="nx-radar-webgl" aria-hidden="true"></div>
+                <div class="nx-radar-overlay" role="img" aria-label="100 meter nearby discovery radar visualization">
+                  <span class="nx-radar-range-tag nx-range-25">25 m</span>
+                  <span class="nx-radar-range-tag nx-range-50">50 m</span>
+                  <span class="nx-radar-range-tag nx-range-100">100 m</span>
+
+                  <div class="nx-radar-you-pin" aria-hidden="true">
+                    <span class="nx-radar-you-beacon"></span>
+                    <span class="nx-radar-you-label">You</span>
+                  </div>
+
+                  <div class="nx-radar-members" id="nx-radar-members">
+                    <button
+                      type="button"
+                      class="nx-radar-node"
+                      style="--nx-x: 64%; --nx-y: 38%;"
+                      data-member="@claire.m · 42 m · Espresso &amp; study notes"
+                      aria-label="Claire M 42 meters away"
+                    >
+                      <span class="nx-radar-member-dot"></span>
+                      <span class="nx-radar-member-text">@claire.m</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="nx-radar-node"
+                      style="--nx-x: 29%; --nx-y: 31%;"
+                      data-member="@noah.k · 68 m · Architecture seminar"
+                      aria-label="Noah K 68 meters away"
+                    >
+                      <span class="nx-radar-member-dot"></span>
+                      <span class="nx-radar-member-text">@noah.k</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="nx-radar-node"
+                      style="--nx-x: 75%; --nx-y: 68%;"
+                      data-member="@lin.art · 84 m · Ceramics co-op meetup"
+                      aria-label="Lin Art 84 meters away"
+                    >
+                      <span class="nx-radar-member-dot"></span>
+                      <span class="nx-radar-member-text">@lin.art</span>
+                    </button>
+                    <button
+                      type="button"
+                      class="nx-radar-node"
+                      style="--nx-x: 24%; --nx-y: 69%;"
+                      data-member="@samir.s · 96 m · Vinyl listening room"
+                      aria-label="Samir S 96 meters away"
+                    >
+                      <span class="nx-radar-member-dot"></span>
+                      <span class="nx-radar-member-text">@samir.s</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -304,73 +440,213 @@
         </div>
       </section>
 
-      <!-- Membership Tiers Section -->
-      <section class="nx-section nx-section-alt" id="plans" aria-labelledby="plans-heading">
+      <!-- Feature Row 3: Multi-Store Outfit Builder -->
+      <section class="nx-section nx-section-surface" id="outfit-builder" aria-labelledby="outfit-heading">
         <div class="nx-container">
           <div class="nx-section-head">
-            <p class="nx-kicker">Simple plans</p>
-            <h2 class="nx-headline-lg" id="plans-heading">
-              Start free, grow with your community.
+            <p class="nx-kicker">Shop · Curated Partner Stores</p>
+            <h2 class="nx-headline-lg" id="outfit-heading">
+              Combine pieces from independent partner stores in one look.
             </h2>
+            <p class="nx-body-md nx-section-lead">
+              Select garments from multiple partner stores to assemble your look, then jump directly to each storefront.
+            </p>
           </div>
 
-          <div class="nx-plans-grid">
-            <article class="nx-card nx-plan-card">
-              <div class="nx-plan-top">
-                <h3 class="nx-title-lg">Personal</h3>
-                <div class="nx-plan-price tabular">$0<span>/month</span></div>
-                <p class="nx-body-md nx-card-copy">
-                  Full access to Social feeds, direct messaging, partner stores, and public Learn groups.
-                </p>
+          <div class="nx-outfit-grid" role="group" aria-label="Multi-store outfit selector">
+            <button
+              type="button"
+              class="nx-card nx-outfit-card is-selected"
+              data-store-id="atelier-rowan"
+              data-store-name="Atelier Rowan"
+              data-store-item="Structured Wool Trench"
+              data-store-price="240"
+              data-store-url="/marketplace?store=atelier-rowan"
+              aria-pressed="true"
+            >
+              <div class="nx-outfit-top">
+                <span class="nx-outfit-store">Atelier Rowan</span>
+                <span class="material-symbols-outlined nx-outfit-check" aria-hidden="true">check_circle</span>
               </div>
-              <ul class="nx-clean-list">
-                <li>Unlimited direct and group messages</li>
-                <li>Stories, reels, and voice rooms</li>
-                <li>Browse and save from partner stores</li>
-              </ul>
-              <a href="/signup.html" class="nx-btn nx-btn-outline nx-btn-full">Register for free</a>
-            </article>
+              <h3 class="nx-title-lg">Structured Wool Trench</h3>
+              <p class="nx-body-md nx-card-copy">Double-breasted oatmeal wool blend tailored coat.</p>
+              <div class="nx-outfit-price tabular">$240</div>
+            </button>
 
-            <article class="nx-card nx-plan-card nx-plan-featured">
-              <div class="nx-plan-top">
-                <h3 class="nx-title-lg">Nexora Plus</h3>
-                <div class="nx-plan-price tabular">$6<span>/month</span></div>
-                <p class="nx-body-md nx-card-copy">
-                  Built for active creators, study leads, and curated storefronts wanting expanded tools.
-                </p>
+            <button
+              type="button"
+              class="nx-card nx-outfit-card"
+              data-store-id="maren-leather"
+              data-store-name="Maren Leather"
+              data-store-item="Oxblood Crossbody Tote"
+              data-store-price="185"
+              data-store-url="/marketplace?store=maren-leather"
+              aria-pressed="false"
+            >
+              <div class="nx-outfit-top">
+                <span class="nx-outfit-store">Maren Leather</span>
+                <span class="material-symbols-outlined nx-outfit-check" aria-hidden="true">add_circle_outline</span>
               </div>
-              <ul class="nx-clean-list">
-                <li>Extended HD media and reel studio storage</li>
-                <li>Custom lookbooks and visual fashion boards</li>
-                <li>Priority community hosting controls</li>
-              </ul>
-              <a href="/signup.html" class="nx-btn nx-btn-primary nx-btn-full">Get the app</a>
-            </article>
+              <h3 class="nx-title-lg">Oxblood Crossbody Tote</h3>
+              <p class="nx-body-md nx-card-copy">Vegetable-tanned bridle leather everyday carryall.</p>
+              <div class="nx-outfit-price tabular">$185</div>
+            </button>
 
-            <article class="nx-card nx-plan-card">
-              <div class="nx-plan-top">
-                <h3 class="nx-title-lg">Campus &amp; Schools</h3>
-                <div class="nx-plan-price tabular">Custom</div>
-                <p class="nx-body-md nx-card-copy">
-                  Dedicated verified domains, class communities, and administrative stewardship for schools.
-                </p>
+            <button
+              type="button"
+              class="nx-card nx-outfit-card"
+              data-store-id="alder-co"
+              data-store-name="Alder &amp; Co."
+              data-store-item="Goodyear Welt Chelsea Boots"
+              data-store-price="210"
+              data-store-url="/marketplace?store=alder-co"
+              aria-pressed="false"
+            >
+              <div class="nx-outfit-top">
+                <span class="nx-outfit-store">Alder &amp; Co.</span>
+                <span class="material-symbols-outlined nx-outfit-check" aria-hidden="true">add_circle_outline</span>
               </div>
-              <ul class="nx-clean-list">
-                <li>Verified student and faculty onboarding</li>
-                <li>Department, club, and cohort spaces</li>
-                <li>Dedicated moderation and safety logs</li>
-              </ul>
-              <a href="#schools" class="nx-btn nx-btn-outline nx-btn-full">Register your school</a>
-            </article>
+              <h3 class="nx-title-lg">Goodyear Welt Chelsea Boots</h3>
+              <p class="nx-body-md nx-card-copy">Espresso calfskin ankle boots with stacked sole.</p>
+              <div class="nx-outfit-price tabular">$210</div>
+            </button>
+          </div>
+
+          <div class="nx-card nx-outfit-summary-bar" id="nx-outfit-summary-bar">
+            <div class="nx-outfit-summary-text">
+              <strong id="nx-outfit-count" class="tabular">1 item selected</strong>
+              <span id="nx-outfit-total" class="tabular">Total · $240</span>
+            </div>
+            <button type="button" class="nx-btn nx-btn-primary" id="nx-view-store-links-btn" aria-expanded="false" aria-controls="nx-store-links-drawer">
+              View store links
+            </button>
+          </div>
+
+          <div class="nx-card nx-store-links-drawer" id="nx-store-links-drawer" hidden>
+            <div class="nx-store-links-head">
+              <strong>Selected partner store checkout links</strong>
+              <button type="button" class="nx-inline-reset" id="nx-close-store-links">Close</button>
+            </div>
+            <div class="nx-store-links-list" id="nx-store-links-list"></div>
           </div>
         </div>
       </section>
 
-      <!-- Full-Width Brand Band: For Schools -->
+      <!-- Membership Tiers & Pay-Per-View Section -->
+      <section class="nx-section" id="pricing" aria-labelledby="pricing-heading">
+        <div class="nx-container">
+          <div class="nx-pricing-head-row">
+            <div class="nx-section-head">
+              <p class="nx-kicker">Pricing</p>
+              <h2 class="nx-headline-lg" id="pricing-heading">
+                Start free, scale when your studio or campus grows.
+              </h2>
+            </div>
+
+            <div class="nx-segmented" role="group" aria-label="Pricing billing mode">
+              <button type="button" class="nx-seg-btn is-active" data-billing-mode="monthly" aria-pressed="true">
+                Monthly
+              </button>
+              <button type="button" class="nx-seg-btn" data-billing-mode="ppv" aria-pressed="false">
+                Pay-per-view
+              </button>
+            </div>
+          </div>
+
+          <div class="nx-plans-grid nx-plans-grid-4">
+            <article class="nx-card nx-plan-card" data-plan-card="personal">
+              <div class="nx-plan-top">
+                <h3 class="nx-title-lg" data-plan-title>Personal</h3>
+                <div class="nx-plan-price tabular" data-plan-price>$0<span>/month</span></div>
+                <p class="nx-body-md nx-card-copy" data-plan-desc>
+                  Reels, direct messages, nearby discovery, and public Learn study circles.
+                </p>
+              </div>
+              <ul class="nx-clean-list">
+                <li>Unlimited direct and group threads</li>
+                <li>100 m opt-in nearby radar</li>
+                <li>2 starter virtual try-ons included</li>
+              </ul>
+              <button type="button" class="nx-btn nx-btn-outline nx-btn-full" data-select-plan="personal">
+                Select Personal
+              </button>
+            </article>
+
+            <article class="nx-card nx-plan-card nx-plan-featured" data-plan-card="creator">
+              <div class="nx-plan-top">
+                <h3 class="nx-title-lg" data-plan-title>Creator Studio</h3>
+                <div class="nx-plan-price tabular" data-plan-price>$9<span>/mo</span></div>
+                <p class="nx-body-md nx-card-copy" data-plan-desc>
+                  Built for active creators and stylists curating lookbooks and audio rooms.
+                </p>
+              </div>
+              <ul class="nx-clean-list">
+                <li>HD reel studio and multi-track edits</li>
+                <li>Saved outfits and lookbook collections</li>
+                <li>Monthly virtual try-on allocation</li>
+              </ul>
+              <button type="button" class="nx-btn nx-btn-primary nx-btn-full" data-select-plan="creator">
+                Select Creator Studio
+              </button>
+            </article>
+
+            <article class="nx-card nx-plan-card" data-plan-card="partner">
+              <div class="nx-plan-top">
+                <h3 class="nx-title-lg" data-plan-title>Partner Store</h3>
+                <div class="nx-plan-price tabular" data-plan-price>$24<span>/mo</span></div>
+                <p class="nx-body-md nx-card-copy" data-plan-desc>
+                  Designed for independent clothing brands hosting live catalog try-ons.
+                </p>
+              </div>
+              <ul class="nx-clean-list">
+                <li>Verified storefront and product links</li>
+                <li>Garment layering insights</li>
+                <li>Direct customer thread routing</li>
+              </ul>
+              <button type="button" class="nx-btn nx-btn-outline nx-btn-full" data-select-plan="partner">
+                Select Partner Store
+              </button>
+            </article>
+
+            <article class="nx-card nx-plan-card" data-plan-card="campus">
+              <div class="nx-plan-top">
+                <h3 class="nx-title-lg" data-plan-title>Campus &amp; Schools</h3>
+                <div class="nx-plan-price tabular" data-plan-price>Custom</div>
+                <p class="nx-body-md nx-card-copy" data-plan-desc>
+                  Domain-verified class groups, faculty moderation, and campus spaces.
+                </p>
+              </div>
+              <ul class="nx-clean-list">
+                <li>School email verification and rosters</li>
+                <li>Department and cohort channels</li>
+                <li>Dedicated safety and audit logs</li>
+              </ul>
+              <button type="button" class="nx-btn nx-btn-outline nx-btn-full" data-select-plan="campus">
+                Register your school
+              </button>
+            </article>
+          </div>
+
+          <div class="nx-card nx-plan-drawer" id="nx-plan-drawer" hidden aria-live="polite">
+            <div class="nx-plan-drawer-copy">
+              <strong id="nx-plan-drawer-title">Selected plan</strong>
+              <span id="nx-plan-drawer-detail"></span>
+            </div>
+            <div class="nx-plan-drawer-actions">
+              <button type="button" class="nx-btn nx-btn-primary" data-google-auth>Continue with Google</button>
+              <button type="button" class="nx-btn nx-btn-outline" data-open-auth-modal="register">Register with email</button>
+              <button type="button" class="nx-inline-reset" id="nx-close-plan-drawer">Dismiss</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Full-Width Crimson Band: For Schools + LaserFlow Spotlight -->
       <section class="nx-section nx-band-primary" id="schools" aria-labelledby="schools-heading">
+        <div id="nx-schools-laser-root" class="nx-schools-laser" aria-hidden="true"></div>
         <div class="nx-container nx-schools-grid">
           <div class="nx-schools-copy">
-            <p class="nx-kicker nx-kicker-light">For schools</p>
+            <p class="nx-kicker nx-kicker-light">For Schools</p>
             <h2 class="nx-headline-lg nx-headline-light" id="schools-heading">
               Bring verified learning and campus connection to your school.
             </h2>
@@ -382,36 +658,52 @@
               <li>Moderation queues and quiet study room controls</li>
               <li>Zero third-party ad tracking inside student spaces</li>
             </ul>
-          </div>
-
-          <div class="nx-card nx-school-form-card">
-            <h3 class="nx-headline-md">Register your school</h3>
-            <p class="nx-body-md nx-card-copy">
-              Share your campus details and our onboarding team will set up your verified school space.
-            </p>
-            <form id="nx-school-form" class="nx-school-form" novalidate>
-              <div class="nx-field">
-                <label for="school-name">School or university name</label>
-                <input id="school-name" name="schoolName" type="text" required placeholder="e.g. Oakridge Academy" />
-              </div>
-              <div class="nx-field">
-                <label for="school-email">Administrator email</label>
-                <input id="school-email" name="adminEmail" type="email" required placeholder="dean@oakridge.edu" />
-              </div>
-              <div class="nx-field">
-                <label for="school-size">Approximate student body</label>
-                <select id="school-size" name="studentCount">
-                  <option value="under-500">Under 500 students</option>
-                  <option value="500-2500" selected>500 – 2,500 students</option>
-                  <option value="2500-10000">2,500 – 10,000 students</option>
-                  <option value="over-10000">10,000+ students</option>
-                </select>
-              </div>
-              <button type="submit" class="nx-btn nx-btn-primary nx-btn-lg nx-btn-full">
+            <div class="nx-schools-actions">
+              <button type="button" class="nx-btn nx-btn-ivory nx-btn-lg" data-open-school-modal>
                 Register your school
               </button>
-              <p class="nx-form-feedback" id="nx-school-feedback" role="status" aria-live="polite" hidden></p>
-            </form>
+              <button type="button" class="nx-btn nx-btn-light-outline nx-btn-lg" data-open-school-modal>
+                Register for free
+              </button>
+            </div>
+          </div>
+
+          <!-- Class-Group Diagram Surface (#09090B + #27272A borders) -->
+          <div class="nx-schools-diagram-card">
+            <div class="nx-diagram-head">
+              <span class="nx-diagram-domain">oakridge.edu · Verified Network</span>
+              <span class="nx-diagram-status">Active term</span>
+            </div>
+
+            <div class="nx-diagram-nodes">
+              <div class="nx-class-node">
+                <div class="nx-class-node-top">
+                  <strong>ARCH-204 Studio Seminar</strong>
+                  <span class="tabular">42 members</span>
+                </div>
+                <p>Syllabus notes, critique schedules, and shared reading threads.</p>
+              </div>
+
+              <div class="nx-class-node">
+                <div class="nx-class-node-top">
+                  <strong>Quiet Evening Study Room</strong>
+                  <span class="tabular">18 active</span>
+                </div>
+                <p>Focus timer audio room with opt-in study group check-ins.</p>
+              </div>
+
+              <div class="nx-class-node">
+                <div class="nx-class-node-top">
+                  <strong>Campus Booklist &amp; Supplies</strong>
+                  <span class="tabular">Partner stores</span>
+                </div>
+                <p>Curated drafting kits and studio essentials vetted by faculty.</p>
+              </div>
+            </div>
+
+            <button type="button" class="nx-btn nx-btn-primary nx-btn-full" data-open-school-modal>
+              Register your school
+            </button>
           </div>
         </div>
       </section>
@@ -434,19 +726,19 @@
               </button>
               <div class="nx-accordion-panel" id="faq-panel-1" role="region" aria-labelledby="faq-btn-1">
                 <p>
-                  Nexora keeps your personal circle, partner store collections, and school study rooms inside one unified workspace so you do not have to switch across disconnected apps.
+                  Nexora keeps your personal circle, partner store lookbooks, and school study rooms inside one unified workspace so you do not have to switch across disconnected apps.
                 </p>
               </div>
             </div>
 
             <div class="nx-accordion-item">
               <button type="button" class="nx-accordion-trigger" aria-expanded="false" aria-controls="faq-panel-2" id="faq-btn-2">
-                <span>What are partner stores on Nexora?</span>
+                <span>How does Shop virtual try-on work with partner stores?</span>
                 <span class="material-symbols-outlined nx-accordion-icon" aria-hidden="true">expand_more</span>
               </button>
               <div class="nx-accordion-panel" id="faq-panel-2" role="region" aria-labelledby="faq-btn-2" hidden>
                 <p>
-                  Partner stores are verified independent brands, campus bookstores, and curated merchants that list products directly inside the Shop pillar with transparent pricing and direct seller messaging.
+                  Partner stores are verified independent brands and curated merchants on Nexora. You can preview garments from their catalog using your own photo privately before visiting their storefront.
                 </p>
               </div>
             </div>
@@ -458,7 +750,7 @@
               </button>
               <div class="nx-accordion-panel" id="faq-panel-3" role="region" aria-labelledby="faq-btn-3" hidden>
                 <p>
-                  Yes. Creating a personal account, messaging friends, joining public communities, and browsing partner stores are free.
+                  Yes. Creating a personal account, sharing reels, messaging friends, joining public communities, and browsing partner stores are free to start.
                 </p>
               </div>
             </div>
@@ -470,19 +762,19 @@
               </button>
               <div class="nx-accordion-panel" id="faq-panel-4" role="region" aria-labelledby="faq-btn-4" hidden>
                 <p>
-                  Submit your institution name and administrator email in the For schools section above. Verified campuses receive dedicated domain onboarding, role controls, and student safety tools.
+                  Click Register your school in the For Schools band above to enter your institution name, administrator email, and student count for domain onboarding.
                 </p>
               </div>
             </div>
 
             <div class="nx-accordion-item">
               <button type="button" class="nx-accordion-trigger" aria-expanded="false" aria-controls="faq-panel-5" id="faq-btn-5">
-                <span>How does Nexora protect privacy and direct messages?</span>
+                <span>How does Nexora protect privacy and nearby discovery?</span>
                 <span class="material-symbols-outlined nx-accordion-icon" aria-hidden="true">expand_more</span>
               </button>
               <div class="nx-accordion-panel" id="faq-panel-5" role="region" aria-labelledby="faq-btn-5" hidden>
                 <p>
-                  Direct messages from people outside your circle arrive in a separate Requests inbox until you approve them. You can also manage Close Friends visibility, mute threads, and block accounts at any time.
+                  Nearby discovery is strictly opt-in, toggles between Discoverable and Invisible in one tap, and never reveals exact GPS coordinates.
                 </p>
               </div>
             </div>
@@ -497,14 +789,13 @@
         <div class="nx-footer-top">
           <div class="nx-footer-brand">
             <a href="/index.html?landing=1" class="nx-wordmark nx-wordmark-light">
-              <svg class="nx-wordmark-icon" width="26" height="26" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-                <rect width="32" height="32" rx="8" fill="#FFF0DC" />
-                <path d="M9 22V10h3.1l7.8 8.3V10H23v12h-3.1l-7.8-8.3V22H9z" fill="#790B13" />
-              </svg>
+              <span class="nx-wordmark-badge nx-wordmark-badge-light" aria-hidden="true">
+                <img src="/assets/aistudio/nexora_dark_logo_22b15f11.jpeg" alt="" class="nx-logo-emblem" />
+              </span>
               <span>Nexora</span>
             </a>
             <p class="nx-footer-tagline">
-              Social, Shop, and Learn in one warm space.
+              Discover people, products, and learning, in one place.
             </p>
           </div>
 
@@ -514,12 +805,14 @@
               <a href="#social">Social</a>
               <a href="#shop">Shop</a>
               <a href="#learn">Learn</a>
-              <a href="#schools">For schools</a>
+              <a href="#pricing">Pricing</a>
+              <a href="#schools">For Schools</a>
             </div>
             <div class="nx-footer-col">
               <h4>Account</h4>
-              <a href="/signup.html">Register for free</a>
-              <a href="/login.html">Log in</a>
+              <button type="button" class="nx-footer-btn" data-open-auth-modal="login">Sign in</button>
+              <button type="button" class="nx-footer-btn" data-open-auth-modal="register">Create account</button>
+              <button type="button" class="nx-footer-btn" data-open-app-modal>Get the app</button>
               <a href="/welcome.html">Invite hub</a>
               <a href="#faq">FAQ</a>
             </div>
@@ -539,11 +832,218 @@
       </div>
     </footer>
 
+    <!-- Modal 1: Get the App System -->
+    <div class="nx-info-backdrop" id="nx-app-modal" role="dialog" aria-modal="true" aria-labelledby="nx-app-modal-title" hidden>
+      <div class="nx-info-dialog nx-app-modal-dialog">
+        <div class="nx-info-head">
+          <div>
+            <p class="nx-modal-kicker">Nexora App Access</p>
+            <h2 id="nx-app-modal-title">Get the Nexora app</h2>
+          </div>
+          <button type="button" class="nx-info-close" data-modal-close="nx-app-modal" aria-label="Close dialog">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="nx-info-body">
+          <p class="nx-modal-lead">
+            Launch Nexora in your browser, add it to your device home screen, or receive an instant access link.
+          </p>
+
+          <div class="nx-segmented nx-app-platform-tabs" role="tablist" aria-label="Choose device platform">
+            <button type="button" class="nx-seg-btn is-active" role="tab" aria-selected="true" data-app-platform="desktop">
+              <span class="material-symbols-outlined" aria-hidden="true">laptop_mac</span>
+              <span>Desktop / Web</span>
+            </button>
+            <button type="button" class="nx-seg-btn" role="tab" aria-selected="false" data-app-platform="ios">
+              <span class="material-symbols-outlined" aria-hidden="true">phone_iphone</span>
+              <span>iPhone &amp; iPad</span>
+            </button>
+            <button type="button" class="nx-seg-btn" role="tab" aria-selected="false" data-app-platform="android">
+              <span class="material-symbols-outlined" aria-hidden="true">android</span>
+              <span>Android</span>
+            </button>
+          </div>
+
+          <div class="nx-app-platform-card" id="nx-app-platform-panel">
+            <div class="nx-app-platform-head">
+              <strong id="nx-app-platform-title">Nexora Web App</strong>
+              <span class="nx-app-platform-badge" id="nx-app-platform-badge">Instant launch</span>
+            </div>
+            <p class="nx-app-platform-desc" id="nx-app-platform-desc">
+              Open the full Nexora workspace immediately or add it as a standalone window from your browser toolbar.
+            </p>
+            <div class="nx-app-platform-actions">
+              <button type="button" class="nx-btn nx-btn-primary nx-btn-poly" id="nx-app-platform-primary">
+                <span class="material-symbols-outlined" aria-hidden="true">rocket_launch</span>
+                <span>Open Web App</span>
+              </button>
+              <button type="button" class="nx-btn nx-btn-outline nx-btn-poly" id="nx-app-copy-link">
+                <span class="material-symbols-outlined" aria-hidden="true">content_copy</span>
+                <span>Copy access link</span>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="nx-btn nx-btn-google nx-btn-lg nx-btn-full nx-btn-poly" data-google-auth>
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+              <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z" />
+              <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z" />
+              <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z" />
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <form id="nx-app-link-form" class="nx-modal-form" novalidate>
+            <div class="nx-field">
+              <label for="app-contact-input">Send direct sign-in link via email or phone</label>
+              <input
+                id="app-contact-input"
+                name="contact"
+                type="text"
+                required
+                placeholder="you@domain.com or +1 (555) 234-5678"
+              />
+            </div>
+            <button type="submit" class="nx-btn nx-btn-outline-crimson nx-btn-lg nx-btn-full nx-btn-poly" id="nx-app-link-submit">
+              <span class="material-symbols-outlined" aria-hidden="true">send</span>
+              <span>Send app link</span>
+            </button>
+            <p class="nx-form-feedback" id="nx-app-link-feedback" role="status" aria-live="polite" hidden></p>
+          </form>
+
+          <div class="nx-modal-auth-switch">
+            <span>Prefer email or phone registration?</span>
+            <button type="button" class="nx-inline-reset" data-open-auth-modal="register">Register account →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: School Onboarding -->
+    <div class="nx-info-backdrop" id="nx-school-modal" role="dialog" aria-modal="true" aria-labelledby="nx-school-modal-title" hidden>
+      <div class="nx-info-dialog">
+        <div class="nx-info-head">
+          <h2 id="nx-school-modal-title">Register your school</h2>
+          <button type="button" class="nx-info-close" data-modal-close="nx-school-modal" aria-label="Close dialog">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="nx-info-body">
+          <p class="nx-modal-lead">
+            Share your campus details to activate a verified institutional domain and study space.
+          </p>
+          <form id="nx-school-form" class="nx-modal-form" novalidate>
+            <div class="nx-field">
+              <label for="school-name">School or university name</label>
+              <input id="school-name" name="schoolName" type="text" required placeholder="e.g. Oakridge Academy" />
+            </div>
+            <div class="nx-field">
+              <label for="school-email">Administrator email</label>
+              <input id="school-email" name="adminEmail" type="email" required placeholder="dean@oakridge.edu" />
+            </div>
+            <div class="nx-field">
+              <label for="school-size">Approximate student count</label>
+              <select id="school-size" name="studentCount">
+                <option value="under-500">Under 500 students</option>
+                <option value="500-2500" selected>500 – 2,500 students</option>
+                <option value="2500-10000">2,500 – 10,000 students</option>
+                <option value="over-10000">10,000+ students</option>
+              </select>
+            </div>
+            <button type="submit" class="nx-btn nx-btn-primary nx-btn-lg nx-btn-full">
+              Complete school registration
+            </button>
+            <p class="nx-form-feedback" id="nx-school-feedback" role="status" aria-live="polite" hidden></p>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Google Sign In & Register -->
+    <div class="nx-info-backdrop" id="nx-auth-modal" role="dialog" aria-modal="true" aria-labelledby="nx-auth-modal-title" hidden>
+      <div class="nx-info-dialog">
+        <div class="nx-info-head">
+          <h2 id="nx-auth-modal-title">Sign in to Nexora</h2>
+          <button type="button" class="nx-info-close" data-modal-close="nx-auth-modal" aria-label="Close dialog">
+            <span class="material-symbols-outlined" aria-hidden="true">close</span>
+          </button>
+        </div>
+        <div class="nx-info-body">
+          <div id="nx-auth-signedin-panel" class="nx-auth-session-card" hidden>
+            <div class="nx-auth-session-info">
+              <strong id="nx-auth-session-name">Signed in</strong>
+              <span id="nx-auth-session-email"></span>
+            </div>
+            <div class="nx-auth-session-actions">
+              <a href="/app.html" class="nx-btn nx-btn-primary nx-btn-lg nx-btn-full">Open Nexora Workspace</a>
+              <button type="button" class="nx-btn nx-btn-outline nx-btn-full" id="nx-landing-signout-btn">Sign out</button>
+            </div>
+          </div>
+
+          <div id="nx-auth-forms-panel" class="nx-auth-modal-body">
+            <div class="nx-segmented nx-auth-mode-tabs" role="tablist" aria-label="Account action">
+              <button type="button" class="nx-seg-btn is-active" role="tab" aria-selected="true" data-landing-auth-tab="login">
+                Sign in
+              </button>
+              <button type="button" class="nx-seg-btn" role="tab" aria-selected="false" data-landing-auth-tab="register">
+                Register
+              </button>
+            </div>
+
+            <button type="button" class="nx-btn nx-btn-google nx-btn-lg nx-btn-full" id="nx-landing-google-btn" data-google-auth>
+              <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17Z" />
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24Z" />
+                <path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14Z" />
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96Z" />
+              </svg>
+              <span id="nx-landing-google-label">Continue with Google</span>
+            </button>
+
+            <div class="nx-modal-divider">OR WITH EMAIL</div>
+
+            <form id="nx-landing-auth-form" class="nx-modal-form" novalidate>
+              <div class="nx-field" id="nx-landing-name-field" hidden>
+                <label for="nx-auth-display">Display name</label>
+                <input id="nx-auth-display" type="text" placeholder="Your display name" autocomplete="name" />
+              </div>
+
+              <div class="nx-field">
+                <label for="nx-auth-email">Email address</label>
+                <input id="nx-auth-email" type="email" required placeholder="you@example.com" autocomplete="email" />
+              </div>
+
+              <div class="nx-field">
+                <div class="nx-field-head-row">
+                  <label for="nx-auth-password">Password</label>
+                  <a href="/forgot-password.html" class="nx-inline-reset" id="nx-auth-forgot-link" data-auth-themed-link>Forgot password?</a>
+                </div>
+                <input id="nx-auth-password" type="password" required placeholder="At least 6 characters" autocomplete="current-password" />
+              </div>
+
+              <p class="nx-form-feedback" id="nx-landing-auth-feedback" role="status" aria-live="polite" hidden></p>
+
+              <button type="submit" class="nx-btn nx-btn-primary nx-btn-lg nx-btn-full" id="nx-landing-auth-submit">
+                Sign In
+              </button>
+            </form>
+
+            <div class="nx-modal-auth-switch">
+              <span>Phone SMS OTP or Email Link?</span>
+              <a href="/login.html" id="nx-full-auth-page-link" class="nx-inline-reset" data-auth-themed-link>All sign-in options →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 4: Footer Trust Info -->
     <div class="nx-info-backdrop" id="nx-info-modal" role="dialog" aria-modal="true" aria-labelledby="nx-info-title" hidden>
       <div class="nx-info-dialog">
         <div class="nx-info-head">
           <h2 id="nx-info-title">Nexora Information</h2>
-          <button type="button" class="nx-info-close" id="nx-info-close" aria-label="Close dialog">
+          <button type="button" class="nx-info-close" data-modal-close="nx-info-modal" aria-label="Close dialog">
             <span class="material-symbols-outlined" aria-hidden="true">close</span>
           </button>
         </div>
@@ -552,5 +1052,6 @@
     </div>
 
     <script type="module" src="/js/landing.js"></script>
+    <script type="module" src="/src/landing/mountLandingEffects.tsx"></script>
   </body>
 </html>

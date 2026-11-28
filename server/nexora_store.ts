@@ -69,12 +69,26 @@ export interface PushSubscriptionEntry {
   createdAtMs: number;
 }
 
+export interface SpatialLoopNode {
+  id: string;
+  category: 'social' | 'shop' | 'learn';
+  title: string;
+  subtitle: string;
+  alt: string;
+  href: string;
+  lat: number;
+  lon: number;
+  featured: boolean;
+  srid: 4326;
+}
+
 interface StoreData {
   media: Record<string, MediaRecord>;
   locations: Record<string, GeoUserLocation>;
   events: Record<string, LocalDiscoveryEvent>;
   preferences: Record<string, UserPreferencesSync>;
   pushSubscriptions: Record<string, PushSubscriptionEntry[]>;
+  spatialLoopNodes?: SpatialLoopNode[];
 }
 
 const DATA_DIR = path.resolve(process.cwd(), '.data');
@@ -106,6 +120,92 @@ export function haversineDistanceKm(lat1: number, lon1: number, lat2: number, lo
   return Math.round(R * c * 100) / 100;
 }
 
+export function computeAzimuthDeg(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const toRad = (deg: number) => (deg * Math.PI) / 180;
+  const toDeg = (rad: number) => (rad * 180) / Math.PI;
+  const phi1 = toRad(lat1);
+  const phi2 = toRad(lat2);
+  const dLambda = toRad(lon2 - lon1);
+  const y = Math.sin(dLambda) * Math.cos(phi2);
+  const x = Math.cos(phi1) * Math.sin(phi2) - Math.sin(phi1) * Math.cos(phi2) * Math.cos(dLambda);
+  return (toDeg(Math.atan2(y, x)) + 360) % 360;
+}
+
+const DEFAULT_SPATIAL_LOOP_NODES: SpatialLoopNode[] = [
+  {
+    id: 'north-quad-walk',
+    category: 'social',
+    title: 'North Quad Sketch & Music Walk',
+    subtitle: 'Social · Campus Circles',
+    alt: 'Students and friends sketching together on sunlit stone steps in a campus courtyard',
+    href: '#radar-feature',
+    lat: 48.8672,
+    lon: 2.3338,
+    featured: true,
+    srid: 4326,
+  },
+  {
+    id: 'claire-espresso-circle',
+    category: 'social',
+    title: 'Weekend Espresso Circle · @claire.m',
+    subtitle: 'Social · Nearby Discovery',
+    alt: 'Claire enjoying coffee with her circle at a neighborhood sidewalk café',
+    href: '#radar-feature',
+    lat: 48.8669,
+    lon: 2.3346,
+    featured: true,
+    srid: 4326,
+  },
+  {
+    id: 'atelier-rowan-showroom',
+    category: 'shop',
+    title: 'Atelier Rowan Autumn Showroom',
+    subtitle: 'Shop · Partner Stores',
+    alt: 'Shopper browsing tailored linen sweaters and trench coats in an independent boutique',
+    href: '#outfit-builder',
+    lat: 48.8661,
+    lon: 2.3349,
+    featured: true,
+    srid: 4326,
+  },
+  {
+    id: 'architecture-reading-room',
+    category: 'learn',
+    title: 'Architecture & Literature Reading Room',
+    subtitle: 'Learn · Verified Class Spaces',
+    alt: 'Four university students collaborating around a warm wooden library table',
+    href: '#schools',
+    lat: 48.8658,
+    lon: 2.3336,
+    featured: true,
+    srid: 4326,
+  },
+  {
+    id: 'studio-lookbook-tryon',
+    category: 'shop',
+    title: 'Studio Lookbook Try-On Preview',
+    subtitle: 'Shop · Personal Fitting Room',
+    alt: 'Virtual try-on garment preview of relaxed ivory linen tailoring',
+    href: '#tryon-feature',
+    lat: 48.8663,
+    lon: 2.3324,
+    featured: true,
+    srid: 4326,
+  },
+  {
+    id: 'thursday-studio-critique',
+    category: 'learn',
+    title: 'Thursday Evening Studio Critique',
+    subtitle: 'Learn · Peer Review Groups',
+    alt: 'Designers reviewing architectural models and floorplans at a wooden table',
+    href: '#schools',
+    lat: 48.8670,
+    lon: 2.3327,
+    featured: false,
+    srid: 4326,
+  },
+];
+
 class NexoraStore {
   private data: StoreData = {
     media: {},
@@ -113,6 +213,7 @@ class NexoraStore {
     events: {},
     preferences: {},
     pushSubscriptions: {},
+    spatialLoopNodes: [...DEFAULT_SPATIAL_LOOP_NODES],
   };
 
   constructor() {
@@ -132,6 +233,10 @@ class NexoraStore {
           events: parsed.events || {},
           preferences: parsed.preferences || {},
           pushSubscriptions: parsed.pushSubscriptions || {},
+          spatialLoopNodes:
+            Array.isArray(parsed.spatialLoopNodes) && parsed.spatialLoopNodes.length > 0
+              ? parsed.spatialLoopNodes
+              : [...DEFAULT_SPATIAL_LOOP_NODES],
         };
       }
     } catch {
@@ -330,6 +435,62 @@ class NexoraStore {
     delete this.data.pushSubscriptions[uid];
     this.persist();
     return removedMedia;
+  }
+
+  getSpatialCommunityLoop(options: {
+    category?: 'all' | 'social' | 'shop' | 'learn';
+    centerLat?: number;
+    centerLon?: number;
+    radiusMeters?: number;
+  }) {
+    const source = this.data.spatialLoopNodes?.length
+      ? this.data.spatialLoopNodes
+      : DEFAULT_SPATIAL_LOOP_NODES;
+    const category = options.category || 'all';
+    const filtered =
+      category === 'all'
+        ? source.filter((node) => node.featured)
+        : source.filter((node) => node.category === category);
+
+    const nodes = filtered.length > 0 ? filtered : source;
+    const centroidLat =
+      options.centerLat ?? nodes.reduce((acc, node) => acc + node.lat, 0) / Math.max(1, nodes.length);
+    const centroidLon =
+      options.centerLon ?? nodes.reduce((acc, node) => acc + node.lon, 0) / Math.max(1, nodes.length);
+
+    const ordered = nodes
+      .map((node) => {
+        const azimuthDeg = Math.round(computeAzimuthDeg(centroidLat, centroidLon, node.lat, node.lon) * 100) / 100;
+        const distanceMeters = Math.round(haversineDistanceKm(centroidLat, centroidLon, node.lat, node.lon) * 1000);
+        return {
+          ...node,
+          azimuthDeg,
+          distanceMeters,
+          wkt: `SRID=4326;POINT(${node.lon} ${node.lat})`,
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [node.lon, node.lat] as [number, number],
+          },
+        };
+      })
+      .sort((a, b) => a.azimuthDeg - b.azimuthDeg);
+
+    const ringCoords: Array<[number, number]> = ordered.map((n) => [n.lon, n.lat]);
+    if (ringCoords.length > 0) {
+      ringCoords.push(ringCoords[0]);
+    }
+
+    return {
+      srid: 4326,
+      closedLoop: true,
+      radiusMeters: options.radiusMeters ?? 180,
+      center: [centroidLon, centroidLat] as [number, number],
+      boundaryGeometry: {
+        type: 'Polygon' as const,
+        coordinates: [ringCoords],
+      },
+      items: ordered,
+    };
   }
 }
 

@@ -1,10 +1,12 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Activity,
   ArrowUpRight,
   Ban,
   Bell,
   Camera,
+  ChevronLeft,
+  ChevronRight,
   Compass,
   Edit3,
   Heart,
@@ -24,7 +26,54 @@ import {
   Video,
 } from 'lucide-react';
 import type { DiscoveryCategory, EvaluatedFeatureEntry, FeatureAvailability } from '../../shared/featureRegistry';
+import FlexCarousel, { type FlexCarouselHandle, type FlexCarouselItem } from '../components/FlexCarousel';
+import campusCourtyardImg from '../assets/images/community_campus_courtyard_1795852559658.jpg';
+import boutiqueAtelierImg from '../assets/images/community_boutique_atelier_1795852559360.jpg';
+import studyCircleImg from '../assets/images/community_study_circle_1795852558465.jpg';
+import designCritiqueImg from '../assets/images/community_design_critique_1795852559595.jpg';
 import { apiV1Request } from './apiClient';
+
+interface ShowcaseSlide extends FlexCarouselItem {
+  targetSection: string;
+}
+
+const PLATFORM_SHOWCASE_ITEMS: ShowcaseSlide[] = [
+  {
+    src: campusCourtyardImg,
+    alt: 'Students and friends sketching together in a campus courtyard',
+    title: 'Social Circles & Nearby Discovery',
+    subtitle: 'Social · Campus & Friends',
+    targetSection: 'social-circle',
+  },
+  {
+    src: boutiqueAtelierImg,
+    alt: 'Curated garments in an independent boutique showroom',
+    title: 'Nexora Exchange & Partner Stores',
+    subtitle: 'Shop · Verified Boutiques',
+    targetSection: 'marketplace',
+  },
+  {
+    src: '/assets/images/tryon-linen.jpg',
+    alt: 'Virtual try-on linen tailoring preview',
+    title: 'AI Style Studio & Try-On',
+    subtitle: 'Shop · Virtual Fitting Room',
+    targetSection: 'studio',
+  },
+  {
+    src: studyCircleImg,
+    alt: 'Students collaborating around a wooden library table',
+    title: 'Learn Spaces & Class Groups',
+    subtitle: 'Learn · Verified Campus Circles',
+    targetSection: 'explore',
+  },
+  {
+    src: designCritiqueImg,
+    alt: 'Designers reviewing studio projects together',
+    title: 'Nexora Camera & Visual Search',
+    subtitle: 'Media · Capture & Match',
+    targetSection: 'camera',
+  },
+];
 
 interface FeaturesDiscoveryViewProps {
   onNavigate: (section: string, opts?: Record<string, string>) => void;
@@ -121,6 +170,8 @@ function getAvailabilityBadge(availability: FeatureAvailability): { label: strin
 }
 
 export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ onNavigate }) => {
+  const carouselRef = useRef<FlexCarouselHandle>(null);
+  const [showcaseIndex, setShowcaseIndex] = useState(0);
   const [features, setFeatures] = useState<EvaluatedFeatureEntry[]>([]);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -196,6 +247,71 @@ export const FeaturesDiscoveryView: React.FC<FeaturesDiscoveryViewProps> = ({ on
           </button>
         )}
       </div>
+
+      {/* Interactive Community & Lookbook Showcase (FlexCarousel) */}
+      <section className="overflow-hidden rounded-2xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-4 sm:p-5">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="text-[11px] font-semibold uppercase tracking-wider text-[#790B13] dark:text-[#FFB3AE]">
+              Interactive Showcase
+            </div>
+            <h2 className="font-['Playfair_Display',serif] text-lg font-bold text-[var(--nx-text)]">
+              Community &amp; Lookbook Gallery
+            </h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => carouselRef.current?.step(-1)}
+              className="inline-flex items-center gap-1 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-2.5 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]"
+              aria-label="Previous featured moment"
+            >
+              <ChevronLeft className="h-3.5 w-3.5" />
+              <span>Prev</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => carouselRef.current?.step(1)}
+              className="inline-flex items-center gap-1 rounded-lg border border-[var(--nx-border)] bg-[var(--nx-card-soft)] px-2.5 py-1.5 text-xs font-medium text-[var(--nx-text)] hover:border-[#790B13]"
+              aria-label="Next featured moment"
+            >
+              <span>Next</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+            {PLATFORM_SHOWCASE_ITEMS[showcaseIndex] && (
+              <button
+                type="button"
+                onClick={() => onNavigate(PLATFORM_SHOWCASE_ITEMS[showcaseIndex].targetSection)}
+                className="inline-flex items-center gap-1 rounded-lg bg-[#790B13] px-3 py-1.5 text-xs font-semibold text-[#FFF0DC] hover:bg-[#5C0810]"
+              >
+                <span>Open Module</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+        <div className="h-[460px] w-full">
+          <FlexCarousel
+            ref={carouselRef}
+            items={PLATFORM_SHOWCASE_ITEMS}
+            preset="liquid"
+            intro="rise"
+            fit="portrait"
+            cardHeight={0.5}
+            gap={12}
+            radius={14}
+            liquid={0.26}
+            squeeze={0.2}
+            followCursor
+            infinite
+            captureWheel={false}
+            reactToPageScroll={false}
+            focusOnClick
+            captions
+            onChange={(idx) => setShowcaseIndex(idx)}
+          />
+        </div>
+      </section>
 
       {/* Search & Category Filter */}
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--nx-border)] bg-[var(--nx-card-bg)] p-3">

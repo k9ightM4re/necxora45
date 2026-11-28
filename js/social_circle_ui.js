@@ -1,6 +1,7 @@
 /**
  * Social Circle Engine (M1) — Consent-First OAuth Connectors & Hybrid RAG Workspace View.
  */
+import { getActiveIdToken } from './session.js';
 
 const PROVIDERS = [
   {
@@ -45,9 +46,7 @@ export function createSocialCircleUi({ auth, showToast, escapeHtml }) {
   };
 
   async function getIdToken() {
-    const user = auth.currentUser;
-    if (!user) return '';
-    return user.getIdToken();
+    return getActiveIdToken();
   }
 
   async function fetchStatus(rerender) {

@@ -20,6 +20,7 @@ async function startServer() {
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
     res.setHeader(
       'Permissions-Policy',
       'camera=(self), microphone=(self), display-capture=(self), geolocation=(self)'
@@ -34,7 +35,7 @@ async function startServer() {
         "img-src 'self' data: blob: https: http:",
         "media-src 'self' data: blob: https: http:",
         "connect-src 'self' https: wss: ws:",
-        "frame-src 'self' https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com https://*.firebaseapp.com",
+        "frame-src 'self' https://accounts.google.com https://apis.google.com https://www.youtube.com https://www.youtube-nocookie.com https://*.firebaseapp.com",
       ].join('; ')
     );
     next();

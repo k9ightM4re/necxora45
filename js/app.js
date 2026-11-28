@@ -15,6 +15,7 @@ import {
 import { auth, db, handleFirestoreError, OperationType } from './firebase.js';
 import { formatFriendlyError, notifyUser } from './notifications.js';
 import {
+  getActiveIdToken,
   requireAuth,
   signOutSession,
   changeAccountEmail,
@@ -1909,31 +1910,33 @@ async function initWorkspaceForUser(fbUser, loadedProfile) {
 
   state.members = [profile];
 
-  if (unsubServersOwned) unsubServersOwned();
-  unsubServersOwned = onSnapshot(
-    query(collection(db, 'servers'), where('ownerId', '==', fbUser.uid)),
-    (snap) => {
-      ownedServersMap.clear();
-      snap.forEach((docSnap) => ownedServersMap.set(docSnap.id, safeServerDoc(docSnap.id, docSnap.data())));
-      mergeServersFromSnapshots();
-    },
-    (err) => {
-      handleFirestoreError(err, OperationType.LIST, 'servers', { silent: true });
-    }
-  );
+  if (!fbUser.isNexoraAccount) {
+    if (unsubServersOwned) unsubServersOwned();
+    unsubServersOwned = onSnapshot(
+      query(collection(db, 'servers'), where('ownerId', '==', fbUser.uid)),
+      (snap) => {
+        ownedServersMap.clear();
+        snap.forEach((docSnap) => ownedServersMap.set(docSnap.id, safeServerDoc(docSnap.id, docSnap.data())));
+        mergeServersFromSnapshots();
+      },
+      (err) => {
+        handleFirestoreError(err, OperationType.LIST, 'servers', { silent: true });
+      }
+    );
 
-  subscribeOwnProfile(fbUser.uid);
-  subscribeJoinedServers(fbUser.uid);
-  subscribePublicCatalog(fbUser.uid);
-  subscribeDirectoryUsers();
-  subscribeConnectionRequests(fbUser.uid);
-  subscribeBlocks(fbUser.uid);
-  subscribeBookmarks(fbUser.uid);
-  subscribeMyInvites(fbUser.uid);
-  subscribeReports(fbUser.uid);
-  subscribeDmThreads(fbUser.uid);
-  subscribeUserNotifications(fbUser.uid);
-  rtc.initGlobalCallListener(fbUser.uid);
+    subscribeOwnProfile(fbUser.uid);
+    subscribeJoinedServers(fbUser.uid);
+    subscribePublicCatalog(fbUser.uid);
+    subscribeDirectoryUsers();
+    subscribeConnectionRequests(fbUser.uid);
+    subscribeBlocks(fbUser.uid);
+    subscribeBookmarks(fbUser.uid);
+    subscribeMyInvites(fbUser.uid);
+    subscribeReports(fbUser.uid);
+    subscribeDmThreads(fbUser.uid);
+    subscribeUserNotifications(fbUser.uid);
+    rtc.initGlobalCallListener(fbUser.uid);
+  }
   ensureCallTab().bindEvents();
   connectNexoraWs(fbUser);
 
@@ -1956,7 +1959,7 @@ async function initWorkspaceForUser(fbUser, loadedProfile) {
       return;
     }
     const targetServerId = params.get('server');
-    if (targetServerId) {
+    if (targetServerId && !fbUser.isNexoraAccount) {
       requestedServerMode = true;
       state.activeView = 'server';
       state.activeServerId = targetServerId;
@@ -2752,7 +2755,7 @@ function renderEmptyHomeCard(scroll) {
     scroll.innerHTML = `
       <div class="empty-workspace-card">
         <div style="display:flex;align-items:center;gap:12px;">
-          <img src="/assets/logo.svg" alt="NEXORA" width="36" height="36" />
+          <span class="nx-logo-badge is-md"><img src="/assets/aistudio/nexora_dark_logo_22b15f11.jpeg" alt="NEXORA" /></span>
           <div>
             <h2>Your NEXORA Communities</h2>
             <div class="member-sub">Invite-screened groups, channels, and voice stages</div>
@@ -2777,7 +2780,7 @@ function renderEmptyHomeCard(scroll) {
   scroll.innerHTML = `
     <div class="empty-workspace-card">
       <div style="display:flex;align-items:center;gap:12px;">
-        <img src="/assets/logo.svg" alt="NEXORA" width="36" height="36" />
+        <span class="nx-logo-badge is-md"><img src="/assets/aistudio/nexora_dark_logo_22b15f11.jpeg" alt="NEXORA" /></span>
         <div>
           <h2>Messages, ${escapeHtml(profile.displayName)}</h2>
           <div class="member-sub">Direct messages, group chats &amp; connection requests</div>
@@ -7285,7 +7288,7 @@ function connectNexoraWs(fbUser) {
     nexoraWsClient = null;
   }
   nexoraWsClient = createNexoraWsClient({
-    getToken: async () => (auth.currentUser ? await auth.currentUser.getIdToken() : ''),
+    getToken: () => getActiveIdToken(),
     onEvent: (ev) => {
       if (!ev || typeof ev !== 'object') return;
       if (ev.type === 'presence:snapshot') {

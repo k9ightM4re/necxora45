@@ -278,8 +278,8 @@
 
 /* Brand Loading Animation */
 @keyframes nxLogoPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.04); }
+  0%, 100% { opacity: 0.92; }
+  50% { opacity: 1; }
 }
 
 @keyframes nxRingSpin {
@@ -304,10 +304,55 @@
   animation: nxRingSpin 0.95s linear infinite;
 }
 
-.nx-loading-mark img {
-  width: 40px;
-  height: 40px;
+.nx-loading-mark > img,
+.nx-loading-mark > .nx-logo-badge {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
   animation: nxLogoPulse 1.8s ease-in-out infinite;
+}
+
+.nx-loading-mark > img {
+  object-fit: cover;
+}
+
+.nx-logo-badge {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background-color: #200809;
+  border: 1px solid rgba(121, 11, 19, 0.35);
+  overflow: hidden;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.nx-logo-badge.is-sm {
+  width: 28px;
+  height: 28px;
+}
+
+.nx-logo-badge.is-md {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+.nx-logo-badge.is-round {
+  width: 44px;
+  height: 44px;
+  border-radius: 9999px;
+}
+
+.nx-logo-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 41%;
+  transform: scale(2.85);
+  transform-origin: 50% 41%;
+  display: block;
 }
 
 /* Toast Notification Shield */

@@ -99,7 +99,8 @@
   padding: 2px 0 12px;
 }
 
-.nx-left-nav.collapsed .nx-brand-block img {
+.nx-left-nav.collapsed .nx-brand-block > img,
+.nx-left-nav.collapsed .nx-brand-block > .nx-logo-badge {
   width: 36px;
   height: 36px;
 }
@@ -210,7 +211,7 @@
   text-decoration: none;
 }
 
-.nx-brand-block img {
+.nx-brand-block > img {
   width: 34px;
   height: 34px;
   border-radius: 10px;

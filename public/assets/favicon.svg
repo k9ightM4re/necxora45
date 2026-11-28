@@ -1,7 +1,9 @@
-<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="64" height="64" rx="16" fill="#101318"/>
-  <rect x="1" y="1" width="62" height="62" rx="15" stroke="#4777DF" stroke-opacity="0.45" stroke-width="2"/>
-  <rect x="15" y="14" width="9.5" height="36" rx="4.75" fill="#4777DF"/>
-  <rect x="39.5" y="14" width="9.5" height="36" rx="4.75" fill="#4777DF"/>
-  <path d="M19.8 16.5C21.6 14.6 24.6 14.8 26.2 17.0L44.2 43.2C45.8 45.4 45.1 48.2 42.7 48.8C40.5 49.3 38.6 48.2 37.3 46.3L19.3 20.1C18.0 18.2 18.3 17.6 19.8 16.5Z" fill="#EDEFF5"/>
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Nexora Logo">
+  <rect width="64" height="64" rx="16" fill="#200809"/>
+  <rect x="0.75" y="0.75" width="62.5" height="62.5" rx="15.25" stroke="#790B13" stroke-opacity="0.6" stroke-width="1.5"/>
+  <path d="M16 49V23.5H21.2V45.5C24.2 44.2 26.2 40.8 26.2 35.8V31L30.8 36.2V36.8C30.8 45.2 25.4 49 16 49Z" fill="#790B13"/>
+  <path d="M16 20.5V16C29.4 16 37.8 23.2 43.2 36.8L38.4 39.2C33.8 27.6 26.8 20.5 16 20.5Z" fill="#FFF0DC"/>
+  <path d="M16 25.2V21.5C27.2 21.5 34.4 28.4 39.2 38.6C42.2 43 44.8 44 48 44V48C42.2 48 38.4 45.2 34.4 38.2C30.2 30.8 24.4 25.2 16 25.2Z" fill="#790B13"/>
+  <path d="M48 16V41.5H42.8V20.5C39.8 21.8 37.8 25.2 37.8 30.2V34L33.2 28.8V28.2C33.2 19.8 38.6 16 48 16Z" fill="#790B13"/>
+  <path d="M24 27.2L28.8 24.8C33.4 36.4 40.4 43.5 48 43.5V48C37.6 48 29.4 40.8 24 27.2Z" fill="#FFF0DC"/>
 </svg>

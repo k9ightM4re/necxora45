@@ -19,6 +19,7 @@ import { mountMediaRoutes } from './media_router.ts';
 import { mountDiscoveryRoutes } from './discovery_router.ts';
 import { mountV1ApiRoutes } from './v1/router.ts';
 import type { AuthedRequest, VerifiedUser } from './v1/context.ts';
+import { mountLocalAuthRoutes, verifyNexoraAccountToken } from './local_auth.ts';
 
 const firebaseConfigPath = path.resolve(process.cwd(), 'firebase-applet-config.json');
 const firebaseConfig = fs.existsSync(firebaseConfigPath)
@@ -75,7 +76,11 @@ export function checkRateLimit(
 }
 
 export async function verifyFirebaseToken(idToken: string): Promise<any | null> {
-  if (!idToken || !firebaseConfig.apiKey) return null;
+  if (!idToken) return null;
+  if (idToken.startsWith('nx_acct.')) {
+    return verifyNexoraAccountToken(idToken, SERVER_SECRET);
+  }
+  if (!firebaseConfig.apiKey) return null;
   try {
     const res = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${encodeURIComponent(firebaseConfig.apiKey)}`,
@@ -89,12 +94,17 @@ export async function verifyFirebaseToken(idToken: string): Promise<any | null> 
     const data: any = await res.json();
     const user = data?.users?.[0];
     if (!user?.localId) return null;
+    const providers = Array.isArray(user.providerUserInfo)
+      ? user.providerUserInfo.map((p: any) => String(p?.providerId || '')).filter(Boolean)
+      : [];
     return {
       uid: user.localId,
       email: user.email || '',
-      emailVerified: Boolean(user.emailVerified),
+      emailVerified: Boolean(user.emailVerified || providers.includes('google.com')),
       phoneNumber: user.phoneNumber || '',
       displayName: user.displayName || '',
+      photoUrl: user.photoUrl || '',
+      providers,
       idToken,
     };
   } catch {
@@ -194,11 +204,20 @@ export function mountNexoraApiRoutes(
     res.json({ verified: true, otpVerified, user: verified });
   });
 
+  mountLocalAuthRoutes(app, {
+    serverSecret: SERVER_SECRET,
+    checkRateLimit,
+    isHttpsRequest,
+  });
+
   app.post('/api/auth/logout', (req: Request, res: Response) => {
     const cookieFlags = isHttpsRequest(req)
       ? 'HttpOnly; Secure; SameSite=None; Partitioned; Path=/; Max-Age=0'
       : 'HttpOnly; SameSite=Lax; Path=/; Max-Age=0';
-    res.setHeader('Set-Cookie', `nx_otp_sig=; ${cookieFlags}`);
+    res.setHeader('Set-Cookie', [
+      `nx_otp_sig=; ${cookieFlags}`,
+      `nx_session=; ${cookieFlags}`,
+    ]);
     res.json({ ok: true });
   });
 

@@ -488,6 +488,22 @@ let pendingStoryStudioDataUrl = '';
     }
 
     // Admin detection
+    if (fbUser.isNexoraAccount) {
+      postsLoading = false;
+      postsError = '';
+      isCurrentUserAdmin = false;
+      updateAdminNavVisibility();
+      void refreshFollowRequests();
+      void refreshSearchHistory();
+      void refreshServerFeed(false);
+      templateStudio.subscribeAll(fbUser);
+      if (typeof window !== 'undefined' && window.location.hash?.startsWith('#template')) {
+        templateStudio.handleDeepLink(window.location.hash);
+      }
+      renderIfSocial();
+      return;
+    }
+
     isCurrentUserAdmin = isAdminUser(fbUser, adminUidSet);
     updateAdminNavVisibility();
     getDoc(doc(db, 'admins', fbUser.uid))
@@ -657,6 +673,42 @@ let pendingStoryStudioDataUrl = '';
     viewedProfileLoaded = false;
     mergePosts();
     if (!targetUid) return;
+
+    if (currentUser?.isNexoraAccount) {
+      viewedProfileLoaded = true;
+      viewedFollowersLoaded = true;
+      viewedFollowingLoaded = true;
+      if (targetUid === profile.id) {
+        viewedProfileDoc = { ...profile };
+      }
+      apiV1Fetch(`/users/${encodeURIComponent(targetUid)}/mutuals`)
+        .then((res) => {
+          viewedProfileMutuals = Array.isArray(res?.mutuals) ? res.mutuals : [];
+          if (currentSection === 'profile') render();
+        })
+        .catch(() => {
+          viewedProfileMutuals = [];
+        });
+      if (targetUid !== currentUser.uid) {
+        apiV1Fetch(`/users/${encodeURIComponent(targetUid)}`)
+          .then((res) => {
+            if (res?.user) {
+              viewedProfileDoc = res.user;
+              directoryMap.set(targetUid, res.user);
+            }
+            viewedProfilePendingReq = Boolean(res?.user?.hasPendingFollowRequest);
+            if (currentSection === 'profile') render();
+          })
+          .catch(() => {
+            viewedProfilePendingReq = false;
+          });
+      } else {
+        viewedProfilePendingReq = false;
+        void refreshFollowRequests();
+      }
+      if (currentSection === 'profile') render();
+      return;
+    }
 
     unsubViewedProfile = onSnapshot(
       doc(db, 'users', targetUid),

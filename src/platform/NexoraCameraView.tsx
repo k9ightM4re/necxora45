@@ -12,7 +12,7 @@ import {
   Video,
   X,
 } from 'lucide-react';
-import { auth } from '../../js/firebase.js';
+import { getActiveIdToken } from '../../js/session.js';
 import { apiV1Request } from './apiClient';
 import {
   captureCanvasDataUrl,
@@ -210,7 +210,7 @@ export const NexoraCameraView: React.FC<NexoraCameraViewProps> = ({ onNavigate }
   };
 
   const uploadMediaFile = async (dataUrl: string, kind: 'studio' | 'post', name: string): Promise<string> => {
-    const token = await auth.currentUser?.getIdToken();
+    const token = await getActiveIdToken();
     const res = await fetch('/api/media/upload', {
       method: 'POST',
       headers: {

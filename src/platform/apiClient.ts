@@ -1,4 +1,4 @@
-import { auth } from '../../js/firebase.js';
+import { getActiveIdToken } from '../../js/session.js';
 
 export class ApiV1Error extends Error {
   status: number;
@@ -25,13 +25,10 @@ export async function apiV1Request<T = Record<string, any>>(
   path: string,
   options: RequestInit = {}
 ): Promise<T & { ok: true; requestId?: string | null }> {
-  const user = auth.currentUser;
   const headers = new Headers(options.headers || {});
-  if (user) {
-    const token = await user.getIdToken();
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
+  const token = await getActiveIdToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
   if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');

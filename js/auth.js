@@ -1,7 +1,5 @@
 import {
   signInWithPopup,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
   updateProfile,
   sendEmailVerification,
   sendPasswordResetEmail,
@@ -18,13 +16,22 @@ import {
 import { auth, googleProvider } from './firebase.js';
 import { ensureUserProfile } from './profile.js';
 import { formatFriendlyError, notifyUser } from './notifications.js';
-import { initThemeSync } from './theme.js';
+import { initThemeSync, applyTheme } from './theme.js';
 import {
   getPostAuthDestination,
   isUserVerified,
   redirectIfAuthenticated,
   resolveVerifiedSession,
+  verifySessionWithServer,
 } from './session.js';
+import { loginLocalAccount, registerLocalAccount } from './local_session.js';
+
+try {
+  const urlTheme = new URLSearchParams(window.location.search).get('theme');
+  if (urlTheme === 'dark' || urlTheme === 'light') {
+    applyTheme(urlTheme, { animate: false });
+  }
+} catch {}
 
 initThemeSync();
 
@@ -117,15 +124,30 @@ function initMethodTabs() {
   const phoneForm = document.getElementById('phone-auth-form');
   if (!tabs.length || !emailContainer || !phoneForm) return;
 
+  const activateMethod = (method) => {
+    clearAlert();
+    tabs.forEach((t) => t.setAttribute('aria-selected', String(t.getAttribute('data-auth-method') === method)));
+    emailContainer.hidden = method !== 'email';
+    phoneForm.hidden = method !== 'phone';
+  };
+
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
-      clearAlert();
-      const method = tab.getAttribute('data-auth-method');
-      tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-      emailContainer.hidden = method !== 'email';
-      phoneForm.hidden = method !== 'phone';
+      activateMethod(tab.getAttribute('data-auth-method') || 'email');
     });
   });
+
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('method') === 'phone') {
+      activateMethod('phone');
+      const phoneParam = params.get('phone') || '';
+      const numInput = document.getElementById('phone-number');
+      if (phoneParam && numInput instanceof HTMLInputElement) {
+        numInput.value = phoneParam;
+      }
+    }
+  } catch {}
 }
 
 function initSubmethodTabs() {
@@ -150,7 +172,7 @@ function initGoogleButton() {
   if (!btn) return;
   btn.addEventListener('click', async () => {
     clearAlert();
-    setButtonBusy(btn, true, 'Processing...');
+    setButtonBusy(btn, true, 'Connecting to Google...');
     authFlowInProgress = true;
     try {
       const cred = await signInWithPopup(auth, googleProvider);
@@ -159,6 +181,7 @@ function initGoogleButton() {
       } catch (profileErr) {
         console.warn('Profile sync note:', profileErr);
       }
+      await verifySessionWithServer(cred.user).catch(() => null);
       showAlert('Signed in with Google. Opening NEXORA...', true);
       window.location.replace(getPostAuthDestination('/app.html'));
     } catch (err) {
@@ -259,31 +282,17 @@ function initPasswordAuthFlow() {
     authFlowInProgress = true;
     try {
       if (isSignup) {
-        const cred = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(cred.user, { displayName }).catch(() => {});
-        try {
-          await ensureUserProfile(cred.user, { displayName });
-        } catch (profileErr) {
-          console.warn('Profile sync note:', profileErr);
-        }
-        await sendEmailVerification(cred.user).catch((verErr) => {
-          console.warn('Verification email note:', verErr?.code || verErr?.message);
-        });
+        await registerLocalAccount({ displayName, email, password });
         showAlert('Account created! Opening NEXORA...', true);
         window.location.replace(getPostAuthDestination('/app.html'));
       } else {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        try {
-          await ensureUserProfile(cred.user);
-        } catch (profileErr) {
-          console.warn('Profile sync note:', profileErr);
-        }
+        await loginLocalAccount({ email, password });
         showAlert('Signed in! Opening NEXORA...', true);
         window.location.replace(getPostAuthDestination('/app.html'));
       }
     } catch (err) {
       authFlowInProgress = false;
-      showAlert(formatFirebaseAuthError(err));
+      showAlert(err instanceof Error && err.message ? err.message : formatFirebaseAuthError(err));
       setButtonBusy(submitBtn, false);
     }
   });
@@ -317,9 +326,18 @@ function initPhoneAuthForm() {
   const otpInput = document.getElementById('otp-code');
   const displayInput = document.getElementById('phone-signup-display');
 
+  const isSignup = document.body.dataset.page === 'signup';
+
   async function dispatchSmsOtp() {
     clearAlert();
     setFieldError('err-phone', '');
+    if (isSignup) setFieldError('err-phone-display', '');
+    const displayName = displayInput instanceof HTMLInputElement ? displayInput.value.trim() : '';
+    if (isSignup && displayName.length < 2) {
+      setFieldError('err-phone-display', 'Display name must be at least 2 characters.');
+      displayInput?.focus();
+      return;
+    }
     const country = codeSelect instanceof HTMLSelectElement ? codeSelect.value : '+1';
     const rawNum = numInput instanceof HTMLInputElement ? numInput.value.replace(/[^\d]/g, '') : '';
     if (rawNum.length < 7) {
@@ -371,6 +389,7 @@ function initPhoneAuthForm() {
     }
 
     setButtonBusy(verifyOtpBtn, true, 'Processing...');
+    authFlowInProgress = true;
     try {
       const cred = await phoneConfirmationResult.confirm(code);
       const displayName = displayInput instanceof HTMLInputElement ? displayInput.value.trim() : '';
@@ -378,9 +397,11 @@ function initPhoneAuthForm() {
         await updateProfile(cred.user, { displayName }).catch(() => {});
       }
       await ensureUserProfile(cred.user, { displayName });
+      await verifySessionWithServer(cred.user).catch(() => null);
       showAlert('Phone verified! Launching NEXORA...', true);
       window.location.replace(getPostAuthDestination('/app.html'));
     } catch (err) {
+      authFlowInProgress = false;
       showAlert(formatFirebaseAuthError(err));
       setButtonBusy(verifyOtpBtn, false);
     }
@@ -401,6 +422,7 @@ function initEmailLinkDetection() {
       } catch (profileErr) {
         console.warn('Profile sync note:', profileErr);
       }
+      await verifySessionWithServer(cred.user).catch(() => null);
       showAlert('Signed in via email link! Opening NEXORA...', true);
       window.location.replace(getPostAuthDestination('/app.html'));
     } catch (err) {

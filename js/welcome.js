@@ -10,7 +10,7 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from './firebase.js';
+import { auth, db, handleFirestoreError, OperationType } from './firebase.js';
 import { requireAuth, signOutSession } from './session.js';
 import { formatFriendlyError, notifyUser } from './notifications.js';
 import { getInitials } from './profile.js';
@@ -307,6 +307,10 @@ function subscribeConnectionRequests(uid) {
   }
   const container = document.getElementById('incoming-requests-list');
   if (!container || !uid) return;
+  if (currentUser?.isNexoraAccount || !auth.currentUser) {
+    container.innerHTML = `<p style="margin:0;color:var(--ink-muted);font-size:0.86rem;">No pending chat or call requests right now.</p>`;
+    return;
+  }
 
   const q = query(collection(db, 'connection_requests'), where('participantIds', 'array-contains', uid));
   unsubRequests = onSnapshot(

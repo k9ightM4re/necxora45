@@ -57,6 +57,13 @@ export function formatFriendlyError(err, fallbackMessage = '') {
     return 'An account with this email already exists. Please sign in instead.';
   }
 
+  if (
+    code === 'auth/account-exists-with-different-credential' ||
+    combined.includes('account-exists-with-different-credential')
+  ) {
+    return 'An account already exists with this email using a different sign-in method. Please sign in with that method first.';
+  }
+
   if (code === 'auth/weak-password' || combined.includes('weak-password')) {
     return 'Please choose a password with at least 6 characters.';
   }
@@ -74,7 +81,7 @@ export function formatFriendlyError(err, fallbackMessage = '') {
   }
 
   if (code === 'auth/popup-blocked' || combined.includes('popup-blocked')) {
-    return 'Sign-in window could not open here. Please use Email & Password instead.';
+    return 'Google sign-in popup was blocked by your browser. Please allow popups for this site or use Email & Password.';
   }
 
   if (
@@ -147,7 +154,7 @@ export function formatFriendlyError(err, fallbackMessage = '') {
     code === 'auth/app-not-authorized' ||
     code === 'auth/user-disabled'
   ) {
-    return 'You cannot enter with this sign-in option right now. Please try Email & Password or check back shortly.';
+    return 'Google sign-in is unavailable on this host right now. Please sign in or create an account with Email & Password below.';
   }
 
   if (

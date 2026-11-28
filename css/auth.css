@@ -91,7 +91,7 @@ select {
   color: var(--nx-primary);
 }
 
-.brand-lockup img {
+.brand-lockup > img {
   width: 26px;
   height: 26px;
   border-radius: 8px;

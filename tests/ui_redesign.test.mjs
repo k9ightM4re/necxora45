@@ -24,15 +24,21 @@ test('Two accessible themes (light Warm Ivory and dark Deep Burgundy) are define
   assert.ok(globalCss.includes('view-transition'));
 });
 
-test('Landing page enforces Warm Editorial hero, Social/Shop/Learn pillars, For schools band, and Playfair Display + DM Sans', () => {
+test('Landing page enforces Warm Editorial hero, Social/Shop/Learn pillars, For Schools band, and Playfair Display + DM Sans', () => {
   const html = fs.readFileSync(path.resolve(process.cwd(), 'index.html'), 'utf8');
   const landingCss = fs.readFileSync(path.resolve(process.cwd(), 'css/landing.css'), 'utf8');
   const lower = html.toLowerCase();
 
-  assert.ok(html.includes('Social, Shop, and Learn in one warm space.'), 'Hero must feature official Nexora Warm Editorial headline');
+  assert.ok(
+    html.includes('Discover people, products, and learning, in one place.'),
+    'Hero must feature official Nexora Warm Editorial headline'
+  );
+  assert.ok(html.includes('Free to start'), 'Hero must include Free to start badge');
   assert.ok(html.includes('Get the app'), 'Hero must include "Get the app" primary CTA');
-  assert.ok(html.includes('nx-device-frame'), 'Hero must include interactive Nexora Workspace device showcase');
-  assert.ok(html.includes('For schools') && html.includes('Register your school'), 'Landing page must include For schools band');
+  assert.ok(html.includes('@claire.m'), 'Hero must include @claire.m reel showcase card');
+  assert.ok(html.includes('Try-on preview'), 'Hero must include floating Try-on preview card');
+  assert.ok(html.includes('Wool Trench · Atelier Rowan'), 'Try-on preview must display Atelier Rowan caption');
+  assert.ok(html.includes('For Schools') && html.includes('Register your school'), 'Landing page must include For Schools band');
   assert.ok(html.includes('partner stores'), 'Landing page must use partner stores terminology');
 
   // Zero download or installer links/scripts on landing page
@@ -40,10 +46,14 @@ test('Landing page enforces Warm Editorial hero, Social/Shop/Learn pillars, For 
   assert.ok(!lower.includes('installer'), 'Landing page must not contain installer links');
   assert.ok(!html.includes('/js/pwa.js'), 'Landing page must not load PWA install prompt script');
 
-  // Official Google Fonts + Warm Editorial CSS tokens
+  // Official Google Fonts + Warm Editorial CSS tokens + Scroll Reveal
   assert.ok(html.includes('Playfair+Display') && html.includes('DM+Sans'));
   assert.ok(html.includes('Material+Symbols+Outlined'));
   assert.ok(landingCss.includes('#790B13') || landingCss.includes('var(--color-primary'));
+  assert.ok(landingCss.includes('.nx-reveal') && landingCss.includes('prefers-reduced-motion'));
+
+  const landingJs = fs.readFileSync(path.resolve(process.cwd(), 'js/landing.js'), 'utf8');
+  assert.ok(landingJs.includes('IntersectionObserver'), 'landing.js must use IntersectionObserver for scroll reveals');
 });
 
 test('app.html and app.css expose Social Circle, Light/Dark switcher, Feature Discovery, and DM inbox while keeping existing IDs', () => {

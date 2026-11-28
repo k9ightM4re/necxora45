@@ -1,13 +1,10 @@
-import { auth } from './firebase.js';
+import { getActiveIdToken } from './session.js';
 
 export async function apiV1Fetch(path, options = {}) {
-  const user = auth.currentUser;
   const headers = new Headers(options.headers || {});
-  if (user) {
-    const token = await user.getIdToken();
-    if (token) {
-      headers.set('Authorization', `Bearer ${token}`);
-    }
+  const token = await getActiveIdToken();
+  if (token) {
+    headers.set('Authorization', `Bearer ${token}`);
   }
   if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');

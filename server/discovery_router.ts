@@ -45,6 +45,42 @@ export interface DiscoveryRouterDeps {
 export function mountDiscoveryRoutes(app: Express, deps: DiscoveryRouterDeps): void {
   /* ---------------- Geo Discovery & Local Events ---------------- */
 
+  app.get('/api/discovery/community-loop', (req: Request, res: Response) => {
+    const rawCategory = String(req.query.category || 'all').toLowerCase();
+    const category =
+      rawCategory === 'social' || rawCategory === 'shop' || rawCategory === 'learn'
+        ? rawCategory
+        : 'all';
+    const rawLat = req.query.lat !== undefined ? Number(req.query.lat) : undefined;
+    const rawLon = req.query.lon !== undefined ? Number(req.query.lon) : undefined;
+    const radiusMeters =
+      req.query.radiusM !== undefined
+        ? Math.min(5000, Math.max(50, Number(req.query.radiusM) || 180))
+        : 180;
+
+    const validCenter =
+      rawLat !== undefined &&
+      rawLon !== undefined &&
+      Number.isFinite(rawLat) &&
+      Number.isFinite(rawLon) &&
+      rawLat >= -90 &&
+      rawLat <= 90 &&
+      rawLon >= -180 &&
+      rawLon <= 180;
+
+    const loop = nexoraStore.getSpatialCommunityLoop({
+      category,
+      centerLat: validCenter ? rawLat : undefined,
+      centerLon: validCenter ? rawLon : undefined,
+      radiusMeters,
+    });
+
+    res.json({
+      ok: true,
+      loop,
+    });
+  });
+
   app.post('/api/discovery/location', async (req: Request, res: Response) => {
     const user = await deps.requireVerifiedBearer(req, res);
     if (!user) return;

@@ -9,11 +9,31 @@ import { doc, deleteDoc } from 'firebase/firestore';
 import { auth, db } from './firebase.js';
 import { ensureUserProfile } from './profile.js';
 import { formatFriendlyError, installGlobalErrorShield, notifyUser } from './notifications.js';
+import {
+  clearLocalSession,
+  getCachedLocalSession,
+  restoreLocalSessionFromServer,
+} from './local_session.js';
 
 installGlobalErrorShield();
 
+export function getActiveAuthUser() {
+  return auth.currentUser || getCachedLocalSession()?.user || null;
+}
+
+export async function getActiveIdToken() {
+  const user = getActiveAuthUser();
+  if (!user || typeof user.getIdToken !== 'function') return '';
+  try {
+    return (await user.getIdToken()) || '';
+  } catch {
+    return '';
+  }
+}
+
 export function isUserVerified(user) {
   if (!user) return false;
+  if (user.isNexoraAccount) return true;
   const usesPhone = Boolean(user.phoneNumber) || user.providerData?.some((p) => p.providerId === 'phone');
   const usesGoogle = user.providerData?.some((p) => p.providerId === 'google.com');
   return Boolean(user.emailVerified || usesPhone || usesGoogle);
@@ -75,52 +95,70 @@ export function requireAuth({ onAuthenticated, redirectUnauthenticated = '/login
 
   // Guard browser Back/Forward cache (bfcache) restoration after sign-out
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted && !auth.currentUser) {
+    if (event.persisted && !getActiveAuthUser()) {
       window.location.replace(redirectUnauthenticated);
     }
   });
 
-  return onAuthStateChanged(
-    auth,
-    async (user) => {
-      if (!user) {
-        isResolved = true;
-        activeUid = '';
-        clearTimeout(timeoutGuard);
-        window.location.replace(redirectUnauthenticated);
+  const completeAuthenticatedSession = async (user, preloadedProfile = null) => {
+    if (!user) return;
+    if (isResolved && activeUid === user.uid) return;
+    isResolved = true;
+    activeUid = user.uid;
+    clearTimeout(timeoutGuard);
+
+    if (requireVerified) {
+      const verified = await resolveVerifiedSession(user);
+      if (!verified) {
+        window.location.replace('/verify.html');
         return;
       }
+    }
 
-      if (isResolved && activeUid === user.uid) return;
-      isResolved = true;
-      activeUid = user.uid;
-      clearTimeout(timeoutGuard);
-
-      if (requireVerified) {
-        const verified = await resolveVerifiedSession(user);
-        if (!verified) {
-          window.location.replace('/verify.html');
-          return;
-        }
-      }
-
-      let profile = null;
+    let profile = preloadedProfile;
+    if (!profile) {
       try {
         profile = await ensureUserProfile(user);
       } catch {
         notifyUser('Site is busy right now. Profile details will sync shortly.', 'busy');
       }
+    }
 
-      const shell = document.getElementById('app-shell');
-      if (shell) shell.hidden = false;
-      const gate = document.getElementById('auth-loading-gate');
-      if (gate) gate.hidden = true;
+    const shell = document.getElementById('app-shell');
+    if (shell) shell.hidden = false;
+    const gate = document.getElementById('auth-loading-gate');
+    if (gate) gate.hidden = true;
 
-      if (typeof onAuthenticated === 'function') {
-        onAuthenticated(user, profile);
+    if (typeof onAuthenticated === 'function') {
+      onAuthenticated(user, profile);
+    }
+  };
+
+  return onAuthStateChanged(
+    auth,
+    async (user) => {
+      if (user) {
+        await completeAuthenticatedSession(user);
+        return;
       }
+
+      const local = await restoreLocalSessionFromServer();
+      if (local?.user) {
+        await completeAuthenticatedSession(local.user, local.profile || null);
+        return;
+      }
+
+      isResolved = true;
+      activeUid = '';
+      clearTimeout(timeoutGuard);
+      window.location.replace(redirectUnauthenticated);
     },
-    (error) => {
+    async (error) => {
+      const local = await restoreLocalSessionFromServer().catch(() => null);
+      if (local?.user) {
+        await completeAuthenticatedSession(local.user, local.profile || null);
+        return;
+      }
       isResolved = true;
       clearTimeout(timeoutGuard);
       notifyUser(formatFriendlyError(error, 'You cannot enter right now. Site is busy.'), 'busy');
@@ -154,7 +192,14 @@ export function redirectIfAuthenticated({ defaultTarget = '/app.html', respectLa
     if (typeof shouldRedirect === 'function' && !shouldRedirect()) {
       return;
     }
-    if (!user) {
+    let resolvedUser = user;
+    if (!resolvedUser) {
+      const local = await restoreLocalSessionFromServer().catch(() => null);
+      if (local?.user) {
+        resolvedUser = local.user;
+      }
+    }
+    if (!resolvedUser) {
       revealPage();
       return;
     }
@@ -165,8 +210,9 @@ export function redirectIfAuthenticated({ defaultTarget = '/app.html', respectLa
   };
 
   window.addEventListener('pageshow', (event) => {
-    if (event.persisted && auth.currentUser) {
-      handleUser(auth.currentUser);
+    const active = getActiveAuthUser();
+    if (event.persisted && active) {
+      void handleUser(active);
     }
   });
 
@@ -174,15 +220,16 @@ export function redirectIfAuthenticated({ defaultTarget = '/app.html', respectLa
 }
 
 export async function signOutSession(redirectTo = '/login.html') {
+  clearLocalSession();
   try {
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
   } catch {}
-  await signOut(auth);
+  await signOut(auth).catch(() => {});
   window.location.replace(redirectTo);
 }
 
 export async function changeAccountEmail(newEmail) {
-  if (!auth.currentUser) throw new Error('You are not signed in right now.');
+  if (!auth.currentUser) throw new Error('Email updates are available for Google-linked sessions only.');
   try {
     await verifyBeforeUpdateEmail(auth.currentUser, newEmail);
   } catch (err) {
@@ -193,7 +240,7 @@ export async function changeAccountEmail(newEmail) {
 }
 
 export async function changeAccountPassword(newPassword) {
-  if (!auth.currentUser) throw new Error('You are not signed in right now.');
+  if (!auth.currentUser) throw new Error('Please sign in with a Firebase session to change password here.');
   try {
     await updatePassword(auth.currentUser, newPassword);
   } catch (err) {
@@ -204,7 +251,7 @@ export async function changeAccountPassword(newPassword) {
 }
 
 export async function deactivateCurrentAccount(reason = 'user_requested') {
-  const user = auth.currentUser;
+  const user = getActiveAuthUser();
   if (!user) throw new Error('You are not signed in right now.');
   try {
     const token = await user.getIdToken();
@@ -226,7 +273,7 @@ export async function deactivateCurrentAccount(reason = 'user_requested') {
 }
 
 export async function deleteCurrentAccount() {
-  const user = auth.currentUser;
+  const user = getActiveAuthUser();
   if (!user) throw new Error('You are not signed in right now.');
   const uid = user.uid;
 
@@ -243,11 +290,14 @@ export async function deleteCurrentAccount() {
         body: JSON.stringify({ confirmText: 'DELETE' }),
       }).catch(() => {});
     }
-    await deleteDoc(doc(db, 'users', uid, 'private', 'account_state')).catch(() => {});
-    await deleteDoc(doc(db, 'users', uid, 'private', 'info')).catch(() => {});
-    await deleteDoc(doc(db, 'users', uid)).catch(() => {});
+    if (!user.isNexoraAccount) {
+      await deleteDoc(doc(db, 'users', uid, 'private', 'account_state')).catch(() => {});
+      await deleteDoc(doc(db, 'users', uid, 'private', 'info')).catch(() => {});
+      await deleteDoc(doc(db, 'users', uid)).catch(() => {});
+      await deleteUser(user);
+    }
+    clearLocalSession();
     await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' }).catch(() => {});
-    await deleteUser(user);
     window.location.replace('/index.html?landing=1');
   } catch (error) {
     throw new Error(
